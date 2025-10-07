@@ -2,14 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import * as dotenv from 'dotenv';
 import * as fs from 'fs';
-
-// Cargar variables de entorno
-dotenv.config();
+import * as path from 'path';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
@@ -19,8 +18,21 @@ dotenv.config();
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: false,
-      ssl: {
-        ca: fs.readFileSync(__dirname + '/../src/config/.ca.pem'),
+       ssl: {
+        ca: process.env.CA_CERT
+          ? Buffer.from(process.env.CA_CERT, 'utf-8')
+          : fs.readFileSync(
+              path.resolve(
+                __dirname,
+                '..',
+                '..',
+                '2025_proyecto2_back_ventas',
+                'src',
+                'config',
+                'ca.pem',
+              ),
+            ),
+        rejectUnauthorized: true,
       },
     }),
   ],
