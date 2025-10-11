@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Venta } from 'src/modules/ventas/entities/venta.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('usuarios')
 export class Usuario {
@@ -71,4 +72,7 @@ export class Usuario {
   @OneToMany(() => TokenReinicioContraseña, (token) => token.usuario)
   tokenReinicioContraseña: TokenReinicioContraseña[]
   */
+
+  @OneToMany(() => Venta, (venta) => venta.usuario)
+  ventas: Venta[];
 }
