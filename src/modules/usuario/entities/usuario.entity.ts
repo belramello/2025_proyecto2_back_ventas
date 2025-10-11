@@ -24,6 +24,15 @@ export class Usuario {
   @Column()
   apellido: string;
 
+  /*
+  @ApiProperty({
+    example: 'Auditor',
+    description: 'Rol del usuario',
+  })
+  @ManyToOne(() => Rol, (rol) => rol.usuarios)
+  Rol: Rol
+  */
+
   @ApiProperty({
     example: 'alejo@gmail.com',
     description: 'Email único del usuario',
@@ -44,4 +53,22 @@ export class Usuario {
   })
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   fechaHoraCreacion: Date;
+
+  /*
+  @ApiProperty({
+    type: () => [HistorialSesion],
+    description: 'Historial de sesiones del usuario',
+  })
+  @OneToMany(() => HistorialSesion, (historial) => historial.usuario)
+  historialSesion: HistorialSesion[];
+  */
+
+  /*
+  @ApiProperty({
+    type: () => [TokenReinicioContraseña],
+    description: 'Tokens de reinicio de contraseña asociados al usuario',
+  })
+  @OneToMany(() => TokenReinicioContraseña, (token) => token.usuario)
+  tokenReinicioContraseña: TokenReinicioContraseña[]
+  */
 }
