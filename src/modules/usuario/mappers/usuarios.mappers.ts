@@ -14,5 +14,4 @@ export class UsuariosMappers {
       // rol: usuario.Rol
     };
   }
-
 }
