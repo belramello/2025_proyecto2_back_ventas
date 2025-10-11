@@ -5,6 +5,13 @@ import { AppService } from './app.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
+import { UsuarioModule } from './modules/usuario/usuario.module';
+import { Usuario } from './modules/usuario/entities/usuario.entity';
+
+const entities = [
+  Usuario,
+  //
+];
 
 @Module({
   imports: [
@@ -16,9 +23,9 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false,
-       ssl: {
+      entities: entities,
+      synchronize: true,
+      ssl: {
         ca: process.env.CA_CERT
           ? Buffer.from(process.env.CA_CERT, 'utf-8')
           : fs.readFileSync(
@@ -35,6 +42,8 @@ import { ConfigModule } from '@nestjs/config';
         rejectUnauthorized: true,
       },
     }),
+    TypeOrmModule.forFeature(entities),
+    UsuarioModule,
   ],
   controllers: [AppController],
   providers: [AppService],

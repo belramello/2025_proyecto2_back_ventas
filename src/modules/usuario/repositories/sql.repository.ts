@@ -4,6 +4,7 @@ import { IUsuarioRepository } from './usuarios-repository.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { Injectable } from '@nestjs/common';
+import { hashPassword } from '../../../helpers/password.helper';
 
 @Injectable()
 export class UsuarioRepositorySQL implements IUsuarioRepository {
@@ -13,7 +14,11 @@ export class UsuarioRepositorySQL implements IUsuarioRepository {
   ) {}
 
   async createUsuario(data: CreateUsuarioDto): Promise<Usuario> {
-    const newUsuario = this.usuarioRepository.create(data);
+    const hashedPassword = await hashPassword(data.password);
+    const newUsuario = this.usuarioRepository.create({
+      ...data,
+      password: hashedPassword,
+    });
     return await this.usuarioRepository.save(newUsuario);
   }
 }
