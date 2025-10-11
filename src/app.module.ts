@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
+import { ProductosModule } from './modules/productos/productos.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ConfigModule } from '@nestjs/config';
         rejectUnauthorized: true,
       },
     }),
+    ProductosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
