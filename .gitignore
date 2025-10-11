@@ -36,7 +36,6 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # dotenv environment variable files
-env
 .env
 .env.development.local
 .env.test.local
@@ -57,7 +56,4 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Certificates
-./src/config/.ca.pem
-./src/config/ca.pem
 .ca.pem
-ca.pem
