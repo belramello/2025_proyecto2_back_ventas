@@ -1,17 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-   app.enableCors(); // Habilita CORS para el frontend
+  app.enableCors(); // Habilita CORS para el frontend
   app.useGlobalPipes(
     new ValidationPipe({
-    whitelist: true,            // elimina propiedades que no están en el DTO
-    forbidNonWhitelisted: true, // lanza error si vienen propiedades extra
-    transform: true,            // transforma tipos automáticamente (string → number, string → Date, etc.)
-  }),
+      whitelist: true, // elimina propiedades que no están en el DTO
+      forbidNonWhitelisted: true, // lanza error si vienen propiedades extra
+      transform: true, // transforma tipos automáticamente (string → number, string → Date, etc.)
+    }),
   );
 
   // Configuración básica de Swagger
