@@ -3,19 +3,31 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('usuarios')
 export class Usuario {
-  @ApiProperty({ example: 1, description: 'Identificador único del usuario' })
+  @ApiProperty({
+    example: 1,
+    description: 'Identificador único del usuario',
+  })
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ApiProperty({ example: 'Alejo', description: 'Nombre del usuario' })
+  @ApiProperty({
+    example: 'Alejo',
+    description: 'Nombre del usuario',
+  })
   @Column()
   nombre: string;
 
-  @ApiProperty({ example: 'De Miguel', description: 'Apellido del usuario' })
+  @ApiProperty({
+    example: 'De Miguel',
+    description: 'Apellido del usuario',
+  })
   @Column()
   apellido: string;
 
-  @ApiProperty({ example: 'alejo@gmail.com', description: 'Email del usuario' })
+  @ApiProperty({
+    example: 'alejo@gmail.com',
+    description: 'Email único del usuario',
+  })
   @Column({ unique: true })
   email: string;
 
