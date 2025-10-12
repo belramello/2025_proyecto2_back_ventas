@@ -2,7 +2,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
-
+import {
+  addTransactionalDataSource,
+  initializeTransactionalContext,
+} from 'typeorm-transactional';
+import { DataSource } from 'typeorm';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors(); // Habilita CORS para el frontend
@@ -13,15 +17,19 @@ async function bootstrap() {
       transform: true, // transforma tipos automáticamente (string → number, string → Date, etc.)
     }),
   );
+  //Para poder utilizar @Transactional()
+  initializeTransactionalContext();
+  const dataSource = app.get(DataSource);
+  addTransactionalDataSource(dataSource);
 
   // Configuración básica de Swagger
   const config = new DocumentBuilder()
     .setTitle('API de Gestión de Ventas')
     .setDescription(
-      'Aplicación para gestionar productos, marcas, lineas, proveedores  y ventas',
+      'Aplicación para gestionar productos, marcas, lineas, proveedores y ventas',
     )
     .setVersion('1.0')
-    .addTag('IMC')
+    .addTag('Proyecto de Gestión de Ventas')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

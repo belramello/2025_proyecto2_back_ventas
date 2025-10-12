@@ -5,36 +5,36 @@ import {
   DeleteDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { DetalleVenta } from '../detalle-ventas/entities/detalle-venta.entity';
 
 @Entity('ventas')
 export class Venta {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column({ type: 'date' })
-  fecha: Date;
-
-  @Column({ type: 'time' })
-  hora: string;
-
   @Column()
   total: number;
 
-  @Column()
+  @Column({ enum: ['efectivo', 'credito', 'debito'] })
   medioDePago: string;
-
+  /*
   @ManyToOne(() => Usuario, (usuario) => usuario.ventas)
-  usuario: Usuario;
+  vendedor: Usuario;
+*/
+  @OneToMany(() => DetalleVenta, (detalleVenta) => detalleVenta.venta, {
+    cascade: true,
+  })
+  detalleVentas: DetalleVenta[];
 
   @CreateDateColumn()
   fechaCreacion: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ nullable: true })
   fechaActualizacion: Date;
 
-  @DeleteDateColumn()
+  @DeleteDateColumn({ nullable: true })
   fechaEliminacion: Date;
 }

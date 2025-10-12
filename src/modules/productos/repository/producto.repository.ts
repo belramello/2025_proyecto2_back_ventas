@@ -1,12 +1,12 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { CreateProductoDto } from "../dto/create-producto.dto";
-import { UpdateProductoDto } from "../dto/update-producto.dto";
-import { Producto } from "../entities/producto.entity";
-import { IProductosRepository } from "./producto-repository.interface";
-import { Repository, UpdateResult } from "typeorm";
-import { InternalServerErrorException } from "@nestjs/common";
-import { FindOneProductoDto } from "../dto/findOne-producto.dto";
-import { DeleteProductoDto } from "../dto/delete-producto.dto";
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateProductoDto } from '../dto/create-producto.dto';
+import { UpdateProductoDto } from '../dto/update-producto.dto';
+import { Producto } from '../entities/producto.entity';
+import { IProductosRepository } from './producto-repository.interface';
+import { Repository, UpdateResult } from 'typeorm';
+import { InternalServerErrorException } from '@nestjs/common';
+import { FindOneProductoDto } from '../dto/findOne-producto.dto';
+import { DeleteProductoDto } from '../dto/delete-producto.dto';
 
 export class ProductosRepository implements IProductosRepository {
   constructor(
@@ -18,7 +18,6 @@ export class ProductosRepository implements IProductosRepository {
     try {
       const producto = this.productoRepository.create({
         ...createProductoDto,
-        fechaCreacion: new Date(),
       });
       return await this.productoRepository.save(producto);
     } catch (error) {
@@ -32,7 +31,7 @@ export class ProductosRepository implements IProductosRepository {
     try {
       return await this.productoRepository.find({
         where: { usuarioId },
-        order: { fechaCreacion: "DESC" },
+        order: { fechaCreacion: 'DESC' },
       });
     } catch (error) {
       throw new InternalServerErrorException(
@@ -41,23 +40,46 @@ export class ProductosRepository implements IProductosRepository {
     }
   }
 
-async findOne(data: FindOneProductoDto): Promise<Producto> {
-  try {
-    const producto = await this.productoRepository.findOne({
-      where: { id: data.id },
-    });
-    if (!producto) {
+  async findOne(data: FindOneProductoDto): Promise<Producto> {
+    try {
+      const producto = await this.productoRepository.findOne({
+        where: { id: data.id },
+      });
+      if (!producto) {
+        throw new InternalServerErrorException(
+          `No se encontró el producto con ID ${data.id}`,
+        );
+      }
+      return producto;
+    } catch (error) {
       throw new InternalServerErrorException(
-        `No se encontró el producto con ID ${data.id}`,
+        `Error al buscar el producto con ID ${data.id}: ${error.message}`,
       );
     }
-    return producto;
-  } catch (error) {
-    throw new InternalServerErrorException(
-      `Error al buscar el producto con ID ${data.id}: ${error.message}`,
-    );
   }
-}
+
+  async decrementStock(id: number, cantidad: number): Promise<UpdateResult> {
+    try {
+      const result = await this.productoRepository
+        .createQueryBuilder()
+        .update(Producto)
+        .set({ stock: () => 'stock - :cantidad' })
+        .where('id = :id AND stock >= :cantidad', { id, cantidad })
+        .execute();
+
+      if (result.affected === 0) {
+        throw new InternalServerErrorException(
+          `No se pudo descontar stock: producto no existe o stock insuficiente.`,
+        );
+      }
+
+      return result;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al actualizar el producto con ID ${id}: ${error.message}`,
+      );
+    }
+  }
 
   async update(id: number, data: UpdateProductoDto): Promise<UpdateResult> {
     try {

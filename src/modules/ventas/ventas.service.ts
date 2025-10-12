@@ -1,11 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateVentaDto } from './dto/create-venta.dto';
-import { UpdateVentaDto } from './dto/update-venta.dto';
+import * as ventasRepositoryInterface from './repositories/ventas-repository.interface';
+import { Transactional } from 'typeorm-transactional';
+import { VentasMapper } from './mappers/ventas.mapper';
+import { RespuestaCreateVentaDto } from './dto/respuesta-create-venta.dto';
 
 @Injectable()
 export class VentasService {
-  create(createVentaDto: CreateVentaDto) {
-    return 'This action adds a new venta';
+  constructor(
+    @Inject('IVentasRepository')
+    private readonly ventasRepository: ventasRepositoryInterface.IVentasRepository,
+    private readonly ventasMapper: VentasMapper,
+  ) {}
+  //Falta agregar vendedor id
+  @Transactional()
+  async create(
+    createVentaDto: CreateVentaDto,
+  ): Promise<RespuestaCreateVentaDto> {
+    const venta = await this.ventasRepository.create(createVentaDto);
+    return this.ventasMapper.toResponseDto(venta);
   }
 
   findAll() {
@@ -14,13 +27,5 @@ export class VentasService {
 
   findOne(id: number) {
     return `This action returns a #${id} venta`;
-  }
-
-  update(id: number, updateVentaDto: UpdateVentaDto) {
-    return `This action updates a #${id} venta`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} venta`;
   }
 }

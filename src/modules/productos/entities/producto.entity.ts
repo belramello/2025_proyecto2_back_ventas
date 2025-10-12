@@ -1,41 +1,53 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { DetalleVenta } from 'src/modules/ventas/detalle-ventas/entities/detalle-venta.entity';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 //Tabla Productos
-@Entity("Productos")
+@Entity('productos')
 export class Producto {
-    @PrimaryGeneratedColumn()
-    id:number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column()
-    nombre:string;
+  @Column()
+  nombre: string;
 
-    @Column()
-    precio:number;
+  @Column()
+  precio: number;
 
-    @Column()
-    marca:string; //Reemplazar por entidad Marca
+  @Column()
+  marca: string; //Reemplazar por entidad Marca
 
-    @Column()
-    stock:number;
+  @Column()
+  stock: number;
 
-    @Column()
-    linea:string; //Reemplazar por entidad Linea
+  @Column()
+  linea: string; //Reemplazar por entidad Linea
 
-    @Column()
-    fotoUrl:string;
+  @Column()
+  fotoUrl: string;
 
-    @Column()
-    fechaCreacion:Date;
+  @OneToMany(() => DetalleVenta, (detalleVenta) => detalleVenta.producto)
+  detalleVentas: DetalleVenta[];
 
-    @Column({nullable:true}) //Puede no tener fecha de actualizacion
-    fechaActualizacion:Date;
+  @CreateDateColumn()
+  fechaCreacion: Date;
 
-    @Column({nullable:true}) //Puede no tener fecha de eliminacion
-    fechaEliminacion:Date;
+  @UpdateDateColumn()
+  fechaActualizacion: Date;
 
-    @Column()
-    descripcion:string;
+  @DeleteDateColumn()
+  fechaEliminacion: Date;
 
-    @Column()
-    usuarioId:number; //Reemplazar por entidad Usuario
+  @Column()
+  descripcion: string;
+
+  @Column()
+  usuarioId: number; //Reemplazar por entidad Usuario
 }

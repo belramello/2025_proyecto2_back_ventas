@@ -72,7 +72,8 @@ export class Usuario {
   @OneToMany(() => TokenReinicioContraseña, (token) => token.usuario)
   tokenReinicioContraseña: TokenReinicioContraseña[]
   */
-
-  @OneToMany(() => Venta, (venta) => venta.usuario)
+  /*
+  @OneToMany(() => Venta, (venta) => venta.vendedor)
   ventas: Venta[];
+  */
 }
