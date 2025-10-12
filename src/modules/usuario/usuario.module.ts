@@ -16,6 +16,6 @@ import { Usuario } from './entities/usuario.entity';
     UsuariosMappers,
     ConfigService,
   ],
-  exports: [UsuarioRepositorySQL],
+  exports: [UsuarioRepositorySQL, UsuarioService],
 })
 export class UsuarioModule {}
