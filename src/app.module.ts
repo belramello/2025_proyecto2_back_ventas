@@ -7,6 +7,7 @@ import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { JwtModule } from './modules/jwt/jwt.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     UsuarioModule,
     AuthModule,
+    JwtModule,
   ],
   controllers: [AppController],
   providers: [AppService],
