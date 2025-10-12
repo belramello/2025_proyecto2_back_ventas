@@ -6,6 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { UsuarioModule } from './modules/usuario/usuario.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { UsuarioModule } from './modules/usuario/usuario.module';
       },
     }),
     UsuarioModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
