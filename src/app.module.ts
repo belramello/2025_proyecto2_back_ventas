@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
+import { ProductosModule } from './modules/productos/productos.module';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { ConfigModule } from '@nestjs/config';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false,
+      synchronize: true,
        ssl: {
         ca: process.env.CA_CERT
           ? Buffer.from(process.env.CA_CERT, 'utf-8')
@@ -35,6 +36,7 @@ import { ConfigModule } from '@nestjs/config';
         rejectUnauthorized: true,
       },
     }),
+    ProductosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
