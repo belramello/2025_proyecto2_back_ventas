@@ -22,8 +22,8 @@ export class UsuarioService {
     return `This action returns all usuario`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} usuario`;
+  findOne(id: number): Promise<Usuario | null> {
+    return this.usuariosRepository.findOne(id);
   }
 
   update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
@@ -32,5 +32,9 @@ export class UsuarioService {
 
   remove(id: number) {
     return `This action removes a #${id} usuario`;
+  }
+
+  async findByEmail(email: string): Promise<Usuario | null> {
+    return this.usuariosRepository.findByEmail(email);
   }
 }

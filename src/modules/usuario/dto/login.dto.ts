@@ -17,5 +17,5 @@ export class LoginDto {
   })
   @IsNotEmpty({ message: 'La contraseña no debe estar vacía' })
   @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
-  contraseña: string;
+  password: string;
 }
