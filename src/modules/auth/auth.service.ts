@@ -71,14 +71,14 @@ export class AuthService {
   }
 
   async refresh(refreshToken: string): Promise<LoginResponseDto> {
-    const tokens = this.jwtService.refrestToken(refreshToken);
+    const tokens = this.jwtService.refreshToken(refreshToken);
     const payload = this.jwtService.getPayload(refreshToken, 'refresh') as {
       sub: string;
       email: string;
     };
     const user = await this.validateUser(parseInt(payload.sub));
     return {
-      accessToken: tokens.accesToken,
+      accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken || refreshToken,
       usuario: {
         id: user.id,
