@@ -18,7 +18,7 @@ import { ProductosModule } from './modules/productos/productos.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: false,
+      synchronize: true,
        ssl: {
         ca: process.env.CA_CERT
           ? Buffer.from(process.env.CA_CERT, 'utf-8')

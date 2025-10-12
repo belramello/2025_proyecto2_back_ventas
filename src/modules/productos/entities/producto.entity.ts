@@ -1,13 +1,16 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 //Tabla Productos
-@Entity("Productos")
+@Entity("productos")
 export class Producto {
     @PrimaryGeneratedColumn()
     id:number;
 
     @Column()
     nombre:string;
+
+    @Column()
+    codigo:string;
 
     @Column()
     precio:number;
@@ -24,13 +27,13 @@ export class Producto {
     @Column()
     fotoUrl:string;
 
-    @Column()
+    @CreateDateColumn() 
     fechaCreacion:Date;
 
-    @Column({nullable:true}) //Puede no tener fecha de actualizacion
+    @UpdateDateColumn({nullable:true}) //Puede no tener fecha de actualizacion
     fechaActualizacion:Date;
 
-    @Column({nullable:true}) //Puede no tener fecha de eliminacion
+    @DeleteDateColumn({nullable:true}) //Puede no tener fecha de eliminacion
     fechaEliminacion:Date;
 
     @Column()
