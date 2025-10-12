@@ -31,7 +31,7 @@ export class DetalleVentasService {
       //calculo el total para los detalles recibidos.
       const precioUnitario = producto.precio;
       total += precioUnitario * item.cantidad;
-
+      console;
       // Crear y guardar el detalle
       await this.create({
         venta,
@@ -40,6 +40,7 @@ export class DetalleVentasService {
         precioUnitario,
       });
       //Actualia el stock para el producto.
+      console.log('producto actualizado');
       await this.productosService.decrementarStock(producto, item.cantidad);
     }
     return { total };

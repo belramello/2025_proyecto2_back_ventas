@@ -4,7 +4,6 @@ import { UpdateProductoDto } from './dto/update-producto.dto';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
 import type { IProductosRepository } from './repository/producto-repository.interface';
 import { ProductosValidator } from './helpers/productos-validator';
-import { DetalleVentaDto } from '../ventas/detalle-ventas/dto/detalle-venta.dto';
 import { Producto } from './entities/producto.entity';
 
 @Injectable()

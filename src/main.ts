@@ -8,6 +8,8 @@ import {
 } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
 async function bootstrap() {
+  //Para poder utilizar @Transactional()
+  initializeTransactionalContext();
   const app = await NestFactory.create(AppModule);
   app.enableCors(); // Habilita CORS para el frontend
   app.useGlobalPipes(
@@ -18,7 +20,6 @@ async function bootstrap() {
     }),
   );
   //Para poder utilizar @Transactional()
-  initializeTransactionalContext();
   const dataSource = app.get(DataSource);
   addTransactionalDataSource(dataSource);
 

@@ -1,7 +1,8 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Producto } from 'src/modules/productos/entities/producto.entity';
 import { ProductosService } from 'src/modules/productos/productos.service';
 
+@Injectable()
 export class DetalleVentasValidator {
   constructor(private readonly productosService: ProductosService) {}
 

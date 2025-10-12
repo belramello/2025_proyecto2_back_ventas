@@ -4,12 +4,13 @@ import * as ventasRepositoryInterface from './repositories/ventas-repository.int
 import { Transactional } from 'typeorm-transactional';
 import { VentasMapper } from './mappers/ventas.mapper';
 import { RespuestaCreateVentaDto } from './dto/respuesta-create-venta.dto';
+import type { IVentasRepository } from './repositories/ventas-repository.interface';
 
 @Injectable()
 export class VentasService {
   constructor(
     @Inject('IVentasRepository')
-    private readonly ventasRepository: ventasRepositoryInterface.IVentasRepository,
+    private readonly ventasRepository: IVentasRepository,
     private readonly ventasMapper: VentasMapper,
   ) {}
   //Falta agregar vendedor id
