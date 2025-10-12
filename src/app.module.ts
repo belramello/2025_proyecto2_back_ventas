@@ -6,12 +6,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { UsuarioModule } from './modules/usuario/usuario.module';
-import { Usuario } from './modules/usuario/entities/usuario.entity';
-
-const entities = [
-  Usuario,
-  //
-];
 
 @Module({
   imports: [
@@ -23,7 +17,7 @@ const entities = [
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities: entities,
+      entities: [__dirname + '/**/*.entity{.ts, .js}'],
       synchronize: true,
       ssl: {
         ca: process.env.CA_CERT
@@ -42,7 +36,6 @@ const entities = [
         rejectUnauthorized: true,
       },
     }),
-    TypeOrmModule.forFeature(entities),
     UsuarioModule,
   ],
   controllers: [AppController],
