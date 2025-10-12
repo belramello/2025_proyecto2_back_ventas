@@ -21,7 +21,7 @@ async function bootstrap() {
       'Aplicación para gestionar productos, marcas, lineas, proveedores  y ventas',
     )
     .setVersion('1.0')
-    .addTag('IMC')
+    .addTag('Gestion de Ventas')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
