@@ -1,10 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateVentaDto } from './dto/create-venta.dto';
-import * as ventasRepositoryInterface from './repositories/ventas-repository.interface';
 import { Transactional } from 'typeorm-transactional';
 import { VentasMapper } from './mappers/ventas.mapper';
 import { RespuestaCreateVentaDto } from './dto/respuesta-create-venta.dto';
 import type { IVentasRepository } from './repositories/ventas-repository.interface';
+import { RespuestaFindOneVentaDto } from './dto/respuesta-find-one-venta.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { RespuestaFindAllPaginatedVentaDTO } from './dto/respuesta-find-all-paginated-venta.dto';
 
 @Injectable()
 export class VentasService {
@@ -19,14 +21,23 @@ export class VentasService {
     createVentaDto: CreateVentaDto,
   ): Promise<RespuestaCreateVentaDto> {
     const venta = await this.ventasRepository.create(createVentaDto);
-    return this.ventasMapper.toResponseDto(venta);
+    return this.ventasMapper.toRespuestaCreateVentaDto(venta);
   }
 
-  findAll() {
-    return `This action returns all ventas`;
+  async findAllPaginated(
+    paginationDto: PaginationDto,
+  ): Promise<RespuestaFindAllPaginatedVentaDTO> {
+    const { limit = 10, page = 1 } = paginationDto;
+    return this.ventasMapper.toRespuestaFindAllPaginatedVentaDTO(
+      await this.ventasRepository.findAllPaginated(page, limit),
+    );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} venta`;
+  async findOne(id: number): Promise<RespuestaFindOneVentaDto> {
+    const venta = await this.ventasRepository.findOne(id);
+    if (!venta) {
+      throw new NotFoundException(`No se encontró la venta con ID ${id}`);
+    }
+    return this.ventasMapper.toRespuestaFinalFindOneDto(venta);
   }
 }

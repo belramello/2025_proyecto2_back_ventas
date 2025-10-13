@@ -1,10 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateDetalleVentaDto } from './dto/create-detalle-venta.dto';
 import { Venta } from '../entities/venta.entity';
 import { DetalleVentasValidator } from './helpers/detalle-venta.validator';
 import { DetalleVentaDto } from './dto/detalle-venta.dto';
 import type { IDetalleVentasRepository } from './repositories/detalle-ventas-repository.interface';
 import { ProductosService } from 'src/modules/productos/productos.service';
+import { RespuestaFindOneDetalleVentaDto } from './dto/respuesta-find-one-detalle-venta.dto';
+import { DetalleVentaMapper } from './mappers/detalle-venta.mapper';
 
 @Injectable()
 export class DetalleVentasService {
@@ -13,6 +15,7 @@ export class DetalleVentasService {
     private readonly detalleVentasRepository: IDetalleVentasRepository,
     private readonly detalleVentasValidator: DetalleVentasValidator,
     private readonly productosService: ProductosService,
+    private readonly detalleVentasMapper: DetalleVentaMapper,
   ) {}
 
   async createDetalles(
@@ -39,22 +42,24 @@ export class DetalleVentasService {
         cantidad: item.cantidad,
         precioUnitario,
       });
-      //Actualia el stock para el producto.
+      //Actualiza el stock para el producto.
       console.log('producto actualizado');
       await this.productosService.decrementarStock(producto, item.cantidad);
     }
     return { total };
   }
 
-  async create(createDetalleVentaDto: CreateDetalleVentaDto) {
-    return await this.detalleVentasRepository.create(createDetalleVentaDto);
+  async create(createDetalleVentaDto: CreateDetalleVentaDto): Promise<void> {
+    await this.detalleVentasRepository.create(createDetalleVentaDto);
   }
 
-  findAll() {
-    return `This action returns all detalleVentas`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} detalleVenta`;
+  async findOne(id: number): Promise<RespuestaFindOneDetalleVentaDto> {
+    const detalleVenta = await this.detalleVentasRepository.findOne(id);
+    if (!detalleVenta) {
+      throw new NotFoundException(
+        `No se encontró el detalleVenta con ID ${id}`,
+      );
+    }
+    return this.detalleVentasMapper.toResponseDto(detalleVenta);
   }
 }
