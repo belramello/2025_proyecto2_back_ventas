@@ -6,9 +6,10 @@ import { UsuarioRepositorySQL } from './repositories/sql.repository';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Usuario])],
+  imports: [TypeOrmModule.forFeature([Usuario]), AuthModule],
   controllers: [UsuarioController],
   providers: [
     UsuarioService,
@@ -16,6 +17,6 @@ import { Usuario } from './entities/usuario.entity';
     UsuariosMappers,
     ConfigService,
   ],
-  exports: [UsuarioRepositorySQL],
+  exports: [UsuarioRepositorySQL, UsuarioService],
 })
 export class UsuarioModule {}

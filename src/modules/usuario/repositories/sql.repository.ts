@@ -21,4 +21,12 @@ export class UsuarioRepositorySQL implements IUsuarioRepository {
     });
     return await this.usuarioRepository.save(newUsuario);
   }
+
+  async findByEmail(email: string): Promise<Usuario | null> {
+    return this.usuarioRepository.findOne({ where: { email } });
+  }
+
+  async findOne(id: number): Promise<Usuario | null> {
+    return this.usuarioRepository.findOne({ where: { id } });
+  }
 }
