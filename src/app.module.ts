@@ -10,6 +10,7 @@ import { VentasModule } from './modules/ventas/ventas.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from './modules/jwt/jwt.module';
+import { HistorialActividadesModule } from './modules/historial-actividades/historial-actividades.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { JwtModule } from './modules/jwt/jwt.module';
     UsuarioModule,
     AuthModule,
     JwtModule,
+    HistorialActividadesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
