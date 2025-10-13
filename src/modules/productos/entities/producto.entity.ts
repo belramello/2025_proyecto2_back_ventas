@@ -25,7 +25,7 @@ export class Producto {
   precio: number;
 
   @Column()
-  marca: string; //Reemplazar por entidad Marca
+  marca: string; //Reemplazar por entidad Marca. Al modificar, modificar DTOs.
 
   @Column()
   stock: number;

@@ -2,8 +2,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DetalleVenta } from '../entities/detalle-venta.entity';
 import { Repository } from 'typeorm';
 import { CreateDetalleVentaDto } from '../dto/create-detalle-venta.dto';
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { IDetalleVentasRepository } from './detalle-ventas-repository.interface';
+import { RespuestaFindOneDetalleVentaDto } from '../dto/respuesta-find-one-detalle-venta.dto';
 
 export class DetalleVentasRepository implements IDetalleVentasRepository {
   constructor(
@@ -24,24 +28,26 @@ export class DetalleVentasRepository implements IDetalleVentasRepository {
     }
   }
 
-  async findAllByVenta(ventaId: number): Promise<any[]> {
+  async findOne(id: number): Promise<DetalleVenta | null> {
     try {
-      const detalles = await this.detalleVentaRepository
-        .createQueryBuilder('detalle')
-        .innerJoinAndSelect('detalle.producto', 'producto')
-        .innerJoinAndSelect('producto.marca', 'marca')
-        .where('detalle.ventaId = :ventaId', { ventaId })
-        .select([
-          'detalle.id AS id',
-          'detalle.cantidad AS cantidad',
-          'detalle.precioUnitario AS precioUnitario',
-          'producto.id AS productoId',
-          'producto.nombre AS productoNombre',
-          'marca.nombre AS marcaNombre',
-          '(detalle.cantidad * detalle.precioUnitario) AS subtotal',
-        ])
-        .getRawMany();
+      const detalle = await this.detalleVentaRepository.findOne({
+        where: { id },
+        relations: ['producto'],
+      });
+      return detalle;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al obtener el detalleVenta: ${error.message}`,
+      );
+    }
+  }
 
+  async findAllByVenta(ventaId: number): Promise<DetalleVenta[]> {
+    try {
+      const detalles = await this.detalleVentaRepository.find({
+        where: { venta: { id: ventaId } },
+        relations: ['producto'],
+      });
       return detalles;
     } catch (error) {
       throw new InternalServerErrorException(
