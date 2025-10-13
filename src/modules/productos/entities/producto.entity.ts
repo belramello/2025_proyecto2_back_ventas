@@ -42,11 +42,11 @@ export class Producto {
   @CreateDateColumn()
   fechaCreacion: Date;
 
-  @UpdateDateColumn()
-  fechaActualizacion: Date;
+    @UpdateDateColumn({nullable:true}) //Puede no tener fecha de actualizacion
+    fechaActualizacion:Date;
 
-  @DeleteDateColumn()
-  fechaEliminacion: Date;
+    @DeleteDateColumn({nullable:true}) //Puede no tener fecha de eliminacion
+    fechaEliminacion:Date;
 
   @Column()
   descripcion: string;
