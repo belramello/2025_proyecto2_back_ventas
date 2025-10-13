@@ -7,6 +7,7 @@ import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { ProductosModule } from './modules/productos/productos.module';
 import { VentasModule } from './modules/ventas/ventas.module';
+import { UsuarioModule } from './modules/usuario/usuario.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { VentasModule } from './modules/ventas/ventas.module';
     }),
     ProductosModule,
     VentasModule,
+    UsuarioModule,
   ],
   controllers: [AppController],
   providers: [AppService],
