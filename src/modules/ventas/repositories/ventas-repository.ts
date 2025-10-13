@@ -2,7 +2,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IVentasRepository } from './ventas-repository.interface';
 import { Venta } from '../entities/venta.entity';
 import { Repository } from 'typeorm';
-import { InternalServerErrorException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Transactional } from 'typeorm-transactional';
 import { DetalleVentasService } from '../detalle-ventas/detalle-ventas.service';
 import { CreateVentaDto } from '../dto/create-venta.dto';
@@ -40,24 +43,57 @@ export class VentasRepository implements IVentasRepository {
     }
   }
 
-  async findAll(): Promise<Venta[]> {
-    return await this.ventasRepository.find();
+  async findAllPaginated(
+    page: number,
+    limit: number,
+  ): Promise<{
+    ventas: Venta[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }> {
+    try {
+      const query = this.ventasRepository
+        .createQueryBuilder('venta')
+        .leftJoinAndSelect('venta.detalleVentas', 'detalleVenta')
+        .leftJoinAndSelect('detalleVenta.producto', 'producto')
+        .orderBy('venta.fechaCreacion', 'DESC')
+        .skip((page - 1) * limit)
+        .take(limit);
+
+      const [ventas, total] = await query.getManyAndCount();
+
+      return {
+        ventas,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al encontrar las ventas paginadas: ${error.message}`,
+      );
+    }
   }
 
   async findOne(ventaId: number): Promise<Venta | null> {
     try {
-      const venta = await this.ventasRepository.findOne({
-        where: { id: ventaId },
-      });
+      const venta = await this.ventasRepository
+        .createQueryBuilder('venta')
+        .leftJoinAndSelect('venta.detalleVentas', 'detalle')
+        .leftJoinAndSelect('detalle.producto', 'producto')
+        .where('venta.id = :ventaId', { ventaId })
+        .getOne();
+
       if (!venta) {
-        throw new InternalServerErrorException(
+        throw new NotFoundException(
           `No se encontró la venta con ID ${ventaId}`,
         );
       }
       return venta;
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error al buscar el producto con ID ${ventaId}: ${error.message}`,
+        `Error al obtener la venta ${ventaId}: ${error.message}`,
       );
     }
   }
