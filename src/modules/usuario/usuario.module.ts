@@ -3,22 +3,23 @@ import { UsuarioService } from './usuario.service';
 import { UsuarioController } from './usuario.controller';
 import { UsuariosMappers } from './mappers/usuarios.mappers';
 import { UsuarioRepository } from './repositories/usuarios-repository';
-import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
 import { AuthModule } from '../auth/auth.module';
+import { UsuariosValidator } from './helpers/usuarios-validator';
+import { RolesModule } from '../roles/roles.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Usuario]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Usuario]), AuthModule, RolesModule],
   controllers: [UsuarioController],
   providers: [
     UsuarioService,
     UsuariosMappers,
-    ConfigService,
     {
       provide: 'IUsuarioRepository',
       useClass: UsuarioRepository,
     },
+    UsuariosValidator,
   ],
   exports: [UsuarioService],
 })

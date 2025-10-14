@@ -6,6 +6,7 @@ import { Rol } from './entities/rol.entity';
 import { PermisosModule } from '../permisos/permisos.module';
 import { RolesRepository } from './repositories/roles-repository';
 import { RolesValidator } from './helpers/roles-validator';
+import { RolesMapper } from './mappers/roles-mapper';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Rol]), PermisosModule],
@@ -17,6 +18,7 @@ import { RolesValidator } from './helpers/roles-validator';
       useClass: RolesRepository,
     },
     RolesValidator,
+    RolesMapper,
   ],
   exports: [RolesService],
 })

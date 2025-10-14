@@ -20,7 +20,6 @@ export class RolesRepository implements IRolesRepository {
       const rol = this.rolesRepository.create({
         ...createRolDto,
       });
-
       if (permisos && permisos.length > 0) {
         rol.permisos = permisos;
       }
@@ -48,9 +47,6 @@ export class RolesRepository implements IRolesRepository {
         where: { id: rolId },
         relations: ['permisos'],
       });
-      if (!rol) {
-        throw new NotFoundException(`Rol con ID ${rolId} no encontrado`);
-      }
       return rol;
     } catch (error) {
       if (error instanceof NotFoundException) {

@@ -11,4 +11,7 @@ export class Permiso {
 
   @ManyToMany(() => Rol, (rol) => rol.permisos)
   roles: Rol[];
+
+  @Column()
+  categoria: string;
 }

@@ -5,11 +5,12 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRolDto } from './dto/create-rol.dto';
 import { UpdatePermisosRolDto } from './dto/update-permisos-rol.dto';
+import { RespuestaFindAllRoles } from './dto/respuesta-find-one-roles.dto';
 
 @Controller('roles')
 export class RolesController {
@@ -21,8 +22,13 @@ export class RolesController {
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<RespuestaFindAllRoles[]> {
     return this.rolesService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.rolesService.findOne(id);
   }
 
   @Patch(':id/permisos')

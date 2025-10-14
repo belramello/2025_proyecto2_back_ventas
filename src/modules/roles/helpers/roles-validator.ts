@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
@@ -37,5 +38,11 @@ export class RolesValidator {
       throw new NotFoundException(`Rol con ID ${rolId} no encontrado`);
     }
     return rol;
+  }
+
+  validateRolModificable(rol: Rol) {
+    if (!rol.modificable) {
+      throw new ForbiddenException('Rol no modificable');
+    }
   }
 }
