@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { UsuarioController } from './usuario.controller';
 import { UsuariosMappers } from './mappers/usuarios.mappers';
-import { UsuarioRepositorySQL } from './repositories/sql.repository';
+import { UsuarioRepository } from './repositories/usuarios-repository';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
@@ -13,10 +13,13 @@ import { AuthModule } from '../auth/auth.module';
   controllers: [UsuarioController],
   providers: [
     UsuarioService,
-    UsuarioRepositorySQL,
     UsuariosMappers,
     ConfigService,
+    {
+      provide: 'IUsuarioRepository',
+      useClass: UsuarioRepository,
+    },
   ],
-  exports: [UsuarioRepositorySQL, UsuarioService],
+  exports: [UsuarioService],
 })
 export class UsuarioModule {}

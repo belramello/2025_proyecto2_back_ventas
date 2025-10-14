@@ -5,7 +5,7 @@ import { LoginDto } from '../usuario/dto/login.dto';
 import { LoginResponseDto } from '../usuario/dto/login-response.dto';
 import { comparePasswords, hashPassword } from 'src/helpers/password.helper';
 import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
-import { Usuario } from '../usuario/entities/usuario.entity';
+import { RespuestaUsuarioDto } from '../usuario/dto/respuesta-usuario.dto';
 
 @Injectable()
 export class AuthService {
@@ -65,7 +65,7 @@ export class AuthService {
         id: newUser.id,
         nombre: newUser.nombre,
         email: newUser.email,
-        rol: newUser.rol.nombre,
+        rol: newUser.rol,
       },
     };
   }
@@ -84,12 +84,12 @@ export class AuthService {
         id: user.id,
         nombre: user.nombre,
         email: user.email,
-        rol: user.rol.nombre,
+        rol: user.rol,
       },
     };
   }
 
-  private async validateUser(id: number): Promise<Usuario> {
+  private async validateUser(id: number): Promise<RespuestaUsuarioDto> {
     const user = await this.userService.findOne(id);
     if (!user) {
       throw new Error('Usuario no encontrado');

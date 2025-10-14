@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Usuario } from '../entities/usuario.entity';
+import { RespuestaUsuarioDto } from './respuesta-usuario.dto';
 
 export class LoginResponseDto {
   @ApiProperty()
