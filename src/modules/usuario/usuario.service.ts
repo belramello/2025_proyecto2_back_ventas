@@ -1,4 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuariosMappers } from './mappers/usuarios.mappers';
@@ -35,12 +40,24 @@ export class UsuarioService {
     return this.usuarioMappers.toResponseDtos(usuarios);
   }
 
-  async findOne(id: number): Promise<RespuestaUsuarioDto> {
+  async findMe(id: number): Promise<RespuestaUsuarioDto> {
     const usuario = await this.usuariosRepository.findOne(id);
     if (!usuario) {
-      throw new Error('Usuario no encontrado');
+      throw new NotFoundException('Usuario no encontrado');
     }
     return this.usuarioMappers.toResponseDto(usuario);
+  }
+
+  async findOne(id: number): Promise<Usuario | null> {
+    const usuario = await this.usuariosRepository.findOne(id);
+    return usuario;
+  }
+
+  async actualizarRolDeUsuario(usuarioId: number, rolId: number) {
+    const rol = await this.usuariosValidator.validateRolExistente(rolId);
+    const usuario =
+      await this.usuariosValidator.validateUsuarioExistente(usuarioId);
+    await this.usuariosRepository.actualizarRolDeUsuario(rol, usuario);
   }
 
   //Implementar actualización de información personal.

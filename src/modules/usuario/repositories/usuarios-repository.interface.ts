@@ -7,4 +7,5 @@ export interface IUsuarioRepository {
   findByEmail(email: string): Promise<Usuario | null>;
   findOne(id: number): Promise<Usuario | null>;
   findAll(): Promise<Usuario[]>;
+  actualizarRolDeUsuario(rol: Rol, usuario: Usuario): Promise<void>;
 }

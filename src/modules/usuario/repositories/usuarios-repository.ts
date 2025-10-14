@@ -51,6 +51,17 @@ export class UsuarioRepository implements IUsuarioRepository {
     }
   }
 
+  async actualizarRolDeUsuario(rol: Rol, usuario: Usuario): Promise<void> {
+    try {
+      usuario.rol = rol;
+      await this.usuarioRepository.save(usuario);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al actualizar el usuario con ID ${usuario.id}: ${error.message}`,
+      );
+    }
+  }
+
   async findOne(id: number): Promise<Usuario | null> {
     try {
       const usuario = this.usuarioRepository.findOne({
