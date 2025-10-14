@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Rol } from 'src/modules/roles/entities/rol.entity';
 import { Venta } from 'src/modules/ventas/entities/venta.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('usuarios')
 export class Usuario {
@@ -25,14 +32,12 @@ export class Usuario {
   @Column()
   apellido: string;
 
-  /*
   @ApiProperty({
     example: 'Auditor',
     description: 'Rol del usuario',
   })
   @ManyToOne(() => Rol, (rol) => rol.usuarios)
-  Rol: Rol
-  */
+  rol: Rol;
 
   @ApiProperty({
     example: 'alejo@gmail.com',
