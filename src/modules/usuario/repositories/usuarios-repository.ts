@@ -64,11 +64,14 @@ export class UsuarioRepository implements IUsuarioRepository {
 
   async findOne(id: number): Promise<Usuario | null> {
     try {
-      const usuario = this.usuarioRepository.findOne({
-        where: { id },
-        relations: ['rol'],
-      });
-      return usuario;
+      const usuario = await this.usuarioRepository
+        .createQueryBuilder('usuario')
+        .leftJoinAndSelect('usuario.rol', 'rol')
+        .leftJoinAndSelect('rol.permisos', 'permiso')
+        .where('usuario.id = :id', { id })
+        .getOne();
+
+      return usuario || null;
     } catch (error) {
       throw new InternalServerErrorException(
         `Error al obtener el usuario con ID ${id}: ${error.message}`,
