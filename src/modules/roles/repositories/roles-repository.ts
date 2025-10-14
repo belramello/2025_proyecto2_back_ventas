@@ -8,6 +8,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Permiso } from 'src/modules/permisos/entities/permiso.entity';
+import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
 
 export class RolesRepository implements IRolesRepository {
   constructor(

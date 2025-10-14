@@ -10,6 +10,7 @@ import { LoginResponseDto } from '../usuario/dto/login-response.dto';
 import { comparePasswords, hashPassword } from 'src/helpers/password.helper';
 import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
 import { RespuestaUsuarioDto } from '../usuario/dto/respuesta-usuario.dto';
+import { Usuario } from '../usuario/entities/usuario.entity';
 
 @Injectable()
 export class AuthService {
@@ -92,12 +93,12 @@ export class AuthService {
         id: user.id,
         nombre: user.nombre,
         email: user.email,
-        rol: user.rol,
+        rol: user.rol.nombre,
       },
     };
   }
 
-  private async validateUser(id: number): Promise<RespuestaUsuarioDto> {
+  private async validateUser(id: number): Promise<Usuario> {
     const user = await this.userService.findOne(id);
     if (!user) {
       throw new Error('Usuario no encontrado');
