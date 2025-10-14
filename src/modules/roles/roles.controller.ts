@@ -14,26 +14,34 @@ import { CreateRolDto } from './dto/create-rol.dto';
 import { UpdatePermisosRolDto } from './dto/update-permisos-rol.dto';
 import { RespuestaFindAllRoles } from './dto/respuesta-find-one-roles.dto';
 import { AuthGuard } from 'src/middlewares/auth.middleware';
+import { PermisosGuard } from 'src/common/guards/permisos.guard';
+import { PermisosEnum } from '../permisos/enum/permisos-enum';
+import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, PermisosGuard)
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
-
+  /*
   @Post()
   create(@Body() createRolDto: CreateRolDto) {
     return this.rolesService.create(createRolDto);
   }
+    */
+
+  @PermisoRequerido(PermisosEnum.ACTUALIZAR_PERMISOS_POR_ROL)
   @Get()
   findAll(): Promise<RespuestaFindAllRoles[]> {
     return this.rolesService.findAll();
   }
 
+  @PermisoRequerido(PermisosEnum.ACTUALIZAR_PERMISOS_POR_ROL)
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.rolesService.findOne(id);
   }
 
+  @PermisoRequerido(PermisosEnum.ACTUALIZAR_PERMISOS_POR_ROL)
   @Patch(':id/permisos')
   updatePermisos(
     @Param('id') id: number,

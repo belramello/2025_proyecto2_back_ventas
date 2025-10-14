@@ -8,12 +8,14 @@ import { Usuario } from './entities/usuario.entity';
 import { AuthModule } from '../auth/auth.module';
 import { UsuariosValidator } from './helpers/usuarios-validator';
 import { RolesModule } from '../roles/roles.module';
+import { JwtModule } from '../jwt/jwt.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Usuario]),
     AuthModule,
     forwardRef(() => RolesModule),
+    JwtModule,
   ],
   controllers: [UsuarioController],
   providers: [
