@@ -37,7 +37,7 @@ export class AuthService {
         id: user.id,
         nombre: user.nombre,
         email: user.email,
-        //rol: user.rol,
+        rol: user.rol.nombre,
       },
     };
   }
@@ -65,7 +65,7 @@ export class AuthService {
         id: newUser.id,
         nombre: newUser.nombre,
         email: newUser.email,
-        //rol: newUser.rol,
+        rol: newUser.rol.nombre,
       },
     };
   }
@@ -84,7 +84,7 @@ export class AuthService {
         id: user.id,
         nombre: user.nombre,
         email: user.email,
-        //rol: user.rol,
+        rol: user.rol.nombre,
       },
     };
   }
