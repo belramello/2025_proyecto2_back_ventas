@@ -49,6 +49,6 @@ export class UsuarioService {
   }
 
   async findByEmail(email: string): Promise<Usuario | null> {
-    return this.usuariosRepository.findByEmail(email);
+    return await this.usuariosRepository.findByEmail(email);
   }
 }
