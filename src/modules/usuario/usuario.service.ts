@@ -1,37 +1,44 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import { UsuarioRepositorySQL } from './repositories/sql.repository';
 import { UsuariosMappers } from './mappers/usuarios.mappers';
-import { ConfigService } from '@nestjs/config';
 import { Usuario } from './entities/usuario.entity';
+import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
+import type { IUsuarioRepository } from './repositories/usuarios-repository.interface';
 
 @Injectable()
 export class UsuarioService {
   constructor(
-    private readonly usuariosRepository: UsuarioRepositorySQL,
+    @Inject('IUsuarioRepository')
+    private readonly usuariosRepository: IUsuarioRepository,
     private readonly usuarioMappers: UsuariosMappers,
-    private readonly configService: ConfigService,
   ) {}
-
-  async createUsuario(CreateUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
-    return await this.usuariosRepository.createUsuario(CreateUsuarioDto);
+  //El usuario se crea desde el endpoint de auth
+  async createUsuario(
+    CreateUsuarioDto: CreateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+    return this.usuarioMappers.toResponseDto(
+      await this.usuariosRepository.createUsuario(CreateUsuarioDto),
+    );
   }
 
-  findAll() {
-    return `This action returns all usuario`;
+  //hacer paginado para mejorar.
+  async findAll(): Promise<RespuestaUsuarioDto[]> {
+    const usuarios = await this.usuariosRepository.findAll();
+    return this.usuarioMappers.toResponseDtos(usuarios);
   }
 
-  findOne(id: number): Promise<Usuario | null> {
-    return this.usuariosRepository.findOne(id);
+  async findOne(id: number): Promise<RespuestaUsuarioDto> {
+    const usuario = await this.usuariosRepository.findOne(id);
+    if (!usuario) {
+      throw new Error('Usuario no encontrado');
+    }
+    return this.usuarioMappers.toResponseDto(usuario);
   }
 
+  //Implementar actualización de información personal.
   update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
     return `This action updates a #${id} usuario`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} usuario`;
   }
 
   async findByEmail(email: string): Promise<Usuario | null> {

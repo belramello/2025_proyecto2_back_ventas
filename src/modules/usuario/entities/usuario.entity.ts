@@ -3,10 +3,11 @@ import { Rol } from 'src/modules/roles/entities/rol.entity';
 import { Venta } from 'src/modules/ventas/entities/venta.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('usuarios')
@@ -57,8 +58,11 @@ export class Usuario {
     example: '2023-10-01T12:00:00Z',
     description: 'Fecha y hora de creación del usuario',
   })
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  fechaHoraCreacion: Date;
+  @CreateDateColumn()
+  fechaCreacion: Date;
+
+  @UpdateDateColumn()
+  fechaActualizacion: Date;
 
   /*
   @ApiProperty({

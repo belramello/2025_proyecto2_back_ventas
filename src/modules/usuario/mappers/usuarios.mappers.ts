@@ -10,8 +10,12 @@ export class UsuariosMappers {
       nombre: usuario.nombre,
       apellido: usuario.apellido,
       email: usuario.email,
-      fechaHoraCreacion: usuario.fechaHoraCreacion,
-      // rol: usuario.Rol
+      fechaHoraCreacion: usuario.fechaCreacion,
+      rol: usuario.rol.nombre,
     };
+  }
+
+  toResponseDtos(usuarios: Usuario[]): RespuestaUsuarioDto[] {
+    return usuarios.map((usuario) => this.toResponseDto(usuario));
   }
 }

@@ -42,13 +42,5 @@ export class RespuestaUsuarioDto {
   })
   fechaHoraCreacion: Date;
 
-  /*
-  @ApiProperty({
-    example: 'Auditor',
-    description: 'Rol del usuario',
-    type: Rol,
-    required: true,
-  })
-  rol: Rol;
-  */
+  rol: string;
 }
