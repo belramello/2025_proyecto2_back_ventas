@@ -20,8 +20,12 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<LoginResponseDto> {
     const user = await this.userService.findByEmail(loginDto.email);
+    console.log('usuario', user);
     if (!user) {
       throw new NotFoundException('Usuario con email no encontrado');
+    }
+    if (!user.rol) {
+      throw new NotFoundException('Usuario sin rol asignado');
     }
     const isPasswordValid = await comparePasswords(
       loginDto.password,

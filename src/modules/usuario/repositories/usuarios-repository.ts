@@ -36,7 +36,7 @@ export class UsuarioRepository implements IUsuarioRepository {
 
   async findByEmail(email: string): Promise<Usuario | null> {
     try {
-      const usuario = this.usuarioRepository.findOne({
+      const usuario = await this.usuarioRepository.findOne({
         where: { email },
         relations: ['rol'],
       });
