@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '../jwt/jwt.service';
 import { UsuarioService } from '../usuario/usuario.service';
 import { LoginDto } from '../usuario/dto/login.dto';
@@ -17,7 +21,7 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<LoginResponseDto> {
     const user = await this.userService.findByEmail(loginDto.email);
     if (!user) {
-      throw new Error('Usuario con email no encontrado');
+      throw new NotFoundException('Usuario con email no encontrado');
     }
     const isPasswordValid = await comparePasswords(
       loginDto.password,
@@ -25,7 +29,7 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      throw new Error('Contraseña incorrecta');
+      throw new BadRequestException('Contraseña incorrecta');
     }
 
     const payload = { email: user.email, sub: user.id.toString() };
@@ -47,7 +51,7 @@ export class AuthService {
       createUserDto.email,
     );
     if (existingUser) {
-      throw new Error('El email ya está en uso');
+      throw new BadRequestException('El email ya está en uso');
     }
 
     const hashedPassword = await hashPassword(createUserDto.password);

@@ -65,11 +65,6 @@ export class PermisosRepository implements IPermisosRepository {
       const permiso = await this.permisosRepository.findOne({
         where: { id: rolId },
       });
-      if (!permiso) {
-        throw new NotFoundException(
-          `No se encontró el permiso con ID ${rolId}`,
-        );
-      }
       return permiso;
     } catch (error) {
       throw new InternalServerErrorException(

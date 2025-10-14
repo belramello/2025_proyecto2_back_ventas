@@ -5,6 +5,7 @@ import { UsuariosMappers } from './mappers/usuarios.mappers';
 import { Usuario } from './entities/usuario.entity';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
 import type { IUsuarioRepository } from './repositories/usuarios-repository.interface';
+import { UsuariosValidator } from './helpers/usuarios-validator';
 
 @Injectable()
 export class UsuarioService {
@@ -12,14 +13,20 @@ export class UsuarioService {
     @Inject('IUsuarioRepository')
     private readonly usuariosRepository: IUsuarioRepository,
     private readonly usuarioMappers: UsuariosMappers,
+    private readonly usuariosValidator: UsuariosValidator,
   ) {}
   //El usuario se crea desde el endpoint de auth
   async createUsuario(
     CreateUsuarioDto: CreateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
-    return this.usuarioMappers.toResponseDto(
-      await this.usuariosRepository.createUsuario(CreateUsuarioDto),
+    const rol = await this.usuariosValidator.validateRolExistente(
+      CreateUsuarioDto.rolId,
     );
+    const usuario = await this.usuariosRepository.createUsuario(
+      CreateUsuarioDto,
+      rol,
+    );
+    return this.usuarioMappers.toResponseDto(usuario);
   }
 
   //hacer paginado para mejorar.

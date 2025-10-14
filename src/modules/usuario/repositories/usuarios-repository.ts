@@ -9,6 +9,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { hashPassword } from '../../../helpers/password.helper';
+import { Rol } from 'src/modules/roles/entities/rol.entity';
 
 @Injectable()
 export class UsuarioRepository implements IUsuarioRepository {
@@ -17,12 +18,13 @@ export class UsuarioRepository implements IUsuarioRepository {
     private readonly usuarioRepository: Repository<Usuario>,
   ) {}
 
-  async createUsuario(data: CreateUsuarioDto): Promise<Usuario> {
+  async createUsuario(data: CreateUsuarioDto, rol: Rol): Promise<Usuario> {
     try {
       const hashedPassword = await hashPassword(data.password);
       const newUsuario = this.usuarioRepository.create({
         ...data,
         password: hashedPassword,
+        rol,
       });
       return await this.usuarioRepository.save(newUsuario);
     } catch (error) {
@@ -34,14 +36,10 @@ export class UsuarioRepository implements IUsuarioRepository {
 
   async findByEmail(email: string): Promise<Usuario | null> {
     try {
-      const usuario = await this.usuarioRepository.findOne({
+      const usuario = this.usuarioRepository.findOne({
         where: { email },
+        relations: ['rol'],
       });
-      if (!usuario) {
-        throw new NotFoundException(
-          `No se encontró el usuario con email ${email}`,
-        );
-      }
       return usuario;
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -59,14 +57,8 @@ export class UsuarioRepository implements IUsuarioRepository {
         where: { id },
         relations: ['rol'],
       });
-      if (!usuario) {
-        throw new NotFoundException(`No se encontró el usuario con ID ${id}`);
-      }
       return usuario;
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
       throw new InternalServerErrorException(
         `Error al obtener el usuario con ID ${id}: ${error.message}`,
       );

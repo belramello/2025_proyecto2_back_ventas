@@ -84,12 +84,6 @@ export class VentasRepository implements IVentasRepository {
         .leftJoinAndSelect('detalle.producto', 'producto')
         .where('venta.id = :ventaId', { ventaId })
         .getOne();
-
-      if (!venta) {
-        throw new NotFoundException(
-          `No se encontró la venta con ID ${ventaId}`,
-        );
-      }
       return venta;
     } catch (error) {
       throw new InternalServerErrorException(

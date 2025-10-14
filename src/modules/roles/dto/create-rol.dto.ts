@@ -1,4 +1,10 @@
-import { IsArray, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
 export class CreateRolDto {
   @IsString()
@@ -10,6 +16,9 @@ export class CreateRolDto {
   @IsNotEmpty()
   @MinLength(5)
   descripcion: string;
+
+  @IsBoolean()
+  modificable: boolean;
 
   @IsArray()
   @IsNotEmpty()

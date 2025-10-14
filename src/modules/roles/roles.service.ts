@@ -4,6 +4,8 @@ import { CreateRolDto } from './dto/create-rol.dto';
 import type { IRolesRepository } from './repositories/roles-repository.interface';
 import { RolesValidator } from './helpers/roles-validator';
 import { Rol } from './entities/rol.entity';
+import { RolesMapper } from './mappers/roles-mapper';
+import { RespuestaFindAllRoles } from './dto/respuesta-find-one-roles.dto';
 
 @Injectable()
 export class RolesService {
@@ -12,6 +14,7 @@ export class RolesService {
     private readonly rolesRepository: IRolesRepository,
     @Inject(forwardRef(() => RolesValidator))
     private readonly rolesValidator: RolesValidator,
+    private readonly rolesMapper: RolesMapper,
   ) {}
 
   async create(createRolDto: CreateRolDto) {
@@ -22,8 +25,10 @@ export class RolesService {
     return await this.rolesRepository.create(createRolDto, permisos);
   }
 
-  async findAll() {
-    return await this.rolesRepository.findAll();
+  async findAll(): Promise<RespuestaFindAllRoles[]> {
+    return this.rolesMapper.toRespuestaFindAllRoles(
+      await this.rolesRepository.findAll(),
+    );
   }
 
   async findOne(id: number): Promise<Rol | null> {
@@ -35,6 +40,7 @@ export class RolesService {
     updatePermisosRolDto: UpdatePermisosRolDto,
   ) {
     const rol = await this.rolesValidator.validateRolExistente(rolId);
+    this.rolesValidator.validateRolModificable(rol);
     const permisos = await this.rolesValidator.validatePermisosExistentes(
       updatePermisosRolDto.permisosId,
     );
