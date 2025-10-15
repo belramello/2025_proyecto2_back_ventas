@@ -7,6 +7,7 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { VentasService } from './ventas.service';
 import { CreateVentaDto } from './dto/create-venta.dto';
@@ -23,11 +24,12 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { PermisosGuard } from 'src/common/guards/permisos.guard';
-import { AuthGuard } from 'src/middlewares/auth.middleware';
+import * as authMiddleware from 'src/middlewares/auth.middleware';
 import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
+import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
 
-@UseGuards(AuthGuard, PermisosGuard)
+@UseGuards(authMiddleware.AuthGuard, PermisosGuard)
 @ApiTags('ventas')
 @Controller('ventas')
 export class VentasController {
@@ -44,9 +46,10 @@ export class VentasController {
   @ApiResponse({ status: 400, description: 'Datos inválidos' })
   @PermisoRequerido(PermisosEnum.CREAR_VENTA)
   create(
+    @Req() req: RequestWithUsuario,
     @Body() createVentaDto: CreateVentaDto,
   ): Promise<RespuestaCreateVentaDto> {
-    return this.ventasService.create(createVentaDto);
+    return this.ventasService.create(createVentaDto, req.usuario);
   }
 
   @Get()

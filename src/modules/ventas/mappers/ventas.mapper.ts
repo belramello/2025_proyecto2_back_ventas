@@ -14,7 +14,8 @@ export class VentasMapper {
       id: venta.id,
       total: venta.total,
       medioDePago: venta.medioDePago,
-      //vendedor: venta.vendedor.nombre + ' ' + venta.vendedor.apellido,
+      vendedor: venta.vendedor.nombre + ' ' + venta.vendedor.apellido,
+      fecha: venta.fechaCreacion,
     };
   }
 
@@ -23,12 +24,13 @@ export class VentasMapper {
       (detalle) => this.detalleVentaMapper.toResponseDto(detalle),
     );
 
-    // Crear el DTO final
     const respuesta: RespuestaFindOneVentaDto = {
       id: venta.id,
       total: venta.total,
       medioDePago: venta.medioDePago,
       detalles,
+      vendedor: venta.vendedor.nombre + ' ' + venta.vendedor.apellido,
+      fecha: venta.fechaCreacion,
     };
 
     return respuesta;

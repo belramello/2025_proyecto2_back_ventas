@@ -13,7 +13,17 @@ export class RespuestaFindOneVentaDto {
   })
   medioDePago: string;
 
-  //vendedor: string;
+  @ApiProperty({
+    description: 'Vendedor que realizó la venta',
+    type: [String],
+  })
+  vendedor: string;
+
+  @ApiProperty({
+    description: 'Fecha en la que se registró la venta',
+    type: [Date],
+  })
+  fecha: Date;
 
   @ApiProperty({
     description: 'Detalles de la venta',

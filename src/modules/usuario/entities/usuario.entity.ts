@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -81,8 +82,7 @@ export class Usuario {
   @OneToMany(() => TokenReinicioContraseña, (token) => token.usuario)
   tokenReinicioContraseña: TokenReinicioContraseña[]
   */
-  /*
+
   @OneToMany(() => Venta, (venta) => venta.vendedor)
   ventas: Venta[];
-  */
 }

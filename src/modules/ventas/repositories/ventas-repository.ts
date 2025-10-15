@@ -9,6 +9,7 @@ import {
 import { Transactional } from 'typeorm-transactional';
 import { DetalleVentasService } from '../detalle-ventas/detalle-ventas.service';
 import { CreateVentaDto } from '../dto/create-venta.dto';
+import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
 
 export class VentasRepository implements IVentasRepository {
   constructor(
@@ -18,10 +19,14 @@ export class VentasRepository implements IVentasRepository {
   ) {}
 
   @Transactional()
-  async create(createVentaDto: CreateVentaDto): Promise<Venta> {
+  async create(
+    createVentaDto: CreateVentaDto,
+    vendedor: Usuario,
+  ): Promise<Venta> {
     try {
       //Crea la venta sin total ni detalles.
       const venta = this.ventasRepository.create({
+        vendedor,
         medioDePago: createVentaDto.medioDePago,
         total: 0,
       });
@@ -55,6 +60,7 @@ export class VentasRepository implements IVentasRepository {
     try {
       const query = this.ventasRepository
         .createQueryBuilder('venta')
+        .leftJoinAndSelect('venta.vendedor', 'vendedor')
         .leftJoinAndSelect('venta.detalleVentas', 'detalleVenta')
         .leftJoinAndSelect('detalleVenta.producto', 'producto')
         .orderBy('venta.fechaCreacion', 'DESC')

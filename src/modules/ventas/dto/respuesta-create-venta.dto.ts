@@ -12,5 +12,16 @@ export class RespuestaCreateVentaDto {
     example: 'efectivo',
   })
   medioDePago: string;
-  //vendedor: string;
+
+  @ApiProperty({
+    description: 'Vendedor que realizó la venta',
+    example: 'Carolina Corazza',
+  })
+  vendedor: string;
+
+  @ApiProperty({
+    description: 'Fecha en la que se registró la venta',
+    example: '2023-10-01T12:00:00Z',
+  })
+  fecha: Date;
 }
