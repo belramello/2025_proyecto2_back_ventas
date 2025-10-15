@@ -39,7 +39,7 @@ export class ProductoMapper {
     return productos.map((producto) => this.toRespuestaFinalFindOneDto(producto));
   }
 
-  toRespuestaFindAllPaginatedVentaDTO(paginated: {
+  toRespuestaFindAllPaginatedProductoDTO(paginated: {
     productos: Producto[];
     total: number;
     page: number;

@@ -84,4 +84,35 @@ async findOne(data: FindOneProductoDto): Promise<Producto> {
       );
     }
   }
+
+  async findAllPaginated(
+    page: number,
+    limit: number,
+  ): Promise<{
+    productos: Producto[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }> {
+    try {
+      const query = this.productoRepository
+        .createQueryBuilder('producto')
+        .orderBy('producto.fechaCreacion', 'DESC')
+        .skip((page - 1) * limit)
+        .take(limit);
+
+      const [productos, total] = await query.getManyAndCount();
+
+      return {
+        productos,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al encontrar las ventas paginadas: ${error.message}`,
+      );
+    }
+  }
 }
