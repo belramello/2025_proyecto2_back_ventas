@@ -8,6 +8,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
@@ -15,6 +16,7 @@ import { UpdateProductoDto } from './dto/update-producto.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
 import { Producto } from './entities/producto.entity';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
+import { PaginationProductoDto } from './dto/pagination.dto';
 
 @ApiTags('Productos')
 @Controller('productos')
@@ -39,8 +41,8 @@ export class ProductosController {
   @Get()
   @ApiOperation({ summary: 'Obtener todos los productos (de todos los usuarios)' })
   @ApiResponse({ status: 200, description: 'Lista de productos', type: [Producto] })
-  async findAll() {
-    return this.productosService.findAll();
+  async findAll(@Query() paginationDto: PaginationProductoDto) {
+    return this.productosService.findAllPaginated(paginationDto);
   }
 
   // ────────────────────────────────

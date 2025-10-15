@@ -96,10 +96,13 @@ async findOne(data: FindOneProductoDto): Promise<Producto> {
   }> {
     try {
       const query = this.productoRepository
-        .createQueryBuilder('producto')
-        .orderBy('producto.fechaCreacion', 'DESC')
-        .skip((page - 1) * limit)
-        .take(limit);
+      .createQueryBuilder('producto')
+      .where('producto.fechaEliminacion IS NULL'); // excluye soft-deleted
+
+      query
+      .orderBy('producto.nombre', 'ASC')
+      .skip((page - 1) * limit)
+      .take(limit);
 
       const [productos, total] = await query.getManyAndCount();
 

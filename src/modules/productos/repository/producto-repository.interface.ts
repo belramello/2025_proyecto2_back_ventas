@@ -11,4 +11,13 @@ export interface IProductosRepository {
   findOne(data: FindOneProductoDto): Promise<Producto>;
   update(id: number, data: UpdateProductoDto): Promise<UpdateResult>;
   remove(id: DeleteProductoDto): Promise<UpdateResult>; // devolvemos UpdateResult del soft delete
+  findAllPaginated(
+    page: number,
+    limit: number,
+  ): Promise<{
+    productos: Producto[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }>;
 }
