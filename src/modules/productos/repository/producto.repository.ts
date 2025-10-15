@@ -40,20 +40,28 @@ export class ProductosRepository implements IProductosRepository {
     }
   }
 
-  async findOne(data: FindOneProductoDto): Promise<Producto> {
+  async findOne(data: FindOneProductoDto): Promise<Producto | null> {
     try {
       const producto = await this.productoRepository.findOne({
         where: { id: data.id },
       });
-      if (!producto) {
-        throw new InternalServerErrorException(
-          `No se encontró el producto con ID ${data.id}`,
-        );
-      }
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
         `Error al buscar el producto con ID ${data.id}: ${error.message}`,
+      );
+    }
+  }
+
+  async findByCodigo(codigo: string): Promise<Producto | null> {
+    try {
+      const producto = await this.productoRepository.findOne({
+        where: { codigo },
+      });
+      return producto;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar el producto con codigo ${codigo}: ${error.message}`,
       );
     }
   }

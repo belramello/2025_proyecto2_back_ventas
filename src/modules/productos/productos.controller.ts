@@ -66,6 +66,22 @@ export class ProductosController {
     return this.productosService.findAll();
   }
 
+  @Get('codigo/:codigo')
+  @ApiOperation({ summary: 'Obtener un producto por codigo' })
+  @ApiParam({
+    name: 'codigo',
+    description: 'Codigo del producto',
+    example: '43234',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Producto encontrado',
+    type: Producto,
+  })
+  async findByCodigo(codigo: string) {
+    return this.productosService.findByCodigo(codigo);
+  }
+
   // ────────────────────────────────
   // 🔎 OBTENER PRODUCTO POR ID
   // ────────────────────────────────

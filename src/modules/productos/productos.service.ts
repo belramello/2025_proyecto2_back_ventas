@@ -26,6 +26,10 @@ export class ProductosService {
     return this.productosRepository.findOne({ id });
   }
 
+  async findByCodigo(codigo: string) {
+    return await this.productosRepository.findByCodigo(codigo);
+  }
+
   async update(id: number, updateProductoDto: UpdateProductoDto) {
     return this.productosRepository.update(id, updateProductoDto);
   }
