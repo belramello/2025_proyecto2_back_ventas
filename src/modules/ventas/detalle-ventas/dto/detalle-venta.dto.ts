@@ -2,7 +2,6 @@ import { IsInt, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-// ...existing code...
 export class DetalleVentaDto {
   @ApiProperty({ description: 'ID del producto', example: 1 })
   @Type(() => Number)

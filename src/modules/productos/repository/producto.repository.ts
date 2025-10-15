@@ -55,9 +55,12 @@ export class ProductosRepository implements IProductosRepository {
 
   async findByCodigo(codigo: string): Promise<Producto | null> {
     try {
-      const producto = await this.productoRepository.findOne({
-        where: { codigo },
-      });
+      console.log(codigo);
+      const producto = await this.productoRepository
+        .createQueryBuilder('producto')
+        .where('producto.codigo = :codigo', { codigo })
+        .getOne();
+      console.log(producto);
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(

@@ -16,7 +16,7 @@ export class VentasService {
     private readonly ventasRepository: IVentasRepository,
     private readonly ventasMapper: VentasMapper,
   ) {}
-  //Falta agregar vendedor id
+
   @Transactional()
   async create(
     createVentaDto: CreateVentaDto,
