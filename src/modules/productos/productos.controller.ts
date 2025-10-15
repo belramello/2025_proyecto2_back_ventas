@@ -74,22 +74,6 @@ export class ProductosController {
     return this.productosService.findAll();
   }
 
-  @Get('codigo/:codigo')
-  @ApiOperation({ summary: 'Obtener un producto por codigo' })
-  @ApiParam({
-    name: 'codigo',
-    description: 'Codigo del producto',
-    example: '43234',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Producto encontrado',
-    type: Producto,
-  })
-  async findByCodigo(codigo: string) {
-    return this.productosService.findByCodigo(codigo);
-  }
-
   // ────────────────────────────────
   // 🔎 OBTENER PRODUCTO POR ID
   // ────────────────────────────────
@@ -102,8 +86,8 @@ export class ProductosController {
     type: Producto,
   })
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
-  async findOne(@Param('id') id: string) {
-    return this.productosService.findOne(+id);
+  async findOne(@Param('id') id: number) {
+    return this.productosService.findOne(id);
   }
 
   // ────────────────────────────────
@@ -126,7 +110,7 @@ export class ProductosController {
     return this.productosService.update(+id, updateProductoDto);
   }
 
-  @Get(':id')
+  @Get('codigo/:codigo')
   @ApiOperation({ summary: 'Obtener un producto por código' })
   @ApiParam({ name: 'codigo', description: 'Código del producto', example: 1 })
   @ApiResponse({
@@ -135,7 +119,9 @@ export class ProductosController {
     type: Producto,
   })
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
+  @PermisoRequerido(PermisosEnum.CREAR_VENTA)
   async findOneByCodigo(@Param('codigo') codigo: string) {
+    console.log('codigo en controller', codigo);
     return this.productosService.findOneByCodigo(codigo);
   }
 
