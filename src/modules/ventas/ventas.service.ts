@@ -7,6 +7,7 @@ import type { IVentasRepository } from './repositories/ventas-repository.interfa
 import { RespuestaFindOneVentaDto } from './dto/respuesta-find-one-venta.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { RespuestaFindAllPaginatedVentaDTO } from './dto/respuesta-find-all-paginated-venta.dto';
+import { Usuario } from '../usuario/entities/usuario.entity';
 
 @Injectable()
 export class VentasService {
@@ -19,8 +20,9 @@ export class VentasService {
   @Transactional()
   async create(
     createVentaDto: CreateVentaDto,
+    usuario: Usuario,
   ): Promise<RespuestaCreateVentaDto> {
-    const venta = await this.ventasRepository.create(createVentaDto);
+    const venta = await this.ventasRepository.create(createVentaDto, usuario);
     return this.ventasMapper.toRespuestaCreateVentaDto(venta);
   }
 
