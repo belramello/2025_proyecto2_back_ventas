@@ -55,7 +55,7 @@ export class UsuarioController {
   async asignarRolAUsuario(
     @Param('usuarioId') usuarioId: number,
     @Param('rolId') rolId: number,
-  ) {
+  ): Promise<void> {
     return this.usuarioService.actualizarRolDeUsuario(usuarioId, rolId);
   }
 

@@ -58,7 +58,10 @@ export class UsuarioService {
     return usuario;
   }
 
-  async actualizarRolDeUsuario(usuarioId: number, rolId: number) {
+  async actualizarRolDeUsuario(
+    usuarioId: number,
+    rolId: number,
+  ): Promise<void> {
     const rol = await this.usuariosValidator.validateRolExistente(rolId);
     const usuario =
       await this.usuariosValidator.validateUsuarioExistente(usuarioId);
