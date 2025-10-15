@@ -18,7 +18,6 @@ export class ProductosRepository implements IProductosRepository {
     try {
       const producto = this.productoRepository.create({
         ...createProductoDto,
-        fechaCreacion: new Date(),
       });
       return await this.productoRepository.save(producto);
     } catch (error) {
@@ -41,16 +40,11 @@ export class ProductosRepository implements IProductosRepository {
     }
   }
 
-  async findOne(data: FindOneProductoDto): Promise<Producto> {
+  async findOne(data: FindOneProductoDto): Promise<Producto | null> {
     try {
       const producto = await this.productoRepository.findOne({
         where: { id: data.id },
       });
-      if (!producto) {
-        throw new InternalServerErrorException(
-          `No se encontró el producto con ID ${data.id}`,
-        );
-      }
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -59,7 +53,7 @@ export class ProductosRepository implements IProductosRepository {
     }
   }
 
-  async findOneByCodigo(codigo: string): Promise<Producto | null> {
+  async findByCodigo(codigo: string): Promise<Producto | null> {
     try {
       const producto = await this.productoRepository.findOne({
         where: { codigo },
@@ -67,7 +61,30 @@ export class ProductosRepository implements IProductosRepository {
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error al buscar el producto con código ${codigo}}: ${error.message}`,
+        `Error al buscar el producto con codigo ${codigo}: ${error.message}`,
+      );
+    }
+  }
+
+  async decrementStock(id: number, cantidad: number): Promise<UpdateResult> {
+    try {
+      const result = await this.productoRepository
+        .createQueryBuilder()
+        .update(Producto)
+        .set({ stock: () => 'stock - :cantidad' })
+        .where('id = :id AND stock >= :cantidad', { id, cantidad })
+        .execute();
+
+      if (result.affected === 0) {
+        throw new InternalServerErrorException(
+          `No se pudo descontar stock: producto no existe o stock insuficiente.`,
+        );
+      }
+
+      return result;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al actualizar el producto con ID ${id}: ${error.message}`,
       );
     }
   }

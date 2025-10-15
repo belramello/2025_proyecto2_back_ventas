@@ -6,6 +6,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ConfigModule } from '@nestjs/config';
 import { ProductosModule } from './modules/productos/productos.module';
+import { VentasModule } from './modules/ventas/ventas.module';
+import { UsuarioModule } from './modules/usuario/usuario.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { JwtModule } from './modules/jwt/jwt.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { PermisosModule } from './modules/permisos/permisos.module';
 
 @Module({
   imports: [
@@ -19,7 +25,7 @@ import { ProductosModule } from './modules/productos/productos.module';
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
-       ssl: {
+      ssl: {
         ca: process.env.CA_CERT
           ? Buffer.from(process.env.CA_CERT, 'utf-8')
           : fs.readFileSync(
@@ -37,6 +43,12 @@ import { ProductosModule } from './modules/productos/productos.module';
       },
     }),
     ProductosModule,
+    VentasModule,
+    UsuarioModule,
+    AuthModule,
+    JwtModule,
+    RolesModule,
+    PermisosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
