@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { RespuestaFindOneRolesDto } from 'src/modules/roles/dto/respuesta-find-one-roles.dto';
 
 export class RespuestaUsuarioDto {
   @ApiProperty({
@@ -39,8 +40,8 @@ export class RespuestaUsuarioDto {
 
   @ApiProperty({
     example: 'Dueño',
-    description: 'Descripción del rol del usuario',
+    description: 'Descripción del rol del usuario (Dueño, Vendedor, etc)',
     type: String,
   })
-  rol: string;
+  rol: RespuestaFindOneRolesDto;
 }

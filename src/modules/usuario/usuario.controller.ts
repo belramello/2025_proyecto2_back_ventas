@@ -7,6 +7,7 @@ import {
   Put,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -16,16 +17,29 @@ import { PermisosEnum } from '../permisos/enum/permisos-enum';
 import { AuthGuard } from 'src/middlewares/auth.middleware';
 import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
 import { PermisosGuard } from 'src/common/guards/permisos.guard';
+import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { RespuestaFindAllPaginatedUsuariosDTO } from './dto/respuesta-find-all-usuarios-paginated.dto';
+import { PaginationDto } from '../ventas/dto/pagination.dto';
 
 @UseGuards(AuthGuard, PermisosGuard)
-@Controller('usuario')
+@Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
-  @PermisoRequerido(PermisosEnum.ASIGNAR_ROL)
   @Get()
-  findAll(): Promise<RespuestaUsuarioDto[]> {
-    return this.usuarioService.findAll();
+  @ApiOperation({ summary: 'Obtener usuarios paginadas' })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'Listado paginado de usuarios',
+    type: RespuestaFindAllPaginatedUsuariosDTO,
+  })
+  @PermisoRequerido(PermisosEnum.ASIGNAR_ROL)
+  findAllPaginated(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<RespuestaFindAllPaginatedUsuariosDTO> {
+    return this.usuarioService.findAllPaginated(paginationDto);
   }
 
   @Get(':id')

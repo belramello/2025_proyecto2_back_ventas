@@ -6,6 +6,14 @@ export interface IUsuarioRepository {
   createUsuario(data: CreateUsuarioDto, rol: Rol): Promise<Usuario>;
   findByEmail(email: string): Promise<Usuario | null>;
   findOne(id: number): Promise<Usuario | null>;
-  findAll(): Promise<Usuario[]>;
+  findAllPaginated(
+    page: number,
+    limit: number,
+  ): Promise<{
+    usuarios: Usuario[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }>;
   actualizarRolDeUsuario(rol: Rol, usuario: Usuario): Promise<void>;
 }

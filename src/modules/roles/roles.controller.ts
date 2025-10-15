@@ -12,7 +12,7 @@ import {
 import { RolesService } from './roles.service';
 import { CreateRolDto } from './dto/create-rol.dto';
 import { UpdatePermisosRolDto } from './dto/update-permisos-rol.dto';
-import { RespuestaFindAllRoles } from './dto/respuesta-find-one-roles.dto';
+import { RespuestaFindOneRolesDto } from './dto/respuesta-find-one-roles.dto';
 import { AuthGuard } from 'src/middlewares/auth.middleware';
 import { PermisosGuard } from 'src/common/guards/permisos.guard';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
@@ -31,7 +31,7 @@ export class RolesController {
 
   @PermisoRequerido(PermisosEnum.ACTUALIZAR_PERMISOS_POR_ROL)
   @Get()
-  findAll(): Promise<RespuestaFindAllRoles[]> {
+  findAll(): Promise<RespuestaFindOneRolesDto[]> {
     return this.rolesService.findAll();
   }
 
