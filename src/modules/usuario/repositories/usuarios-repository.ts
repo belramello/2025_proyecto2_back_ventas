@@ -8,7 +8,6 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { hashPassword } from '../../../helpers/password.helper';
 import { Rol } from 'src/modules/roles/entities/rol.entity';
 
 @Injectable()
@@ -20,10 +19,8 @@ export class UsuarioRepository implements IUsuarioRepository {
 
   async createUsuario(data: CreateUsuarioDto, rol: Rol): Promise<Usuario> {
     try {
-      const hashedPassword = await hashPassword(data.password);
       const newUsuario = this.usuarioRepository.create({
         ...data,
-        password: hashedPassword,
         rol,
       });
       return await this.usuarioRepository.save(newUsuario);

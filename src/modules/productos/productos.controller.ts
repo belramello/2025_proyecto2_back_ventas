@@ -121,7 +121,6 @@ export class ProductosController {
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
   @PermisoRequerido(PermisosEnum.CREAR_VENTA)
   async findOneByCodigo(@Param('codigo') codigo: string) {
-    console.log('codigo en controller', codigo);
     return this.productosService.findOneByCodigo(codigo);
   }
 

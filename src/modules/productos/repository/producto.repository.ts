@@ -55,7 +55,6 @@ export class ProductosRepository implements IProductosRepository {
 
   async findByCodigo(codigo: string): Promise<Producto | null> {
     try {
-      console.log(codigo);
       const producto = await this.productoRepository
         .createQueryBuilder('producto')
         .where('producto.codigo = :codigo', { codigo })
