@@ -1,12 +1,12 @@
-import { InjectRepository } from "@nestjs/typeorm";
-import { CreateProductoDto } from "../dto/create-producto.dto";
-import { UpdateProductoDto } from "../dto/update-producto.dto";
-import { Producto } from "../entities/producto.entity";
-import { IProductosRepository } from "./producto-repository.interface";
-import { Repository, UpdateResult } from "typeorm";
-import { InternalServerErrorException } from "@nestjs/common";
-import { FindOneProductoDto } from "../dto/findOne-producto.dto";
-import { DeleteProductoDto } from "../dto/delete-producto.dto";
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateProductoDto } from '../dto/create-producto.dto';
+import { UpdateProductoDto } from '../dto/update-producto.dto';
+import { Producto } from '../entities/producto.entity';
+import { IProductosRepository } from './producto-repository.interface';
+import { Repository, UpdateResult } from 'typeorm';
+import { InternalServerErrorException } from '@nestjs/common';
+import { FindOneProductoDto } from '../dto/findOne-producto.dto';
+import { DeleteProductoDto } from '../dto/delete-producto.dto';
 
 export class ProductosRepository implements IProductosRepository {
   constructor(
@@ -32,7 +32,7 @@ export class ProductosRepository implements IProductosRepository {
     try {
       return await this.productoRepository.find({
         where: { usuarioId },
-        order: { fechaCreacion: "DESC" },
+        order: { fechaCreacion: 'DESC' },
       });
     } catch (error) {
       throw new InternalServerErrorException(
@@ -41,23 +41,36 @@ export class ProductosRepository implements IProductosRepository {
     }
   }
 
-async findOne(data: FindOneProductoDto): Promise<Producto> {
-  try {
-    const producto = await this.productoRepository.findOne({
-      where: { id: data.id },
-    });
-    if (!producto) {
+  async findOne(data: FindOneProductoDto): Promise<Producto> {
+    try {
+      const producto = await this.productoRepository.findOne({
+        where: { id: data.id },
+      });
+      if (!producto) {
+        throw new InternalServerErrorException(
+          `No se encontró el producto con ID ${data.id}`,
+        );
+      }
+      return producto;
+    } catch (error) {
       throw new InternalServerErrorException(
-        `No se encontró el producto con ID ${data.id}`,
+        `Error al buscar el producto con ID ${data.id}: ${error.message}`,
       );
     }
-    return producto;
-  } catch (error) {
-    throw new InternalServerErrorException(
-      `Error al buscar el producto con ID ${data.id}: ${error.message}`,
-    );
   }
-}
+
+  async findOneByCodigo(codigo: string): Promise<Producto | null> {
+    try {
+      const producto = await this.productoRepository.findOne({
+        where: { codigo },
+      });
+      return producto;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar el producto con código ${codigo}}: ${error.message}`,
+      );
+    }
+  }
 
   async update(id: number, data: UpdateProductoDto): Promise<UpdateResult> {
     try {

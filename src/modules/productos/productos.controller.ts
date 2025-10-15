@@ -12,7 +12,13 @@ import {
 import { ProductosService } from './productos.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+} from '@nestjs/swagger';
 import { Producto } from './entities/producto.entity';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
 
@@ -26,7 +32,11 @@ export class ProductosController {
   // ────────────────────────────────
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo producto' })
-  @ApiResponse({ status: 201, description: 'Producto creado correctamente', type: Producto })
+  @ApiResponse({
+    status: 201,
+    description: 'Producto creado correctamente',
+    type: Producto,
+  })
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   @ApiBody({ type: CreateProductoDto })
   async create(@Body() createProductoDto: CreateProductoDto) {
@@ -37,8 +47,14 @@ export class ProductosController {
   // 🔍 OBTENER TODOS LOS PRODUCTOS
   // ────────────────────────────────
   @Get()
-  @ApiOperation({ summary: 'Obtener todos los productos (de todos los usuarios)' })
-  @ApiResponse({ status: 200, description: 'Lista de productos', type: [Producto] })
+  @ApiOperation({
+    summary: 'Obtener todos los productos (de todos los usuarios)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de productos',
+    type: [Producto],
+  })
   async findAll() {
     return this.productosService.findAll();
   }
@@ -49,10 +65,14 @@ export class ProductosController {
   @Get(':id')
   @ApiOperation({ summary: 'Obtener un producto por ID' })
   @ApiParam({ name: 'id', description: 'ID del producto', example: 1 })
-  @ApiResponse({ status: 200, description: 'Producto encontrado', type: Producto })
+  @ApiResponse({
+    status: 200,
+    description: 'Producto encontrado',
+    type: Producto,
+  })
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
-  async findOne(@Param('id') id: string) {
-    return this.productosService.findOne(+id);
+  async findOne(@Param('id') id: number) {
+    return this.productosService.findOne(id);
   }
 
   // ────────────────────────────────
@@ -62,13 +82,29 @@ export class ProductosController {
   @ApiOperation({ summary: 'Actualizar un producto existente' })
   @ApiParam({ name: 'id', description: 'ID del producto', example: 1 })
   @ApiBody({ type: UpdateProductoDto })
-  @ApiResponse({ status: 200, description: 'Producto actualizado correctamente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Producto actualizado correctamente',
+  })
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
   async update(
     @Param('id') id: string,
     @Body() updateProductoDto: UpdateProductoDto,
   ) {
     return this.productosService.update(+id, updateProductoDto);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Obtener un producto por código' })
+  @ApiParam({ name: 'codigo', description: 'Código del producto', example: 1 })
+  @ApiResponse({
+    status: 200,
+    description: 'Producto encontrado',
+    type: Producto,
+  })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado' })
+  async findOneByCodigo(@Param('codigo') codigo: string) {
+    return this.productosService.findOneByCodigo(codigo);
   }
 
   // ────────────────────────────────
