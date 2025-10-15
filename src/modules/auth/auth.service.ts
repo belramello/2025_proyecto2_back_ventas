@@ -21,17 +21,18 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<LoginResponseDto> {
     const user = await this.userService.findByEmail(loginDto.email);
-    console.log('usuario', user);
     if (!user) {
       throw new NotFoundException('Usuario con email no encontrado');
     }
     if (!user.rol) {
       throw new NotFoundException('Usuario sin rol asignado');
     }
+    console.log(user);
     const isPasswordValid = await comparePasswords(
       loginDto.password,
       user.password,
     );
+    console.log('is password valid', isPasswordValid);
 
     if (!isPasswordValid) {
       throw new BadRequestException('Contraseña incorrecta');

@@ -27,7 +27,6 @@ export class ProductosService {
   }
 
   async findOneByCodigo(codigo: string) {
-    console.log('codigo en service', codigo);
     return await this.productosRepository.findByCodigo(codigo);
   }
 
