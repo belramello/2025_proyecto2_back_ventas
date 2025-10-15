@@ -27,6 +27,6 @@ import { UsuarioModule } from '../usuario/usuario.module';
     RolesValidator,
     RolesMapper,
   ],
-  exports: [RolesService],
+  exports: [RolesService, RolesMapper],
 })
 export class RolesModule {}

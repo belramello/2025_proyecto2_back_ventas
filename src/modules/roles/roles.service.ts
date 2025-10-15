@@ -5,7 +5,7 @@ import type { IRolesRepository } from './repositories/roles-repository.interface
 import { RolesValidator } from './helpers/roles-validator';
 import { Rol } from './entities/rol.entity';
 import { RolesMapper } from './mappers/roles-mapper';
-import { RespuestaFindAllRoles } from './dto/respuesta-find-one-roles.dto';
+import { RespuestaFindOneRolesDto } from './dto/respuesta-find-one-roles.dto';
 
 @Injectable()
 export class RolesService {
@@ -25,8 +25,8 @@ export class RolesService {
     return await this.rolesRepository.create(createRolDto, permisos);
   }
 
-  async findAll(): Promise<RespuestaFindAllRoles[]> {
-    return this.rolesMapper.toRespuestaFindAllRoles(
+  async findAll(): Promise<RespuestaFindOneRolesDto[]> {
+    return this.rolesMapper.toRespuestaFindOneRoles(
       await this.rolesRepository.findAll(),
     );
   }

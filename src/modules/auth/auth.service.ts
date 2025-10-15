@@ -21,7 +21,6 @@ export class AuthService {
 
   async login(loginDto: LoginDto): Promise<LoginResponseDto> {
     const user = await this.userService.findByEmail(loginDto.email);
-    console.log('usuario', user);
     if (!user) {
       throw new NotFoundException('Usuario con email no encontrado');
     }
@@ -74,7 +73,7 @@ export class AuthService {
         id: newUser.id,
         nombre: newUser.nombre,
         email: newUser.email,
-        rol: newUser.rol,
+        rol: newUser.rol.nombre,
       },
     };
   }
