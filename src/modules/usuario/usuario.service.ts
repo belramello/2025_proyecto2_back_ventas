@@ -11,6 +11,8 @@ import { Usuario } from './entities/usuario.entity';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
 import type { IUsuarioRepository } from './repositories/usuarios-repository.interface';
 import { UsuariosValidator } from './helpers/usuarios-validator';
+import { PaginationDto } from '../ventas/dto/pagination.dto';
+import { RespuestaFindAllPaginatedUsuariosDTO } from './dto/respuesta-find-all-usuarios-paginated.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -34,10 +36,13 @@ export class UsuarioService {
     return this.usuarioMappers.toResponseDto(usuario);
   }
 
-  //hacer paginado para mejorar.
-  async findAll(): Promise<RespuestaUsuarioDto[]> {
-    const usuarios = await this.usuariosRepository.findAll();
-    return this.usuarioMappers.toResponseDtos(usuarios);
+  async findAllPaginated(
+    paginationDto: PaginationDto,
+  ): Promise<RespuestaFindAllPaginatedUsuariosDTO> {
+    const { limit = 10, page = 1 } = paginationDto;
+    return this.usuarioMappers.toRespuestaFindAllPaginatedUsuariosDTO(
+      await this.usuariosRepository.findAllPaginated(page, limit),
+    );
   }
 
   async findMe(id: number): Promise<RespuestaUsuarioDto> {
@@ -53,7 +58,10 @@ export class UsuarioService {
     return usuario;
   }
 
-  async actualizarRolDeUsuario(usuarioId: number, rolId: number) {
+  async actualizarRolDeUsuario(
+    usuarioId: number,
+    rolId: number,
+  ): Promise<void> {
     const rol = await this.usuariosValidator.validateRolExistente(rolId);
     const usuario =
       await this.usuariosValidator.validateUsuarioExistente(usuarioId);

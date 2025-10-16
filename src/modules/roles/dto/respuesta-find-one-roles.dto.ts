@@ -1,4 +1,4 @@
-export class RespuestaFindAllRoles {
+export class RespuestaFindOneRolesDto {
   id: number;
   nombre: string;
   descripcion: string;

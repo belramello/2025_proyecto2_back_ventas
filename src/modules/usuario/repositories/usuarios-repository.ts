@@ -59,13 +59,45 @@ export class UsuarioRepository implements IUsuarioRepository {
     }
   }
 
+  async findAllPaginated(
+    page: number,
+    limit: number,
+  ): Promise<{
+    usuarios: Usuario[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }> {
+    try {
+      const query = this.usuarioRepository
+        .createQueryBuilder('usuarios')
+        .leftJoinAndSelect('usuarios.rol', 'rol')
+        .orderBy('usuarios.fechaCreacion', 'DESC')
+        .skip((page - 1) * limit)
+        .take(limit);
+
+      const [usuarios, total] = await query.getManyAndCount();
+
+      return {
+        usuarios,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al encontrar los usuarios paginadas: ${error.message}`,
+      );
+    }
+  }
+
   async findOne(id: number): Promise<Usuario | null> {
     try {
       const usuario = await this.usuarioRepository
-        .createQueryBuilder('usuario')
-        .leftJoinAndSelect('usuario.rol', 'rol')
+        .createQueryBuilder('usuarios')
+        .leftJoinAndSelect('usuarios.rol', 'rol')
         .leftJoinAndSelect('rol.permisos', 'permiso')
-        .where('usuario.id = :id', { id })
+        .where('usuarios.id = :id', { id })
         .getOne();
 
       return usuario || null;
