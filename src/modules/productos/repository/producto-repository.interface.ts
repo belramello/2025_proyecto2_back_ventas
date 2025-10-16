@@ -13,4 +13,13 @@ export interface IProductosRepository {
   decrementStock(id: number, cantidad: number): Promise<UpdateResult>;
   update(id: number, data: UpdateProductoDto): Promise<UpdateResult>;
   remove(id: DeleteProductoDto): Promise<UpdateResult>; // devolvemos UpdateResult del soft delete
+  findAllPaginated(
+    page: number,
+    limit: number,
+  ): Promise<{
+    productos: Producto[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }>;
 }
