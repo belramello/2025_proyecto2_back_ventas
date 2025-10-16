@@ -12,6 +12,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from './modules/jwt/jwt.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PermisosModule } from './modules/permisos/permisos.module';
+import { MarcasModule } from './modules/marcas/marcas.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -42,6 +44,9 @@ import { PermisosModule } from './modules/permisos/permisos.module';
         rejectUnauthorized: true,
       },
     }),
+    MulterModule.register({
+      dest: './uploads/logos',
+    }),
     ProductosModule,
     VentasModule,
     UsuarioModule,
@@ -49,6 +54,7 @@ import { PermisosModule } from './modules/permisos/permisos.module';
     JwtModule,
     RolesModule,
     PermisosModule,
+    MarcasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
