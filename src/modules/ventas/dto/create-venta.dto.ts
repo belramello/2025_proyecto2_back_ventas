@@ -20,16 +20,4 @@ export class CreateVentaDto {
   })
   @IsIn(['efectivo', 'credito', 'debito'])
   medioDePago: 'efectivo' | 'credito' | 'debito';
-
-  //Para cuando se aplique lo de autenticación, se elimina esto del dto.
-  @ApiProperty({
-    description:
-      'ID del usuario que crea la venta (se quitará cuando haya auth)',
-    example: 42,
-    type: Number,
-  })
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  usuarioId: number;
 }

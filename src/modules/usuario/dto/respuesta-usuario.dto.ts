@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { RespuestaFindOneRolesDto } from 'src/modules/roles/dto/respuesta-find-one-roles.dto';
 
 export class RespuestaUsuarioDto {
   @ApiProperty({
     example: 1,
     description: 'Identificador único del usuario',
     type: Number,
-    required: true,
   })
   id: number;
 
@@ -13,7 +13,6 @@ export class RespuestaUsuarioDto {
     example: 'Alejo',
     description: 'Nombre del usuario',
     type: String,
-    required: true,
   })
   nombre: string;
 
@@ -21,7 +20,6 @@ export class RespuestaUsuarioDto {
     example: 'De Miguel',
     description: 'Apellido del usuario',
     type: String,
-    required: true,
   })
   apellido: string;
 
@@ -29,7 +27,6 @@ export class RespuestaUsuarioDto {
     example: 'alejodm12345@gmail.com',
     description: 'Email único del usuario',
     type: String,
-    required: true,
   })
   email: string;
 
@@ -38,17 +35,13 @@ export class RespuestaUsuarioDto {
     description: 'Fecha y hora de creación del usuario',
     type: String,
     format: 'date-time',
-    required: true,
   })
   fechaHoraCreacion: Date;
 
-  /*
   @ApiProperty({
-    example: 'Auditor',
-    description: 'Rol del usuario',
-    type: Rol,
-    required: true,
+    example: 'Dueño',
+    description: 'Descripción del rol del usuario (Dueño, Vendedor, etc)',
+    type: String,
   })
-  rol: Rol;
-  */
+  rol: RespuestaFindOneRolesDto;
 }

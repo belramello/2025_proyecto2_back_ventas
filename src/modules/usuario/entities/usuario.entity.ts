@@ -1,6 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Rol } from 'src/modules/roles/entities/rol.entity';
 import { Venta } from 'src/modules/ventas/entities/venta.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('usuarios')
 export class Usuario {
@@ -25,14 +34,12 @@ export class Usuario {
   @Column()
   apellido: string;
 
-  /*
   @ApiProperty({
     example: 'Auditor',
     description: 'Rol del usuario',
   })
   @ManyToOne(() => Rol, (rol) => rol.usuarios)
-  Rol: Rol
-  */
+  rol: Rol;
 
   @ApiProperty({
     example: 'alejo@gmail.com',
@@ -52,8 +59,11 @@ export class Usuario {
     example: '2023-10-01T12:00:00Z',
     description: 'Fecha y hora de creación del usuario',
   })
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  fechaHoraCreacion: Date;
+  @CreateDateColumn()
+  fechaCreacion: Date;
+
+  @UpdateDateColumn()
+  fechaActualizacion: Date;
 
   /*
   @ApiProperty({
@@ -72,8 +82,7 @@ export class Usuario {
   @OneToMany(() => TokenReinicioContraseña, (token) => token.usuario)
   tokenReinicioContraseña: TokenReinicioContraseña[]
   */
-  /*
+
   @OneToMany(() => Venta, (venta) => venta.vendedor)
   ventas: Venta[];
-  */
 }

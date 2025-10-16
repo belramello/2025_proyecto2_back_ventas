@@ -1,8 +1,9 @@
+import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
 import { CreateVentaDto } from '../dto/create-venta.dto';
 import { Venta } from '../entities/venta.entity';
 
 export interface IVentasRepository {
-  create(createVentaDto: CreateVentaDto): Promise<Venta>;
+  create(createVentaDto: CreateVentaDto, usuario: Usuario): Promise<Venta>;
   findAllPaginated(
     page: number,
     limit: number,
