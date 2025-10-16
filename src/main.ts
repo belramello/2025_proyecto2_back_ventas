@@ -1,3 +1,4 @@
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -7,10 +8,12 @@ import {
   initializeTransactionalContext,
 } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
+import { join } from 'path';
 async function bootstrap() {
   //Para poder utilizar @Transactional()
   initializeTransactionalContext();
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useStaticAssets(join(__dirname, '..', 'uploads'));
   app.enableCors(); // Habilita CORS para el frontend
   app.useGlobalPipes(
     new ValidationPipe({
