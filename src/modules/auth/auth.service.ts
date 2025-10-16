@@ -1,10 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '../jwt/jwt.service';
 import { UsuarioService } from '../usuario/usuario.service';
 import { LoginDto } from '../usuario/dto/login.dto';
 import { LoginResponseDto } from '../usuario/dto/login-response.dto';
 import { comparePasswords, hashPassword } from 'src/helpers/password.helper';
 import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
+import { RespuestaUsuarioDto } from '../usuario/dto/respuesta-usuario.dto';
 import { Usuario } from '../usuario/entities/usuario.entity';
 
 @Injectable()
@@ -17,15 +22,20 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<LoginResponseDto> {
     const user = await this.userService.findByEmail(loginDto.email);
     if (!user) {
-      throw new Error('Usuario con email no encontrado');
+      throw new NotFoundException('Usuario con email no encontrado');
     }
+    if (!user.rol) {
+      throw new NotFoundException('Usuario sin rol asignado');
+    }
+    console.log(user);
     const isPasswordValid = await comparePasswords(
       loginDto.password,
       user.password,
     );
+    console.log('is password valid', isPasswordValid);
 
     if (!isPasswordValid) {
-      throw new Error('Contraseña incorrecta');
+      throw new BadRequestException('Contraseña incorrecta');
     }
 
     const payload = { email: user.email, sub: user.id.toString() };
@@ -37,7 +47,7 @@ export class AuthService {
         id: user.id,
         nombre: user.nombre,
         email: user.email,
-        //rol: user.rol,
+        rol: user.rol.nombre,
       },
     };
   }
@@ -47,7 +57,7 @@ export class AuthService {
       createUserDto.email,
     );
     if (existingUser) {
-      throw new Error('El email ya está en uso');
+      throw new BadRequestException('El email ya está en uso');
     }
 
     const hashedPassword = await hashPassword(createUserDto.password);
@@ -65,7 +75,7 @@ export class AuthService {
         id: newUser.id,
         nombre: newUser.nombre,
         email: newUser.email,
-        //rol: newUser.rol,
+        rol: newUser.rol.nombre,
       },
     };
   }
@@ -84,7 +94,7 @@ export class AuthService {
         id: user.id,
         nombre: user.nombre,
         email: user.email,
-        //rol: user.rol,
+        rol: user.rol.nombre,
       },
     };
   }
