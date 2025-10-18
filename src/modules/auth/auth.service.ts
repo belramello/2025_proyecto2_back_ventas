@@ -9,7 +9,6 @@ import { LoginDto } from '../usuario/dto/login.dto';
 import { LoginResponseDto } from '../usuario/dto/login-response.dto';
 import { comparePasswords, hashPassword } from 'src/helpers/password.helper';
 import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
-import { RespuestaUsuarioDto } from '../usuario/dto/respuesta-usuario.dto';
 import { Usuario } from '../usuario/entities/usuario.entity';
 
 @Injectable()
@@ -24,16 +23,10 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('Usuario con email no encontrado');
     }
-    if (!user.rol) {
-      throw new NotFoundException('Usuario sin rol asignado');
-    }
-    console.log(user);
     const isPasswordValid = await comparePasswords(
       loginDto.password,
       user.password,
     );
-    console.log('is password valid', isPasswordValid);
-
     if (!isPasswordValid) {
       throw new BadRequestException('Contraseña incorrecta');
     }
@@ -48,6 +41,7 @@ export class AuthService {
         nombre: user.nombre,
         email: user.email,
         rol: user.rol.nombre,
+        permisos: user.rol.permisos.map((permiso) => permiso.id),
       },
     };
   }
@@ -76,6 +70,7 @@ export class AuthService {
         nombre: newUser.nombre,
         email: newUser.email,
         rol: newUser.rol.nombre,
+        permisos: newUser.rol.permisos.map((permiso) => permiso.id),
       },
     };
   }
@@ -95,6 +90,7 @@ export class AuthService {
         nombre: user.nombre,
         email: user.email,
         rol: user.rol.nombre,
+        permisos: user.rol.permisos.map((permiso) => permiso.id),
       },
     };
   }

@@ -14,6 +14,7 @@ export class RolesMapper {
       nombre: rol.nombre,
       descripcion: rol.descripcion,
       modificable: rol.modificable,
+      permisos: rol.permisos,
     };
   }
 }

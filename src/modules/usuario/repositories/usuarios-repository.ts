@@ -33,10 +33,13 @@ export class UsuarioRepository implements IUsuarioRepository {
 
   async findByEmail(email: string): Promise<Usuario | null> {
     try {
-      const usuario = await this.usuarioRepository.findOne({
-        where: { email },
-        relations: ['rol'],
-      });
+      const usuario = await this.usuarioRepository
+        .createQueryBuilder('usuario')
+        .leftJoinAndSelect('usuario.rol', 'rol')
+        .leftJoinAndSelect('rol.permisos', 'permisos')
+        .where('usuario.email = :email', { email })
+        .getOne();
+
       return usuario;
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -104,18 +107,6 @@ export class UsuarioRepository implements IUsuarioRepository {
     } catch (error) {
       throw new InternalServerErrorException(
         `Error al obtener el usuario con ID ${id}: ${error.message}`,
-      );
-    }
-  }
-
-  async findAll(): Promise<Usuario[]> {
-    try {
-      return this.usuarioRepository.find({
-        relations: ['rol'],
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `Error al obtener usuarios: ${error.message}`,
       );
     }
   }

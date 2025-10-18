@@ -13,6 +13,7 @@ import { Rol } from '../entities/rol.entity';
 @Injectable()
 export class RolesValidator {
   constructor(
+    @Inject(forwardRef(() => PermisosService))
     private readonly permisosService: PermisosService,
     @Inject(forwardRef(() => RolesService))
     private readonly rolesService: RolesService,

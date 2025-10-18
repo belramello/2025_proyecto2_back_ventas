@@ -41,7 +41,7 @@ export class RespuestaUsuarioDto {
   @ApiProperty({
     example: 'Dueño',
     description: 'Descripción del rol del usuario (Dueño, Vendedor, etc)',
-    type: String,
+    type: RespuestaFindOneRolesDto,
   })
   rol: RespuestaFindOneRolesDto;
 }

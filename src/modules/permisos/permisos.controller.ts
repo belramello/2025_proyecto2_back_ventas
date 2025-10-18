@@ -7,9 +7,10 @@ import { AuthGuard } from 'src/middlewares/auth.middleware';
 @Controller('permisos')
 export class PermisosController {
   constructor(private readonly permisosService: PermisosService) {}
-
+  /*
   @Post()
   create(@Body() createPermisoDto: CreatePermisoDto) {
     return this.permisosService.create(createPermisoDto);
   }
+    */
 }
