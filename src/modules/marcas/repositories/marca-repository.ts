@@ -4,7 +4,10 @@ import { Marca } from '../entities/marca.entity';
 import { MarcaRepositoryInterface } from './marca-repository.interface';
 
 @Injectable()
-export class MarcaRepository extends Repository<Marca> implements MarcaRepositoryInterface {
+export class MarcaRepository
+  extends Repository<Marca>
+  implements MarcaRepositoryInterface
+{
   constructor(dataSource: DataSource) {
     super(Marca, dataSource.createEntityManager());
   }
