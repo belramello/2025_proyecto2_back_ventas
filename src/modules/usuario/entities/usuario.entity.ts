@@ -4,6 +4,7 @@ import { Venta } from 'src/modules/ventas/entities/venta.entity';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   ManyToOne,
   OneToMany,
@@ -85,4 +86,7 @@ export class Usuario {
 
   @OneToMany(() => Venta, (venta) => venta.vendedor)
   ventas: Venta[];
+
+  @DeleteDateColumn()
+  fechaEliminacion: Date;
 }

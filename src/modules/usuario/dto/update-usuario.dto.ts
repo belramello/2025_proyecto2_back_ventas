@@ -28,4 +28,12 @@ export class UpdateUsuarioDto extends PartialType(CreateUsuarioDto) {
   @IsString({ message: 'El email debe ser una cadena de texto' })
   @IsEmail({}, { message: 'El email debe tener un formato válido' })
   email?: string;
+
+  @ApiProperty({
+    example: 'password123',
+    description: 'Contraseña del usuario',
+  })
+  @IsOptional()
+  @IsString({ message: 'La contraseña debe ser una cadena de texto' })
+  password?: string;
 }

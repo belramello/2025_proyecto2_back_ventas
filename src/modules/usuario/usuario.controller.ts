@@ -8,6 +8,7 @@ import {
   UseGuards,
   Req,
   Query,
+  Delete,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -42,12 +43,19 @@ export class UsuarioController {
     return this.usuarioService.findAllPaginated(paginationDto);
   }
 
+  @PermisoRequerido(PermisosEnum.VER_USUARIOS)
   @Get(':id')
-  findMe(
+  findUsuario(
     @Param('id') id: number,
     @Req() req: RequestWithUsuario,
   ): Promise<RespuestaUsuarioDto> {
-    return this.usuarioService.findMe(req.usuario.id);
+    return this.usuarioService.findUsuario(req.usuario.id);
+  }
+
+  @PermisoRequerido(PermisosEnum.ELIMINAR_USUARIOS)
+  @Delete(':id')
+  delete(@Param('id') id: number) {
+    return this.usuarioService.delete(id);
   }
 
   @PermisoRequerido(PermisosEnum.ASIGNAR_ROL)
@@ -59,9 +67,9 @@ export class UsuarioController {
     return this.usuarioService.actualizarRolDeUsuario(usuarioId, rolId);
   }
 
-  //Implementar actualización de información personal.
+  @PermisoRequerido(PermisosEnum.MODIFICAR_USUARIOS)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
-    return this.usuarioService.update(+id, updateUsuarioDto);
+  update(@Param('id') id: number, @Body() updateUsuarioDto: UpdateUsuarioDto) {
+    return this.usuarioService.update(id, updateUsuarioDto);
   }
 }

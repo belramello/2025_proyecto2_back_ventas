@@ -110,4 +110,14 @@ export class UsuarioRepository implements IUsuarioRepository {
       );
     }
   }
+
+  async delete(usuario: Usuario): Promise<void> {
+    try {
+      await this.usuarioRepository.softDelete(usuario);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al eliminar el usuario con ID ${usuario.id}: ${error.message}`,
+      );
+    }
+  }
 }

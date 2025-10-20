@@ -45,7 +45,7 @@ export class UsuarioService {
     );
   }
 
-  async findMe(id: number): Promise<RespuestaUsuarioDto> {
+  async findUsuario(id: number): Promise<RespuestaUsuarioDto> {
     const usuario = await this.usuariosRepository.findOne(id);
     if (!usuario) {
       throw new NotFoundException('Usuario no encontrado');
@@ -71,6 +71,11 @@ export class UsuarioService {
   //Implementar actualización de información personal.
   update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
     return `This action updates a #${id} usuario`;
+  }
+
+  async delete(id: number): Promise<void> {
+    const usuario = await this.usuariosValidator.validateUsuarioExistente(id);
+    return await this.usuariosRepository.delete(usuario);
   }
 
   async findByEmail(email: string): Promise<Usuario | null> {
