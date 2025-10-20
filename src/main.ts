@@ -9,7 +9,7 @@ import {
 } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
 import { join } from 'path';
-async function bootstrap() {
+export async function bootstrap() {
   //Para poder utilizar @Transactional()
   initializeTransactionalContext();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

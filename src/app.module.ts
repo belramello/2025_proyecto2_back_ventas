@@ -17,7 +17,7 @@ import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: 'env' }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST,
