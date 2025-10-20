@@ -11,8 +11,20 @@ export class MarcasController {
   constructor(private readonly marcasService: MarcasService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('logo', { storage: diskStorage({ destination: './uploads/logos', filename: (req, file, cb) => { cb(null, Date.now() + extname(file.originalname)); } }) }))
-  create(@Body() createMarcaDto: CreateMarcaDto, @UploadedFile() file: Express.Multer.File) {
+  @UseInterceptors(
+    FileInterceptor('logo', {
+      storage: diskStorage({
+        destination: './uploads/logos',
+        filename: (req, file, cb) => {
+          cb(null, Date.now() + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  create(
+    @Body() createMarcaDto: CreateMarcaDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     const logoPath = file ? `uploads/logos/${file.filename}` : undefined;
     return this.marcasService.create(createMarcaDto, logoPath);
   }
@@ -28,8 +40,21 @@ export class MarcasController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('logo', { storage: diskStorage({ destination: './uploads/logos', filename: (req, file, cb) => { cb(null, Date.now() + extname(file.originalname)); } }) }))
-  update(@Param('id') id: string, @Body() updateMarcaDto: UpdateMarcaDto, @UploadedFile() file: Express.Multer.File) {
+  @UseInterceptors(
+    FileInterceptor('logo', {
+      storage: diskStorage({
+        destination: './uploads/logos',
+        filename: (req, file, cb) => {
+          cb(null, Date.now() + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  update(
+    @Param('id') id: string,
+    @Body() updateMarcaDto: UpdateMarcaDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
     const logoPath = file ? `uploads/logos/${file.filename}` : undefined;
     return this.marcasService.update(+id, updateMarcaDto, logoPath);
   }
