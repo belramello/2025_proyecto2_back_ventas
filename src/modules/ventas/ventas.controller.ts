@@ -23,11 +23,11 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
-import { PermisosGuard } from 'src/common/guards/permisos.guard';
-import * as authMiddleware from 'src/middlewares/auth.middleware';
-import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisosGuard } from '../../common/guards/permisos.guard';
+import * as authMiddleware from '../../middlewares/auth.middleware';
+import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
-import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
+import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
 
 @UseGuards(authMiddleware.AuthGuard, PermisosGuard)
 @ApiTags('ventas')

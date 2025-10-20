@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { RespuestaFindOneRolesDto } from 'src/modules/roles/dto/respuesta-find-one-roles.dto';
+import { RespuestaFindOneRolesDto } from '../../../modules/roles/dto/respuesta-find-one-roles.dto';
 
 export class RespuestaUsuarioDto {
   @ApiProperty({

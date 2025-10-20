@@ -1,5 +1,5 @@
-import { Permiso } from 'src/modules/permisos/entities/permiso.entity';
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
+import { Permiso } from '../../../modules/permisos/entities/permiso.entity';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 import {
   Column,
   Entity,
@@ -7,7 +7,6 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('roles')

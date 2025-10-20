@@ -8,7 +8,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { Rol } from 'src/modules/roles/entities/rol.entity';
+import { Rol } from '../../../modules/roles/entities/rol.entity';
 
 @Injectable()
 export class UsuarioRepository implements IUsuarioRepository {

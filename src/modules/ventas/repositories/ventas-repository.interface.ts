@@ -1,4 +1,4 @@
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 import { CreateVentaDto } from '../dto/create-venta.dto';
 import { Venta } from '../entities/venta.entity';
 

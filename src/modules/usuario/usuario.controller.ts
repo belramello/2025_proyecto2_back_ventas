@@ -12,11 +12,11 @@ import {
 import { UsuarioService } from './usuario.service';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
-import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
-import { AuthGuard } from 'src/middlewares/auth.middleware';
-import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
-import { PermisosGuard } from 'src/common/guards/permisos.guard';
+import { AuthGuard } from '../../middlewares/auth.middleware';
+import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
+import { PermisosGuard } from '../../common/guards/permisos.guard';
 import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { RespuestaFindAllPaginatedUsuariosDTO } from './dto/respuesta-find-all-usuarios-paginated.dto';
 import { PaginationDto } from '../ventas/dto/pagination.dto';
