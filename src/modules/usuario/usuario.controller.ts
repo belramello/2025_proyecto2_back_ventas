@@ -36,7 +36,7 @@ export class UsuarioController {
     description: 'Listado paginado de usuarios',
     type: RespuestaFindAllPaginatedUsuariosDTO,
   })
-  @PermisoRequerido(PermisosEnum.ASIGNAR_ROL)
+  @PermisoRequerido(PermisosEnum.VER_USUARIOS)
   findAllPaginated(
     @Query() paginationDto: PaginationDto,
   ): Promise<RespuestaFindAllPaginatedUsuariosDTO> {
@@ -54,7 +54,7 @@ export class UsuarioController {
 
   @PermisoRequerido(PermisosEnum.ELIMINAR_USUARIOS)
   @Delete(':id')
-  delete(@Param('id') id: number) {
+  delete(@Param('id') id: number): Promise<void> {
     return this.usuarioService.delete(id);
   }
 
@@ -69,7 +69,10 @@ export class UsuarioController {
 
   @PermisoRequerido(PermisosEnum.MODIFICAR_USUARIOS)
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateUsuarioDto: UpdateUsuarioDto) {
+  update(
+    @Param('id') id: number,
+    @Body() updateUsuarioDto: UpdateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
     return this.usuarioService.update(id, updateUsuarioDto);
   }
 }

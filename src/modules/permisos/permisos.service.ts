@@ -15,7 +15,7 @@ export class PermisosService {
     return await this.permisosRepository.create(createPermisoDto);
   }
 
-  async findAll() {
+  async findAll(): Promise<Permiso[]> {
     return await this.permisosRepository.findAll();
   }
 

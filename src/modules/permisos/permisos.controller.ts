@@ -1,7 +1,7 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
 import { PermisosService } from './permisos.service';
-import { CreatePermisoDto } from './dto/create-permiso.dto';
 import { AuthGuard } from 'src/middlewares/auth.middleware';
+import { Permiso } from './entities/permiso.entity';
 
 @UseGuards(AuthGuard)
 @Controller('permisos')
@@ -13,4 +13,8 @@ export class PermisosController {
     return this.permisosService.create(createPermisoDto);
   }
     */
+  @Get()
+  findAll(): Promise<Permiso[]> {
+    return this.permisosService.findAll();
+  }
 }

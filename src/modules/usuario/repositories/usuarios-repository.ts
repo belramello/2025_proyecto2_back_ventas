@@ -111,9 +111,19 @@ export class UsuarioRepository implements IUsuarioRepository {
     }
   }
 
+  async updateUsuario(usuario: Usuario): Promise<Usuario> {
+    try {
+      return await this.usuarioRepository.save(usuario);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al actualizar el usuario con ID ${usuario.id}: ${error.message}`,
+      );
+    }
+  }
+
   async delete(usuario: Usuario): Promise<void> {
     try {
-      await this.usuarioRepository.softDelete(usuario);
+      await this.usuarioRepository.softDelete(usuario.id);
     } catch (error) {
       throw new InternalServerErrorException(
         `Error al eliminar el usuario con ID ${usuario.id}: ${error.message}`,
