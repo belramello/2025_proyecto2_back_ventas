@@ -23,9 +23,9 @@ import {
 } from '@nestjs/swagger';
 import { Producto } from './entities/producto.entity';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
-import { AuthGuard } from 'src/middlewares/auth.middleware';
-import { PermisosGuard } from 'src/common/guards/permisos.guard';
-import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { AuthGuard } from '../../middlewares/auth.middleware';
+import { PermisosGuard } from '../../common/guards/permisos.guard';
+import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
 import { PaginationDto } from '../ventas/dto/pagination.dto';
 
@@ -56,11 +56,15 @@ export class ProductosController {
   // 🔍 OBTENER TODOS LOS PRODUCTOS
   // ────────────────────────────────
   @Get()
-  @ApiOperation({ summary: 'Obtener todos los productos (de todos los usuarios)' })
-  @ApiResponse({ status: 200, description: 'Lista de productos', type: [Producto] })
-  async findAll(
-    @Query() paginationDto: PaginationDto
-  ) {
+  @ApiOperation({
+    summary: 'Obtener todos los productos (de todos los usuarios)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de productos',
+    type: [Producto],
+  })
+  async findAll(@Query() paginationDto: PaginationDto) {
     return this.productosService.findAllPaginated(paginationDto);
   }
 

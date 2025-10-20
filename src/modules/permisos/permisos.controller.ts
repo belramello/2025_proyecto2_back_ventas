@@ -1,7 +1,7 @@
 import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { PermisosService } from './permisos.service';
 import { CreatePermisoDto } from './dto/create-permiso.dto';
-import { AuthGuard } from 'src/middlewares/auth.middleware';
+import { AuthGuard } from '../../middlewares/auth.middleware';
 
 @UseGuards(AuthGuard)
 @Controller('permisos')

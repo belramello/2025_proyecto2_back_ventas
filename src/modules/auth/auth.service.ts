@@ -7,9 +7,8 @@ import { JwtService } from '../jwt/jwt.service';
 import { UsuarioService } from '../usuario/usuario.service';
 import { LoginDto } from '../usuario/dto/login.dto';
 import { LoginResponseDto } from '../usuario/dto/login-response.dto';
-import { comparePasswords, hashPassword } from 'src/helpers/password.helper';
+import { comparePasswords, hashPassword } from '../../helpers/password.helper';
 import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
-import { RespuestaUsuarioDto } from '../usuario/dto/respuesta-usuario.dto';
 import { Usuario } from '../usuario/entities/usuario.entity';
 
 @Injectable()
