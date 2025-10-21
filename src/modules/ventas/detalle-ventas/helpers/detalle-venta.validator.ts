@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Producto } from 'src/modules/productos/entities/producto.entity';
-import { ProductosService } from 'src/modules/productos/productos.service';
+import { Producto } from '../../../../modules/productos/entities/producto.entity';
+import { ProductosService } from '../../../../modules/productos/productos.service';
 
 @Injectable()
 export class DetalleVentasValidator {
@@ -20,6 +20,7 @@ export class DetalleVentasValidator {
     return producto;
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async validateStock(producto: Producto, cantidad: number) {
     if (producto.stock < cantidad) {
       throw new BadRequestException(

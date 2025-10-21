@@ -1,22 +1,19 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
   ParseIntPipe,
   UseGuards,
-  Put,
 } from '@nestjs/common';
 import { RolesService } from './roles.service';
-import { CreateRolDto } from './dto/create-rol.dto';
 import { UpdatePermisosRolDto } from './dto/update-permisos-rol.dto';
 import { RespuestaFindOneRolesDto } from './dto/respuesta-find-one-roles.dto';
-import { AuthGuard } from 'src/middlewares/auth.middleware';
-import { PermisosGuard } from 'src/common/guards/permisos.guard';
+import { AuthGuard } from '../../middlewares/auth.middleware';
+import { PermisosGuard } from '../../common/guards/permisos.guard';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
-import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 
 @UseGuards(AuthGuard, PermisosGuard)
 @Controller('roles')

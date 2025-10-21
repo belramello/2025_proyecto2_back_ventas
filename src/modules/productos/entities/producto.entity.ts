@@ -1,4 +1,4 @@
-import { DetalleVenta } from 'src/modules/ventas/detalle-ventas/entities/detalle-venta.entity';
+import { DetalleVenta } from '../../../modules/ventas/detalle-ventas/entities/detalle-venta.entity';
 import {
   Column,
   CreateDateColumn,

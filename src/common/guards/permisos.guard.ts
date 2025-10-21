@@ -5,9 +5,9 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { PERMISO_REQUERIDO_KEY } from '../decorators/permiso-requerido.decorator';
-import { PermisosEnum } from 'src/modules/permisos/enum/permisos-enum';
+import { PermisosEnum } from '../../modules/permisos/enum/permisos-enum';
 import { Reflector } from '@nestjs/core';
-import { RequestWithUsuario } from 'src/middlewares/auth.middleware';
+import { RequestWithUsuario } from '../../middlewares/auth.middleware';
 
 @Injectable()
 export class PermisosGuard implements CanActivate {

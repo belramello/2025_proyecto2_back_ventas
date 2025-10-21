@@ -4,8 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Rol } from 'src/modules/roles/entities/rol.entity';
-import { RolesService } from 'src/modules/roles/roles.service';
+import { Rol } from '../../../modules/roles/entities/rol.entity';
+import { RolesService } from '../../../modules/roles/roles.service';
 import { UsuarioService } from '../usuario.service';
 import { Usuario } from '../entities/usuario.entity';
 

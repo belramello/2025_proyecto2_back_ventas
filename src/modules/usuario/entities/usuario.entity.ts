@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Rol } from 'src/modules/roles/entities/rol.entity';
-import { Venta } from 'src/modules/ventas/entities/venta.entity';
+import { Rol } from '../../../modules/roles/entities/rol.entity';
+import { Venta } from '../../../modules/ventas/entities/venta.entity';
 import {
   Column,
   CreateDateColumn,

@@ -1,5 +1,5 @@
-import { IsInt, Min } from 'class-validator';
-import { Producto } from 'src/modules/productos/entities/producto.entity';
+import { IsInt } from 'class-validator';
+import { Producto } from '../../../../modules/productos/entities/producto.entity';
 import { Venta } from '../../entities/venta.entity';
 
 export class CreateDetalleVentaDto {

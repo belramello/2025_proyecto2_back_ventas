@@ -2,14 +2,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IVentasRepository } from './ventas-repository.interface';
 import { Venta } from '../entities/venta.entity';
 import { Repository } from 'typeorm';
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { Transactional } from 'typeorm-transactional';
 import { DetalleVentasService } from '../detalle-ventas/detalle-ventas.service';
 import { CreateVentaDto } from '../dto/create-venta.dto';
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 
 export class VentasRepository implements IVentasRepository {
   constructor(

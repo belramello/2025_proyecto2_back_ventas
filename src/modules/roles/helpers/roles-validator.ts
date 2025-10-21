@@ -5,8 +5,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Permiso } from 'src/modules/permisos/entities/permiso.entity';
-import { PermisosService } from 'src/modules/permisos/permisos.service';
+import { Permiso } from '../../../modules/permisos/entities/permiso.entity';
+import { PermisosService } from '../../../modules/permisos/permisos.service';
 import { RolesService } from '../roles.service';
 import { Rol } from '../entities/rol.entity';
 

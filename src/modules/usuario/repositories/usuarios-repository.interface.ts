@@ -1,4 +1,4 @@
-import { Rol } from 'src/modules/roles/entities/rol.entity';
+import { Rol } from '../../../modules/roles/entities/rol.entity';
 import { CreateUsuarioDto } from '../dto/create-usuario.dto';
 import { Usuario } from '../entities/usuario.entity';
 

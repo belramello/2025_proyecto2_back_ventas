@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Usuario } from '../entities/usuario.entity';
 import { RespuestaUsuarioDto } from '../dto/respuesta-usuario.dto';
 import { RespuestaFindAllPaginatedUsuariosDTO } from '../dto/respuesta-find-all-usuarios-paginated.dto';
-import { RolesMapper } from 'src/modules/roles/mappers/roles-mapper';
+import { RolesMapper } from '../../../modules/roles/mappers/roles-mapper';
 
 @Injectable()
 export class UsuariosMappers {

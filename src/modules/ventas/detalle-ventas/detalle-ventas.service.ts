@@ -4,7 +4,7 @@ import { Venta } from '../entities/venta.entity';
 import { DetalleVentasValidator } from './helpers/detalle-venta.validator';
 import { DetalleVentaDto } from './dto/detalle-venta.dto';
 import type { IDetalleVentasRepository } from './repositories/detalle-ventas-repository.interface';
-import { ProductosService } from 'src/modules/productos/productos.service';
+import { ProductosService } from '../../../modules/productos/productos.service';
 import { RespuestaFindOneDetalleVentaDto } from './dto/respuesta-find-one-detalle-venta.dto';
 import { DetalleVentaMapper } from './mappers/detalle-venta.mapper';
 
