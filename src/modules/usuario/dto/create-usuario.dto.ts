@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsString,
   MinLength,
 } from 'class-validator';
@@ -43,5 +44,11 @@ export class CreateUsuarioDto {
   password: string;
 
   @IsInt()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 2,
+    description: 'ID del rol asignado al usuario',
+  })
+  @IsNumber()
   rolId: number;
 }

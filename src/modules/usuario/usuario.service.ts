@@ -68,26 +68,10 @@ export class UsuarioService {
     id: number,
     updateUsuarioDto: UpdateUsuarioDto,
   ): Promise<RespuestaUsuarioDto> {
-    const usuario = await this.usuariosValidator.validateUsuarioExistente(id);
-    // validar email disponible (si se envió)
-    await this.usuariosValidator.validateEmailDisponible(
-      updateUsuarioDto.email,
+    const actualizado = await this.usuarioUpdater.aplicarActualizaciones(
       id,
-    );
-    // Si envían rolId, validar y asignar
-    if (updateUsuarioDto.rolId !== undefined) {
-      const rol = await this.usuariosValidator.validateRolExistente(
-        updateUsuarioDto.rolId,
-      );
-      usuario.rol = rol;
-    }
-    // Aplicar cambios y hashear contraseña (si viene) mediante helper
-    const usuarioModificado = await this.usuarioUpdater.aplicarActualizaciones(
-      usuario,
       updateUsuarioDto,
     );
-    const actualizado =
-      await this.usuariosRepository.updateUsuario(usuarioModificado);
     return this.usuarioMappers.toResponseDto(actualizado);
   }
 
