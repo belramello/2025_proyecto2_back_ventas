@@ -1,4 +1,4 @@
-import { CreateHistorialActividadesDto } from '../dto/create-historial-actividade.dto';
+import { CreateHistorialActividadesDto } from '../dto/create-historial-actividades.dto';
 import { HistorialActividades } from '../entities/historial-actividade.entity';
 
 export interface IHistorialActividadesRepository {

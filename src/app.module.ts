@@ -14,6 +14,7 @@ import { RolesModule } from './modules/roles/roles.module';
 import { PermisosModule } from './modules/permisos/permisos.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { HistorialActividadesModule } from './modules/historial-actividades/historial-actividades.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { MulterModule } from '@nestjs/platform-express';
     RolesModule,
     PermisosModule,
     MarcasModule,
+    HistorialActividadesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -2,7 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IHistorialActividadesRepository } from './historial-actividades-repository.interface';
 import { HistorialActividades } from '../entities/historial-actividade.entity';
 import { Repository } from 'typeorm';
-import { CreateHistorialActividadesDto } from '../dto/create-historial-actividade.dto';
+import { CreateHistorialActividadesDto } from '../dto/create-historial-actividades.dto';
 import { InternalServerErrorException } from '@nestjs/common';
 
 export class HistorialActividadesRepository
@@ -13,10 +13,14 @@ export class HistorialActividadesRepository
     private readonly historialRepository: Repository<HistorialActividades>,
   ) {}
   async create(
-    data: CreateHistorialActividadesDto,
+    dto: CreateHistorialActividadesDto,
   ): Promise<HistorialActividades> {
-    this.historialRepository.create({ ...data });
-    return this.historialRepository.save(data);
+    const historial = this.historialRepository.create({
+      usuario: dto.usuario,
+      accion: { id: dto.accionId },
+      estado: { id: dto.estadoId },
+    });
+    return this.historialRepository.save(historial);
   }
   async findAllPaginated(
     page: number,
@@ -45,6 +49,7 @@ export class HistorialActividadesRepository
       };
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al encontrar las ventas paginadas: ${error.message}`,
       );
     }

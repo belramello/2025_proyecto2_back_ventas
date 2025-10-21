@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { HistorialActividadesService } from './historial-actividades.service';
-import { CreateHistorialActividadesDto } from './dto/create-historial-actividade.dto';
+import { CreateHistorialActividadesDto } from './dto/create-historial-actividades.dto';
 import { PaginationDto } from '../ventas/dto/pagination.dto';
 import { RespuestaFindAllPaginatedHistorialDTO } from './dto/RespuestaFindAllPaginatedHistorial.dto';
 
@@ -11,9 +11,9 @@ export class HistorialActividadesController {
   ) {}
 
   @Post()
-  create(@Body() createHistorialActividadeDto: CreateHistorialActividadesDto) {
+  create(@Body() createHistorialActividadesDto: CreateHistorialActividadesDto) {
     return this.historialActividadesService.create(
-      createHistorialActividadeDto,
+      createHistorialActividadesDto,
     );
   }
 
