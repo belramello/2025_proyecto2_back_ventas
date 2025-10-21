@@ -5,6 +5,8 @@ import { ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { LoginDto } from '../usuario/dto/login.dto';
 import { LoginResponseDto } from '../usuario/dto/login-response.dto';
 import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
+import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisosEnum } from '../permisos/enum/permisos-enum';
 
 @Controller('auth')
 export class AuthController {
@@ -22,6 +24,7 @@ export class AuthController {
     return await this.authService.login(loginDto);
   }
 
+  @PermisoRequerido(PermisosEnum.CREAR_USUARIOS)
   @Post('register')
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
   @ApiResponse({

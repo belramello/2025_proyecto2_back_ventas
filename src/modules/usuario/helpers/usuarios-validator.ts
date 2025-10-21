@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   forwardRef,
   Inject,
   Injectable,
@@ -32,5 +33,16 @@ export class UsuariosValidator {
       throw new NotFoundException(`Usuario con ID ${usuarioId} no encontrado`);
     }
     return usuario;
+  }
+
+  async validateEmailDisponible(
+    email?: string,
+    existingUserId?: number,
+  ): Promise<void> {
+    if (!email) return;
+    const existente = await this.usuariosService.findByEmail(email);
+    if (existente && existente.id !== existingUserId) {
+      throw new BadRequestException('El email ya está en uso por otro usuario');
+    }
   }
 }

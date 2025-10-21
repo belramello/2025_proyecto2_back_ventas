@@ -14,5 +14,6 @@ export class LoginResponseDto {
     nombre: string;
     email: string;
     rol: string;
+    permisos: number[];
   };
 }

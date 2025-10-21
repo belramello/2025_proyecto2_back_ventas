@@ -16,4 +16,6 @@ export interface IUsuarioRepository {
     lastPage: number;
   }>;
   actualizarRolDeUsuario(rol: Rol, usuario: Usuario): Promise<void>;
+  delete(usuario: Usuario): Promise<void>;
+  updateUsuario(usuario: Usuario): Promise<Usuario>;
 }

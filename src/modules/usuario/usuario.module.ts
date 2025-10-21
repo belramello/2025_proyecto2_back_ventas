@@ -9,6 +9,7 @@ import { AuthModule } from '../auth/auth.module';
 import { UsuariosValidator } from './helpers/usuarios-validator';
 import { RolesModule } from '../roles/roles.module';
 import { JwtModule } from '../jwt/jwt.module';
+import { UsuarioUpdater } from './helpers/usuario-updater';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { JwtModule } from '../jwt/jwt.module';
       useClass: UsuarioRepository,
     },
     UsuariosValidator,
+    UsuarioUpdater,
   ],
   exports: [UsuarioService],
 })
