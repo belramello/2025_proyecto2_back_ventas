@@ -10,6 +10,7 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
 
 export class CreateProductoDto {
   @ApiProperty({
@@ -78,5 +79,5 @@ export class CreateProductoDto {
     description: 'ID del usuario creador del producto',
   })
   @IsInt()
-  usuarioId: number;
+  usuarioId: Usuario;
 }

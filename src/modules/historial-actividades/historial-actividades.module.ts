@@ -17,5 +17,6 @@ import { HistorialActividadesMapper } from './mappers/historial.mapper';
     },
     HistorialActividadesMapper,
   ],
+  exports: [HistorialActividadesService],
 })
 export class HistorialActividadesModule {}

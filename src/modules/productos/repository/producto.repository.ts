@@ -18,10 +18,12 @@ export class ProductosRepository implements IProductosRepository {
     try {
       const producto = this.productoRepository.create({
         ...createProductoDto,
+        usuarioId: createProductoDto.usuarioId as unknown as number,
       });
       return await this.productoRepository.save(producto);
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al crear el producto: ${error.message}`,
       );
     }
@@ -97,6 +99,7 @@ export class ProductosRepository implements IProductosRepository {
       return await this.productoRepository.update(id, {
         ...data,
         fechaActualizacion: new Date(),
+        usuarioId: data.usuarioId as unknown as number, // Ensure that usuarioId is of type number
       });
     } catch (error) {
       throw new InternalServerErrorException(
