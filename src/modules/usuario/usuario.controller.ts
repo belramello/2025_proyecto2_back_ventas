@@ -1,50 +1,78 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
+  Put,
+  UseGuards,
+  Req,
+  Query,
   Delete,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
-import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Usuario } from './entities/usuario.entity';
+import { RespuestaUsuarioDto } from './dto/respuesta-usuario.dto';
+import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
+import { PermisosEnum } from '../permisos/enum/permisos-enum';
+import { AuthGuard } from '../../middlewares/auth.middleware';
+import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
+import { PermisosGuard } from '../../common/guards/permisos.guard';
+import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { RespuestaFindAllPaginatedUsuariosDTO } from './dto/respuesta-find-all-usuarios-paginated.dto';
+import { PaginationDto } from '../ventas/dto/pagination.dto';
 
-@Controller('usuario')
+@UseGuards(AuthGuard, PermisosGuard)
+@Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Crear un nuevo usuario' })
-  @ApiResponse({
-    status: 201,
-    description: 'Usuario creado exitosamente.',
-    type: Usuario,
-  })
-  create(@Body() createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {
-    return this.usuarioService.createUsuario(createUsuarioDto);
-  }
-
   @Get()
-  findAll() {
-    return this.usuarioService.findAll();
+  @ApiOperation({ summary: 'Obtener usuarios paginadas' })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'page', required: false, type: Number })
+  @ApiResponse({
+    status: 200,
+    description: 'Listado paginado de usuarios',
+    type: RespuestaFindAllPaginatedUsuariosDTO,
+  })
+  @PermisoRequerido(PermisosEnum.VER_USUARIOS)
+  findAllPaginated(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<RespuestaFindAllPaginatedUsuariosDTO> {
+    return this.usuarioService.findAllPaginated(paginationDto);
   }
 
+  @PermisoRequerido(PermisosEnum.VER_USUARIOS)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usuarioService.findOne(+id);
+  findUsuario(
+    @Param('id') id: number,
+    @Req() req: RequestWithUsuario,
+  ): Promise<RespuestaUsuarioDto> {
+    return this.usuarioService.findUsuario(req.usuario.id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
-    return this.usuarioService.update(+id, updateUsuarioDto);
-  }
-
+  @PermisoRequerido(PermisosEnum.ELIMINAR_USUARIOS)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usuarioService.remove(+id);
+  delete(@Param('id') id: number): Promise<void> {
+    return this.usuarioService.delete(id);
+  }
+
+  @PermisoRequerido(PermisosEnum.ASIGNAR_ROL)
+  @Put(':usuarioId/asignar-rol/:rolId')
+  async asignarRolAUsuario(
+    @Param('usuarioId') usuarioId: number,
+    @Param('rolId') rolId: number,
+  ): Promise<void> {
+    return this.usuarioService.actualizarRolDeUsuario(usuarioId, rolId);
+  }
+
+  @PermisoRequerido(PermisosEnum.MODIFICAR_USUARIOS)
+  @Patch(':id')
+  update(
+    @Param('id') id: number,
+    @Body() updateUsuarioDto: UpdateUsuarioDto,
+  ): Promise<RespuestaUsuarioDto> {
+    return this.usuarioService.update(id, updateUsuarioDto);
   }
 }

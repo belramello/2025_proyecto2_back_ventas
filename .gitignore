@@ -56,4 +56,5 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Certificates
-.ca.pem
+.ca.pemenv
+.env

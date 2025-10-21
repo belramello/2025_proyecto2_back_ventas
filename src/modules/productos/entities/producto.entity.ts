@@ -1,4 +1,4 @@
-import { DetalleVenta } from 'src/modules/ventas/detalle-ventas/entities/detalle-venta.entity';
+import { DetalleVenta } from '../../../modules/ventas/detalle-ventas/entities/detalle-venta.entity';
 import {
   Column,
   CreateDateColumn,
@@ -18,7 +18,7 @@ export class Producto {
   @Column()
   nombre: string;
 
-  @Column()
+  @Column({ type: 'varchar', unique: true })
   codigo: string;
 
   @Column()
@@ -42,11 +42,11 @@ export class Producto {
   @CreateDateColumn()
   fechaCreacion: Date;
 
-    @UpdateDateColumn({nullable:true}) //Puede no tener fecha de actualizacion
-    fechaActualizacion:Date;
+  @UpdateDateColumn({ nullable: true }) //Puede no tener fecha de actualizacion
+  fechaActualizacion: Date;
 
-    @DeleteDateColumn({nullable:true}) //Puede no tener fecha de eliminacion
-    fechaEliminacion:Date;
+  @DeleteDateColumn({ nullable: true }) //Puede no tener fecha de eliminacion
+  fechaEliminacion: Date;
 
   @Column()
   descripcion: string;

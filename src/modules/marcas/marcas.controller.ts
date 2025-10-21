@@ -1,0 +1,94 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseInterceptors,
+  UploadedFile,
+  UseGuards,
+} from '@nestjs/common';
+import { MarcasService } from './marcas.service';
+import { CreateMarcaDto } from './dto/create-marca.dto';
+import { UpdateMarcaDto } from './dto/update-marca.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisosEnum } from '../permisos/enum/permisos-enum';
+import { AuthGuard } from '../../middlewares/auth.middleware';
+
+@UseGuards(AuthGuard)
+@Controller('marcas')
+export class MarcasController {
+  constructor(private readonly marcasService: MarcasService) {}
+
+  @Post()
+  @UseInterceptors(
+    FileInterceptor('logo', {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+      storage: diskStorage({
+        destination: './uploads/logos',
+        filename: (req, file, cb) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+          cb(null, Date.now() + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  @PermisoRequerido(PermisosEnum.CREAR_MARCAS)
+  create(
+    @Body() createMarcaDto: CreateMarcaDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const logoPath = file ? `uploads/logos/${file.filename}` : undefined;
+    return this.marcasService.create(createMarcaDto, logoPath);
+  }
+  @PermisoRequerido(PermisosEnum.VER_MARCAS)
+  @Get()
+  findAll() {
+    return this.marcasService.findAll();
+  }
+  @PermisoRequerido(PermisosEnum.VER_MARCAS)
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.marcasService.findOne(+id);
+  }
+
+  @Patch(':id')
+  @UseInterceptors(
+    FileInterceptor('logo', {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+      storage: diskStorage({
+        destination: './uploads/logos',
+        filename: (req, file, cb) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
+          cb(null, Date.now() + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  @PermisoRequerido(PermisosEnum.MODIFICAR_MARCAS)
+  update(
+    @Param('id') id: string,
+    @Body() updateMarcaDto: UpdateMarcaDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const logoPath = file ? `uploads/logos/${file.filename}` : undefined;
+    return this.marcasService.update(+id, updateMarcaDto, logoPath);
+  }
+
+  @PermisoRequerido(PermisosEnum.ELIMINAR_MARCAS)
+  @Delete(':id')
+  remove(@Param('id') id: number) {
+    return this.marcasService.remove(id);
+  }
+  @Patch(':id/restore')
+  restore(@Param('id') id: string) {
+    return this.marcasService.restore(+id);
+  }
+}

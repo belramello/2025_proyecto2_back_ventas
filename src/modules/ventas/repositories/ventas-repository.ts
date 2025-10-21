@@ -2,13 +2,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { IVentasRepository } from './ventas-repository.interface';
 import { Venta } from '../entities/venta.entity';
 import { Repository } from 'typeorm';
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { Transactional } from 'typeorm-transactional';
 import { DetalleVentasService } from '../detalle-ventas/detalle-ventas.service';
 import { CreateVentaDto } from '../dto/create-venta.dto';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 
 export class VentasRepository implements IVentasRepository {
   constructor(
@@ -18,10 +16,14 @@ export class VentasRepository implements IVentasRepository {
   ) {}
 
   @Transactional()
-  async create(createVentaDto: CreateVentaDto): Promise<Venta> {
+  async create(
+    createVentaDto: CreateVentaDto,
+    vendedor: Usuario,
+  ): Promise<Venta> {
     try {
       //Crea la venta sin total ni detalles.
       const venta = this.ventasRepository.create({
+        vendedor,
         medioDePago: createVentaDto.medioDePago,
         total: 0,
       });
@@ -55,6 +57,7 @@ export class VentasRepository implements IVentasRepository {
     try {
       const query = this.ventasRepository
         .createQueryBuilder('venta')
+        .leftJoinAndSelect('venta.vendedor', 'vendedor')
         .leftJoinAndSelect('venta.detalleVentas', 'detalleVenta')
         .leftJoinAndSelect('detalleVenta.producto', 'producto')
         .orderBy('venta.fechaCreacion', 'DESC')
@@ -84,12 +87,6 @@ export class VentasRepository implements IVentasRepository {
         .leftJoinAndSelect('detalle.producto', 'producto')
         .where('venta.id = :ventaId', { ventaId })
         .getOne();
-
-      if (!venta) {
-        throw new NotFoundException(
-          `No se encontró la venta con ID ${ventaId}`,
-        );
-      }
       return venta;
     } catch (error) {
       throw new InternalServerErrorException(

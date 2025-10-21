@@ -15,13 +15,21 @@ export class HistorialActividadesMapper {
     };
   }
 
-  toRespuestaCreateDto(historial: HistorialActividades): RespuestaCreateHistorialDto {
+  toRespuestaCreateDto(
+    historial: HistorialActividades,
+  ): RespuestaCreateHistorialDto {
     return {
       id: historial.id,
       usuario: historial.usuario,
-      accion: historial.accion instanceof Object ? historial.accion.nombre : historial.accion,
+      accion:
+        historial.accion instanceof Object
+          ? historial.accion.nombre
+          : historial.accion,
       fechaHora: historial.fechaHora,
-      estado: historial.estado instanceof Object ? historial.estado.nombre : historial.estado,
+      estado:
+        historial.estado instanceof Object
+          ? historial.estado.nombre
+          : historial.estado,
     };
   }
 

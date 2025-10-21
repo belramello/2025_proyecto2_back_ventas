@@ -8,15 +8,21 @@ import type { IHistorialActividadesRepository } from './repository/historial-act
 export class HistorialActividadesService {
   constructor(
     @Inject('IHistorialActividadesRepository')
-    private readonly historialRepository: IHistorialActividadesRepository, 
-    private readonly historialMapper: HistorialActividadesMapper ) {}
+    private readonly historialRepository: IHistorialActividadesRepository,
+    private readonly historialMapper: HistorialActividadesMapper,
+  ) {}
   async create(createHistorialActividadeDto: CreateHistorialActividadesDto) {
-  const historial = await this.historialRepository.create(createHistorialActividadeDto);
-  return this.historialMapper.toRespuestaCreateDto(historial);
-}
+    const historial = await this.historialRepository.create(
+      createHistorialActividadeDto,
+    );
+    return this.historialMapper.toRespuestaCreateDto(historial);
+  }
   async findAllPaginated(paginationDto: PaginationDto) {
-  const { limit = 10, page = 1 } = paginationDto;
-  const paginated = await this.historialRepository.findAllPaginated(page, limit);
-  return this.historialMapper.toPaginatedResponse(paginated);
-}
+    const { limit = 10, page = 1 } = paginationDto;
+    const paginated = await this.historialRepository.findAllPaginated(
+      page,
+      limit,
+    );
+    return this.historialMapper.toPaginatedResponse(paginated);
+  }
 }

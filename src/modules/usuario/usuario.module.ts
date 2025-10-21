@@ -1,22 +1,34 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import { UsuarioController } from './usuario.controller';
 import { UsuariosMappers } from './mappers/usuarios.mappers';
-import { UsuarioRepositorySQL } from './repositories/sql.repository';
-import { ConfigService } from '@nestjs/config';
+import { UsuarioRepository } from './repositories/usuarios-repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Usuario } from './entities/usuario.entity';
 import { AuthModule } from '../auth/auth.module';
+import { UsuariosValidator } from './helpers/usuarios-validator';
+import { RolesModule } from '../roles/roles.module';
+import { JwtModule } from '../jwt/jwt.module';
+import { UsuarioUpdater } from './helpers/usuario-updater';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Usuario]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([Usuario]),
+    AuthModule,
+    forwardRef(() => RolesModule),
+    JwtModule,
+  ],
   controllers: [UsuarioController],
   providers: [
     UsuarioService,
-    UsuarioRepositorySQL,
     UsuariosMappers,
-    ConfigService,
+    {
+      provide: 'IUsuarioRepository',
+      useClass: UsuarioRepository,
+    },
+    UsuariosValidator,
+    UsuarioUpdater,
   ],
-  exports: [UsuarioRepositorySQL, UsuarioService],
+  exports: [UsuarioService],
 })
 export class UsuarioModule {}

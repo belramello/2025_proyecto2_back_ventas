@@ -10,7 +10,10 @@ import { VentasModule } from './modules/ventas/ventas.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from './modules/jwt/jwt.module';
-import { HistorialActividadesModule } from './modules/historial-actividades/historial-actividades.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { PermisosModule } from './modules/permisos/permisos.module';
+import { MarcasModule } from './modules/marcas/marcas.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -41,12 +44,17 @@ import { HistorialActividadesModule } from './modules/historial-actividades/hist
         rejectUnauthorized: true,
       },
     }),
+    MulterModule.register({
+      dest: './uploads/logos',
+    }),
     ProductosModule,
     VentasModule,
     UsuarioModule,
     AuthModule,
     JwtModule,
-    HistorialActividadesModule,
+    RolesModule,
+    PermisosModule,
+    MarcasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

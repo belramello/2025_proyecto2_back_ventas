@@ -6,6 +6,8 @@ import {
   Param,
   Query,
   ParseIntPipe,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { VentasService } from './ventas.service';
 import { CreateVentaDto } from './dto/create-venta.dto';
@@ -21,7 +23,13 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
+import { PermisosGuard } from '../../common/guards/permisos.guard';
+import * as authMiddleware from '../../middlewares/auth.middleware';
+import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
+import { PermisosEnum } from '../permisos/enum/permisos-enum';
+import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
 
+@UseGuards(authMiddleware.AuthGuard, PermisosGuard)
 @ApiTags('ventas')
 @Controller('ventas')
 export class VentasController {
@@ -36,10 +44,12 @@ export class VentasController {
     type: RespuestaCreateVentaDto,
   })
   @ApiResponse({ status: 400, description: 'Datos inválidos' })
+  @PermisoRequerido(PermisosEnum.CREAR_VENTA)
   create(
+    @Req() req: RequestWithUsuario,
     @Body() createVentaDto: CreateVentaDto,
   ): Promise<RespuestaCreateVentaDto> {
-    return this.ventasService.create(createVentaDto);
+    return this.ventasService.create(createVentaDto, req.usuario);
   }
 
   @Get()
@@ -51,6 +61,7 @@ export class VentasController {
     description: 'Listado paginado de ventas',
     type: RespuestaFindAllPaginatedVentaDTO,
   })
+  @PermisoRequerido(PermisosEnum.VER_HISTORIAL_VENTAS)
   findAllPaginated(
     @Query() paginationDto: PaginationDto,
   ): Promise<RespuestaFindAllPaginatedVentaDTO> {
@@ -66,6 +77,7 @@ export class VentasController {
     type: RespuestaFindOneVentaDto,
   })
   @ApiResponse({ status: 404, description: 'Venta no encontrada' })
+  @PermisoRequerido(PermisosEnum.VER_HISTORIAL_VENTAS)
   findOne(
     @Param('id', ParseIntPipe) id: number,
   ): Promise<RespuestaFindOneVentaDto> {

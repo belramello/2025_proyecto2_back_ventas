@@ -4,10 +4,16 @@ export class RespuestaCreateHistorialDto {
   @ApiProperty({ example: 1, description: 'ID del historial creado' })
   id: number;
 
-  @ApiProperty({ example: 7, description: 'ID del usuario que realizó la acción' })
+  @ApiProperty({
+    example: 7,
+    description: 'ID del usuario que realizó la acción',
+  })
   usuario: number;
 
-  @ApiProperty({ example: 'CREAR_PUBLICACION', description: 'Acción realizada' })
+  @ApiProperty({
+    example: 'CREAR_PUBLICACION',
+    description: 'Acción realizada',
+  })
   accion: string;
 
   @ApiProperty({

@@ -1,4 +1,4 @@
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 import {
   Column,
   CreateDateColumn,
@@ -20,10 +20,10 @@ export class Venta {
 
   @Column({ enum: ['efectivo', 'credito', 'debito'] })
   medioDePago: string;
-  /*
+
   @ManyToOne(() => Usuario, (usuario) => usuario.ventas)
   vendedor: Usuario;
-*/
+
   @OneToMany(() => DetalleVenta, (detalleVenta) => detalleVenta.venta, {
     cascade: true,
   })

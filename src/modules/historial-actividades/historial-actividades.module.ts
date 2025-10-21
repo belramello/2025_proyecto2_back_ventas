@@ -9,12 +9,13 @@ import { HistorialActividadesMapper } from './mappers/historial.mapper';
 @Module({
   imports: [TypeOrmModule.forFeature([HistorialActividades])],
   controllers: [HistorialActividadesController],
-  providers: [HistorialActividadesService,
+  providers: [
+    HistorialActividadesService,
     {
-          provide: 'IHistorialActividadesRepository',
-          useClass: HistorialActividadesRepository,
-        },
-        HistorialActividadesMapper,
+      provide: 'IHistorialActividadesRepository',
+      useClass: HistorialActividadesRepository,
+    },
+    HistorialActividadesMapper,
   ],
 })
 export class HistorialActividadesModule {}
