@@ -16,7 +16,7 @@ import { UpdateMarcaDto } from './dto/update-marca.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
 import { AuthGuard } from '../../middlewares/auth.middleware';
 
