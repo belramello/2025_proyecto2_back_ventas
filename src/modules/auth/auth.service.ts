@@ -65,6 +65,12 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
     });
+    await this.historialActividades.create({
+      usuario: nuevoUsuario.id,
+      accionId: 17,
+      estadoId: 1,
+    });
+
     const payload = {
       email: nuevoUsuario.email,
       sub: nuevoUsuario.id.toString(),
