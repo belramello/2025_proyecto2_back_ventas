@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Marca } from 'src/modules/marcas/entities/marca.entity';
 
 //Tabla Productos
 @Entity('productos')
@@ -27,8 +28,9 @@ export class Producto {
   @Column()
   precio: number;
 
-  @Column()
-  marca: string; //Reemplazar por entidad Marca. Al modificar, modificar DTOs.
+  @ManyToOne(() => Marca, (marca) => marca.productos)
+  @JoinColumn({ name: 'marca_id' }) // Este será el campo (columna) en la tabla 'productos'
+  marca: Marca;
 
   @Column()
   stock: number;
@@ -56,7 +58,11 @@ export class Producto {
 
   @ManyToOne(() => Usuario)
   @JoinColumn({ name: 'usuario_creacion_id' })
-  usuarioId: Usuario;
+  usuarioCreacion: Usuario;
+
+  @ManyToOne(() => Usuario)
+  @JoinColumn({ name: 'usuario_modificacion_id' })
+  usuarioModificacion: Usuario;
 
   @ManyToOne(() => Usuario)
   @JoinColumn({ name: 'usuario_eliminacion_id' })

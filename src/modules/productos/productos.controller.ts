@@ -36,10 +36,6 @@ import { PaginationDto } from '../ventas/dto/pagination.dto';
 @Controller('productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
-
-  // ────────────────────────────────
-  // 📦 CREAR PRODUCTO
-  // ────────────────────────────────
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo producto' })
   @ApiResponse({
@@ -50,13 +46,18 @@ export class ProductosController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   @ApiBody({ type: CreateProductoDto })
   @PermisoRequerido(PermisosEnum.CREAR_PRODUCTO)
-  async create(@Body() createProductoDto: CreateProductoDto) {
-    return this.productosService.create(createProductoDto);
+  async create(
+    @Body() createProductoDto: CreateProductoDto,
+    @Req() req: RequestWithUsuario,
+  ) {
+    const usuarioAutenticadoId = req.usuario.id;
+
+    return this.productosService.create(
+      createProductoDto,
+      usuarioAutenticadoId,
+    );
   }
 
-  // ────────────────────────────────
-  // 🔍 OBTENER TODOS LOS PRODUCTOS
-  // ────────────────────────────────
   @Get()
   @ApiOperation({
     summary: 'Obtener todos los productos (de todos los usuarios)',
@@ -86,9 +87,6 @@ export class ProductosController {
     return this.productosService.findOne(id);
   }
 
-  // ────────────────────────────────
-  // 🛠️ ACTUALIZAR PRODUCTO
-  // ────────────────────────────────
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar un producto existente' })
   @ApiParam({ name: 'id', description: 'ID del producto', example: 1 })
@@ -102,8 +100,17 @@ export class ProductosController {
   async update(
     @Param('id') id: string,
     @Body() updateProductoDto: UpdateProductoDto,
+    @Req() req: RequestWithUsuario,
   ) {
-    return this.productosService.update(+id, updateProductoDto);
+    const usuarioAutenticadoId = req.usuario.id;
+
+    return this.productosService.update(
+      +id,
+      {
+        ...updateProductoDto,
+      },
+      usuarioAutenticadoId, // Pass the usuarioId directly as a number
+    );
   }
 
   @Get('codigo/:codigo')
@@ -120,9 +127,6 @@ export class ProductosController {
     return this.productosService.findOneByCodigo(codigo);
   }
 
-  // ────────────────────────────────
-  // 🗑️ ELIMINAR PRODUCTO (SOFT DELETE)
-  // ────────────────────────────────
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Eliminar (soft delete) un producto' })
@@ -131,7 +135,7 @@ export class ProductosController {
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
   @PermisoRequerido(PermisosEnum.ELIMINAR_PRODUCTOS)
   async remove(@Param('id') id: string, @Req() req: RequestWithUsuario) {
-    const usuarioAutenticadoId = req.usuario.id; // ✅ así se accede correctamente
+    const usuarioAutenticadoId = req.usuario.id;
 
     const deleteProductoDto: DeleteProductoDto = {
       id: Number(id),

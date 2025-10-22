@@ -10,7 +10,6 @@ import {
   MaxLength,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
 
 export class CreateProductoDto {
   @ApiProperty({
@@ -32,9 +31,9 @@ export class CreateProductoDto {
   precio: number;
 
   @ApiProperty({ example: 'Pedigree', description: 'Marca del producto' })
-  @IsString()
-  @MaxLength(50)
-  marca: string;
+  @IsNumber()
+  @Min(0)
+  marca: number;
 
   @ApiProperty({ example: 30, description: 'Cantidad de stock disponible' })
   @IsInt()
@@ -73,11 +72,4 @@ export class CreateProductoDto {
   @IsString()
   @MaxLength(255)
   descripcion: string;
-
-  @ApiProperty({
-    example: 1,
-    description: 'ID del usuario creador del producto',
-  })
-  @IsInt()
-  usuarioId: Usuario;
 }

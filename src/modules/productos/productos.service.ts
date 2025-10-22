@@ -20,13 +20,16 @@ export class ProductosService {
     private readonly historialActividades: HistorialActividadesService,
   ) {}
 
-  async create(createProductoDto: CreateProductoDto) {
+  async create(createProductoDto: CreateProductoDto, usuarioId: number) {
     try {
-      const producto = await this.productosRepository.create(createProductoDto);
+      const producto = await this.productosRepository.create(
+        createProductoDto,
+        usuarioId,
+      );
 
       // Registro historial exitoso
       await this.historialActividades.create({
-        usuario: createProductoDto.usuarioId as unknown as number,
+        usuario: usuarioId,
         accionId: 7, // Acción de creación de producto
         estadoId: 1, // Exitoso
       });
@@ -35,7 +38,7 @@ export class ProductosService {
     } catch (error) {
       // Registro historial fallido
       await this.historialActividades.create({
-        usuario: createProductoDto.usuarioId as unknown as number,
+        usuario: usuarioId,
         accionId: 7,
         estadoId: 2, // Fallido
       });
@@ -65,8 +68,12 @@ export class ProductosService {
     return await this.productosRepository.findByCodigo(codigo);
   }
 
-  async update(id: number, updateProductoDto: UpdateProductoDto) {
-    return this.productosRepository.update(id, updateProductoDto);
+  async update(
+    id: number,
+    updateProductoDto: UpdateProductoDto,
+    usuarioId: number,
+  ) {
+    return this.productosRepository.update(id, updateProductoDto, usuarioId);
   }
 
   async decrementarStock(producto: Producto, cantidad: number) {

@@ -14,11 +14,16 @@ export class ProductosRepository implements IProductosRepository {
     private readonly productoRepository: Repository<Producto>,
   ) {}
 
-  async create(createProductoDto: CreateProductoDto): Promise<Producto> {
+  async create(
+    createProductoDto: CreateProductoDto,
+    usuarioId: number,
+  ): Promise<Producto> {
     try {
       const producto = this.productoRepository.create({
         ...createProductoDto,
-        usuarioId: createProductoDto.usuarioId,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        marca: { id: createProductoDto.marca }, // Asignar la relación con Marca
+        usuarioCreacion: { id: usuarioId },
       });
       return await this.productoRepository.save(producto);
     } catch (error) {
@@ -32,7 +37,7 @@ export class ProductosRepository implements IProductosRepository {
   async findAllByUsuarioId(usuarioId: number): Promise<Producto[]> {
     try {
       return await this.productoRepository.find({
-        where: { usuarioId: { id: usuarioId } },
+        where: { usuarioCreacion: { id: usuarioId } },
         order: { fechaCreacion: 'DESC' },
       });
     } catch (error) {
@@ -97,12 +102,17 @@ export class ProductosRepository implements IProductosRepository {
     }
   }
 
-  async update(id: number, data: UpdateProductoDto): Promise<UpdateResult> {
+  async update(
+    id: number,
+    data: UpdateProductoDto,
+    usuarioId: number,
+  ): Promise<UpdateResult> {
     try {
       return await this.productoRepository.update(id, {
         ...data,
+        marca: data.marca ? { id: data.marca } : undefined, // Asignar la relación si se proporciona
         fechaActualizacion: new Date(),
-        usuarioId: data.usuarioId, // Ensure that usuarioId is of type number
+        usuarioModificacion: { id: usuarioId },
       });
     } catch (error) {
       throw new InternalServerErrorException(

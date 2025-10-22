@@ -6,37 +6,40 @@ import { RespuestaFindAllPaginatedProductoDTO } from '../dto/respuesta-find-all-
 
 @Injectable()
 export class ProductoMapper {
-
   toRespuestaCreateProducto(producto: Producto): RespuestaCreateProductoDto {
     return {
       nombre: producto.nombre,
       codigo: producto.codigo,
-    precio: producto.precio,
-    marca: producto.marca,
-    stock: producto.stock,
-    linea: producto.linea,
-    fotoUrl: producto.fotoUrl,
-    descripcion: producto.descripcion
-
+      precio: producto.precio,
+      marca: producto.marca.id,
+      stock: producto.stock,
+      linea: producto.linea,
+      fotoUrl: producto.fotoUrl,
+      descripcion: producto.descripcion,
     };
   }
 
-  toRespuestaFinalFindOneDto(producto: Producto): RespuestaFindOneProductoDto{
+  toRespuestaFinalFindOneDto(producto: Producto): RespuestaFindOneProductoDto {
     return {
       id: producto.id,
       nombre: producto.nombre,
       codigo: producto.codigo,
       precio: producto.precio,
-      marca: producto.marca,
+      marca: producto.marca.id,
       stock: producto.stock,
       linea: producto.linea,
       fotoUrl: producto.fotoUrl,
       fechaCreacion: producto.fechaCreacion,
-      descripcion: producto.descripcion};
+      descripcion: producto.descripcion,
+    };
   }
 
-  toRespuestaFindAllProductosDTO(productos: Producto[]): RespuestaFindOneProductoDto[] {
-    return productos.map((producto) => this.toRespuestaFinalFindOneDto(producto));
+  toRespuestaFindAllProductosDTO(
+    productos: Producto[],
+  ): RespuestaFindOneProductoDto[] {
+    return productos.map((producto) =>
+      this.toRespuestaFinalFindOneDto(producto),
+    );
   }
 
   toRespuestaFindAllPaginatedProductoDTO(paginated: {
@@ -44,7 +47,7 @@ export class ProductoMapper {
     total: number;
     page: number;
     lastPage: number;
-  }): RespuestaFindAllPaginatedProductoDTO{
+  }): RespuestaFindAllPaginatedProductoDTO {
     return {
       productos: this.toRespuestaFindAllProductosDTO(paginated.productos),
       total: paginated.total,
