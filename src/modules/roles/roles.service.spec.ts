@@ -112,8 +112,8 @@ describe('RolesService', () => {
       const rolCreado = mockRol;
 
       // Configuramos los mocks
-      validator.validatePermisosExistentes.mockResolvedValue(permisosMock);
-      repository.create.mockResolvedValue(rolCreado);
+      validator.validatePermisosExistentes?.mockResolvedValue(permisosMock);
+      repository.create?.mockResolvedValue(rolCreado);
 
       // Ejecutamos el método
       const result = await service.create(createRolDto);
@@ -122,7 +122,10 @@ describe('RolesService', () => {
       expect(validator.validatePermisosExistentes).toHaveBeenCalledWith(
         createRolDto.permisosId,
       );
-      expect(repository.create).toHaveBeenCalledWith(createRolDto, permisosMock);
+      expect(repository.create).toHaveBeenCalledWith(
+        createRolDto,
+        permisosMock,
+      );
       expect(result).toEqual(rolCreado);
     });
 
@@ -135,7 +138,7 @@ describe('RolesService', () => {
       };
 
       // Configuramos el mock para que falle
-      validator.validatePermisosExistentes.mockRejectedValue(
+      validator.validatePermisosExistentes?.mockRejectedValue(
         new NotFoundException('Permiso con ID 99 no encontrado'),
       );
 
@@ -160,8 +163,8 @@ describe('RolesService', () => {
       ];
 
       // Configuramos los mocks
-      repository.findAll.mockResolvedValue(rolesArray);
-      mapper.toRespuestaFindOneRoles.mockReturnValue(rolesDtoArray);
+      repository.findAll?.mockResolvedValue(rolesArray);
+      mapper.toRespuestaFindOneRoles?.mockReturnValue(rolesDtoArray);
 
       // Ejecutamos
       const result = await service.findAll();
@@ -174,8 +177,8 @@ describe('RolesService', () => {
 
     it('debería retornar un array vacío si no hay roles', async () => {
       // Configuramos los mocks
-      repository.findAll.mockResolvedValue([]);
-      mapper.toRespuestaFindOneRoles.mockReturnValue([]);
+      repository.findAll?.mockResolvedValue([]);
+      mapper.toRespuestaFindOneRoles?.mockReturnValue([]);
 
       // Ejecutamos
       const result = await service.findAll();
@@ -191,7 +194,7 @@ describe('RolesService', () => {
   describe('findOne', () => {
     it('debería retornar un rol si se encuentra', async () => {
       const rolId = 1;
-      repository.findOne.mockResolvedValue(mockRol);
+      repository.findOne?.mockResolvedValue(mockRol);
 
       const result = await service.findOne(rolId);
 
@@ -201,7 +204,7 @@ describe('RolesService', () => {
 
     it('debería retornar null si el rol no se encuentra', async () => {
       const rolId = 99;
-      repository.findOne.mockResolvedValue(null);
+      repository.findOne?.mockResolvedValue(null);
 
       const result = await service.findOne(rolId);
 
@@ -218,12 +221,12 @@ describe('RolesService', () => {
 
     it('debería actualizar los permisos de un rol exitosamente', async () => {
       // Configuramos los mocks
-      validator.validateRolExistente.mockResolvedValue(mockRol);
-      validator.validateRolModificable.mockImplementation(() => {
+      validator.validateRolExistente?.mockResolvedValue(mockRol);
+      validator.validateRolModificable?.mockImplementation(() => {
         // No hace nada, pasa la validación
       });
-      validator.validatePermisosExistentes.mockResolvedValue(permisosMock);
-      repository.updatePermisos.mockResolvedValue(undefined); // Es un void
+      validator.validatePermisosExistentes?.mockResolvedValue(permisosMock);
+      repository.updatePermisos?.mockResolvedValue(undefined); // Es un void
 
       // Ejecutamos
       await service.updatePermisos(rolId, updateDto);
@@ -242,7 +245,7 @@ describe('RolesService', () => {
 
     it('debería lanzar NotFoundException si el rol no existe', async () => {
       // Configuramos el mock
-      validator.validateRolExistente.mockRejectedValue(
+      validator.validateRolExistente?.mockRejectedValue(
         new NotFoundException('Rol no encontrado'),
       );
 
@@ -258,8 +261,8 @@ describe('RolesService', () => {
 
     it('debería lanzar ForbiddenException si el rol no es modificable', async () => {
       // Configuramos los mocks
-      validator.validateRolExistente.mockResolvedValue(mockRolNoModificable);
-      validator.validateRolModificable.mockImplementation(() => {
+      validator.validateRolExistente?.mockResolvedValue(mockRolNoModificable);
+      validator.validateRolModificable?.mockImplementation(() => {
         throw new ForbiddenException('Rol no modificable');
       });
 
@@ -278,9 +281,9 @@ describe('RolesService', () => {
 
     it('debería lanzar NotFoundException si un permiso no existe', async () => {
       // Configuramos los mocks
-      validator.validateRolExistente.mockResolvedValue(mockRol);
-      validator.validateRolModificable.mockImplementation(() => {});
-      validator.validatePermisosExistentes.mockRejectedValue(
+      validator.validateRolExistente?.mockResolvedValue(mockRol);
+      validator.validateRolModificable?.mockImplementation(() => {});
+      validator.validatePermisosExistentes?.mockRejectedValue(
         new NotFoundException('Permiso no encontrado'),
       );
 
