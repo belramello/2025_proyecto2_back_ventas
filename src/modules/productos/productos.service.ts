@@ -1,4 +1,4 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
@@ -15,7 +15,7 @@ export class ProductosService {
     @Inject('IProductosRepository')
     private readonly productosRepository: IProductosRepository,
     private readonly productoMapper: ProductoMapper,
-    private readonly validator: ProductosValidator
+    private readonly validator: ProductosValidator,
   ) {}
 
   async create(createProductoDto: CreateProductoDto) {

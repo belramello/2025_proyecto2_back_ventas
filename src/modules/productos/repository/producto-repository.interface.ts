@@ -1,4 +1,4 @@
-import { UpdateResult, DeleteResult } from 'typeorm';
+import { UpdateResult } from 'typeorm';
 import { CreateProductoDto } from '../dto/create-producto.dto';
 import { UpdateProductoDto } from '../dto/update-producto.dto';
 import { Producto } from '../entities/producto.entity';
