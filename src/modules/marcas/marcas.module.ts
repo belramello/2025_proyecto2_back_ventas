@@ -4,13 +4,21 @@ import { MarcasService } from './marcas.service';
 import { MarcasController } from './marcas.controller';
 import { Marca } from './entities/marca.entity';
 import { MarcaRepository } from './repositories/marca-repository';
-import { MarcaNombreUniqueValidator } from './helpers/marcas-validator';
-import { AuthModule } from '../auth/auth.module';
+import { JwtModule } from '../jwt/jwt.module';
 import { UsuarioModule } from '../usuario/usuario.module';
+import { MarcaNombreUniqueValidator } from './helpers/marcas-validator';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Marca]), AuthModule, UsuarioModule],
+  imports: [TypeOrmModule.forFeature([Marca]), JwtModule, UsuarioModule],
   controllers: [MarcasController],
-  providers: [MarcasService, MarcaRepository, MarcaNombreUniqueValidator],
+  providers: [
+    MarcasService,
+    {
+      provide: 'IMarcaRepository',
+      useClass: MarcaRepository,
+    },
+    MarcaNombreUniqueValidator,
+  ],
+  exports: [MarcasService],
 })
 export class MarcasModule {}

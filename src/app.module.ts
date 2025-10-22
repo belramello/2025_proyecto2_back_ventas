@@ -48,6 +48,9 @@ import { HistorialActividadesModule } from './modules/historial-actividades/hist
     MulterModule.register({
       dest: './uploads/logos',
     }),
+    MulterModule.register({
+      dest: './uploads/logos',
+    }),
     ProductosModule,
     VentasModule,
     UsuarioModule,

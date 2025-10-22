@@ -18,7 +18,7 @@ export class ProductosRepository implements IProductosRepository {
     try {
       const producto = this.productoRepository.create({
         ...createProductoDto,
-        usuarioId: createProductoDto.usuarioId as unknown as number,
+        usuarioId: createProductoDto.usuarioId,
       });
       return await this.productoRepository.save(producto);
     } catch (error) {
@@ -32,11 +32,12 @@ export class ProductosRepository implements IProductosRepository {
   async findAllByUsuarioId(usuarioId: number): Promise<Producto[]> {
     try {
       return await this.productoRepository.find({
-        where: { usuarioId },
+        where: { usuarioId: { id: usuarioId } },
         order: { fechaCreacion: 'DESC' },
       });
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al encontrar los productos del usuario con ID ${usuarioId}: ${error.message}`,
       );
     }
@@ -50,6 +51,7 @@ export class ProductosRepository implements IProductosRepository {
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al buscar el producto con ID ${data.id}: ${error.message}`,
       );
     }
@@ -65,6 +67,7 @@ export class ProductosRepository implements IProductosRepository {
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al buscar el producto con codigo ${codigo}: ${error.message}`,
       );
     }
@@ -99,7 +102,7 @@ export class ProductosRepository implements IProductosRepository {
       return await this.productoRepository.update(id, {
         ...data,
         fechaActualizacion: new Date(),
-        usuarioId: data.usuarioId as unknown as number, // Ensure that usuarioId is of type number
+        usuarioId: data.usuarioId, // Ensure that usuarioId is of type number
       });
     } catch (error) {
       throw new InternalServerErrorException(
@@ -114,9 +117,11 @@ export class ProductosRepository implements IProductosRepository {
       // Soft delete:  marca fechaEliminacion
       return await this.productoRepository.update(deleteProductodto.id, {
         fechaEliminacion: new Date(),
+        usuarioEliminacion: { id: deleteProductodto.usuarioId },
       });
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al eliminar (soft delete) el producto con ID ${deleteProductodto.id}: ${error.message}`,
       );
     }

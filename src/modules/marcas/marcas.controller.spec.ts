@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MarcasController } from './marcas.controller';
+<<<<<<< HEAD
 import { MarcasService } from './marcas.service';
 import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
@@ -41,10 +42,16 @@ const mockMarcasService = {
 describe('MarcasController', () => {
   let controller: MarcasController;
   let service: typeof mockMarcasService;
+=======
+
+describe('MarcasController', () => {
+  let controller: MarcasController;
+>>>>>>> 6ff62d53cd6513f49d98258a7d127e3026125ebe
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MarcasController],
+<<<<<<< HEAD
       providers: [
         {
           provide: MarcasService,
@@ -173,4 +180,14 @@ describe('MarcasController', () => {
       expect(service.restore).toHaveBeenCalledWith(1);
     });
   });
+=======
+    }).compile();
+
+    controller = module.get<MarcasController>(MarcasController);
+  });
+
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
+  });
+>>>>>>> 6ff62d53cd6513f49d98258a7d127e3026125ebe
 });

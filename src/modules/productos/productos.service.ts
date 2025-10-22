@@ -74,7 +74,27 @@ export class ProductosService {
     await this.productosRepository.decrementStock(producto.id, cantidad);
   }
 
-  async remove(deleteProductoDto: DeleteProductoDto) {
-    return this.productosRepository.remove(deleteProductoDto);
+  async remove(deleteProductoDto: DeleteProductoDto): Promise<any> {
+    try {
+      const producto = await this.productosRepository.remove(deleteProductoDto);
+
+      // Registro borrado exitoso
+      await this.historialActividades.create({
+        usuario: deleteProductoDto.usuarioId as unknown as number,
+        accionId: 9, // Acción de borrado de producto
+        estadoId: 1, // Exitoso
+      });
+
+      return producto;
+    } catch (error) {
+      // Registro historial fallido
+      await this.historialActividades.create({
+        usuario: deleteProductoDto.usuarioId as unknown as number,
+        accionId: 9,
+        estadoId: 2, // Fallido
+      });
+
+      throw error; // Opcional: volver a lanzar el error
+    }
   }
 }

@@ -10,6 +10,7 @@ import {
   HttpStatus,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
@@ -24,6 +25,7 @@ import {
 import { Producto } from './entities/producto.entity';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
 import { AuthGuard } from '../../middlewares/auth.middleware';
+import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
 import { PermisosGuard } from '../../common/guards/permisos.guard';
 import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
@@ -128,8 +130,15 @@ export class ProductosController {
   @ApiResponse({ status: 204, description: 'Producto eliminado correctamente' })
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
   @PermisoRequerido(PermisosEnum.ELIMINAR_PRODUCTOS)
-  async remove(@Param('id') id: string) {
-    const deleteProductoDto: DeleteProductoDto = { id: Number(id) };
+  async remove(@Param('id') id: string, @Req() req: RequestWithUsuario) {
+    const usuarioAutenticadoId = req.usuario.id; // ✅ así se accede correctamente
+
+    const deleteProductoDto: DeleteProductoDto = {
+      id: Number(id),
+      usuarioId: usuarioAutenticadoId,
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.productosService.remove(deleteProductoDto);
   }
 }

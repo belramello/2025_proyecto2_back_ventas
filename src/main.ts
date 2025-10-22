@@ -9,6 +9,7 @@ import {
 } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
 import { join } from 'path';
+
 export async function bootstrap() {
   //Para poder utilizar @Transactional()
   initializeTransactionalContext();
