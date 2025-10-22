@@ -73,7 +73,31 @@ export class ProductosService {
     updateProductoDto: UpdateProductoDto,
     usuarioId: number,
   ) {
-    return this.productosRepository.update(id, updateProductoDto, usuarioId);
+    try {
+      const producto = this.productosRepository.update(
+        id,
+        updateProductoDto,
+        usuarioId,
+      );
+
+      // Registro actualización exitosa
+      await this.historialActividades.create({
+        usuario: usuarioId,
+        accionId: 8, // Acción de borrado de producto
+        estadoId: 1, // Exitoso
+      });
+
+      return producto;
+    } catch (error) {
+      // Registro historial fallido
+      await this.historialActividades.create({
+        usuario: usuarioId,
+        accionId: 8,
+        estadoId: 2, // Fallido
+      });
+
+      throw error; // Opcional: volver a lanzar el error
+    }
   }
 
   async decrementarStock(producto: Producto, cantidad: number) {
