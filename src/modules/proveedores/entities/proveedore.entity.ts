@@ -1,13 +1,13 @@
-import { 
-  Column, 
-  DeleteDateColumn, 
-  Entity, 
-  OneToMany, 
-  PrimaryGeneratedColumn 
-} from "typeorm";
-import { DetalleProveedorProducto } from "src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity";
+import {
+  Column,
+  DeleteDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 @Entity('proveedores')
-export class Proveedore {
+export class Proveedor {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -24,7 +24,7 @@ export class Proveedore {
   contacto: string;
 
   @Column()
-  provincia:string; 
+  provincia: string;
 
   @Column()
   localidad: string;
@@ -34,5 +34,4 @@ export class Proveedore {
 
   @DeleteDateColumn({ nullable: true }) //Puede no tener fecha de eliminacion
   fechaEliminacion: Date;
-
 }

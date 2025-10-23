@@ -1,7 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DetalleProveedorProducto } from './entities/detalleproveedorproducto.entity';
-import { Proveedore } from '../proveedores/entities/proveedore.entity';
+import { Proveedor } from '../proveedores/entities/proveedore.entity';
 import { DetalleProveedorProductoService } from './detalleproveedorproducto.service';
 import { DetalleProveedorProductoRepository } from './repositories/detalle-proveedorproducto-repository';
 import { DetalleProveedorProductoMapper } from './mapper/detalle-proveedor-producto.mapper';
@@ -10,8 +10,8 @@ import { ProveedoresModule } from '../proveedores/proveedores.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([DetalleProveedorProducto, Proveedore]),
-    forwardRef(() => ProductosModule), // forwardRef para evitar circular dependency
+    TypeOrmModule.forFeature([DetalleProveedorProducto, Proveedor]),
+    forwardRef(() => ProductosModule),
     ProveedoresModule,
   ],
   providers: [

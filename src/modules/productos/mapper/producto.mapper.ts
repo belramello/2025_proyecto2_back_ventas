@@ -3,7 +3,6 @@ import { Producto } from '../entities/producto.entity';
 import { RespuestaCreateProductoDto } from '../dto/respuesta-create-producto.dto';
 import { RespuestaFindOneProductoDto } from '../dto/respuesta-find-one-producto.dto';
 import { RespuestaFindAllPaginatedProductoDTO } from '../dto/respuesta-find-all-paginated.dto';
-import { RespuestaFindOneDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/respuesta-find-one-detalleproveedorproducto.dto';
 import { DetalleProveedorProductoMapper } from 'src/modules/detalleproveedorproducto/mapper/detalle-proveedor-producto.mapper';
 
 @Injectable()
@@ -13,11 +12,6 @@ export class ProductoMapper {
   ) {}
 
   toRespuestaCreateProducto(producto: Producto): RespuestaCreateProductoDto {
-    const detalles: RespuestaFindOneDetalleProveedorProductoDto[] =
-      producto.detallesProveedor?.map((detalle) =>
-        this.detalleProveedorProductoMapper.toResponseDto(detalle),
-      ) || [];
-
     return {
       nombre: producto.nombre,
       codigo: producto.codigo,
@@ -26,16 +20,16 @@ export class ProductoMapper {
       linea: producto.linea?.nombre,
       fotoUrl: producto.fotoUrl,
       descripcion: producto.descripcion,
-      detalles: detalles,
+      detalles: this.detalleProveedorProductoMapper.toResponsesDto(
+        producto.detallesProveedor,
+      ),
     };
   }
 
   toRespuestaFinalFindOneDto(producto: Producto): RespuestaFindOneProductoDto {
-    const detalles: RespuestaFindOneDetalleProveedorProductoDto[] =
-      producto.detallesProveedor?.map((detalle) =>
-        this.detalleProveedorProductoMapper.toResponseDto(detalle),
-      ) || [];
-
+    const detalles = this.detalleProveedorProductoMapper.toResponsesDto(
+      producto.detallesProveedor,
+    );
     return {
       id: producto.id,
       nombre: producto.nombre,
@@ -50,8 +44,12 @@ export class ProductoMapper {
     };
   }
 
-  toRespuestaFindAllProductosDTO(productos: Producto[]): RespuestaFindOneProductoDto[] {
-    return productos.map((producto) => this.toRespuestaFinalFindOneDto(producto));
+  toRespuestaFindAllProductosDTO(
+    productos: Producto[],
+  ): RespuestaFindOneProductoDto[] {
+    return productos.map((producto) =>
+      this.toRespuestaFinalFindOneDto(producto),
+    );
   }
 
   toRespuestaFindAllPaginatedProductoDTO(paginated: {

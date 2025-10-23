@@ -1,18 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsNumber,
   IsUrl,
-  IsOptional,
-  IsDate,
   IsInt,
   Min,
   MaxLength,
-  IsArray,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { DetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/detalle-proveedorproducto.dto';
+import { CreateDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/create-detalleproveedorproducto.dto';
 
 export class CreateProductoDto {
   @ApiProperty({
@@ -33,11 +30,6 @@ export class CreateProductoDto {
   @Min(0)
   precio: number;
 
- // @ApiProperty({ example: 'Pedigree', description: 'Marca del producto' })
- // @IsString()
-  //@MaxLength(50)
-  //marca: string;
-
   @ApiProperty({ example: 30, description: 'Cantidad de stock disponible' })
   @IsInt()
   @Min(0)
@@ -47,14 +39,17 @@ export class CreateProductoDto {
     example: 'Premium',
     description: 'Línea o categoría del producto',
   })
+  /*
   @IsInt()
   lineaId: number;
- @ApiProperty({description: 'Lista de proveedores asociados al producto',type: [DetalleProveedorProductoDto],required: false,})
-  @IsArray()
+  */
+  @ApiProperty({
+    type: [CreateDetalleProveedorProductoDto],
+    description: 'Listado de proveedores del producto',
+  })
   @ValidateNested({ each: true })
-  @Type(() => DetalleProveedorProductoDto)
-  detalles: DetalleProveedorProductoDto[];
-  
+  @Type(() => CreateDetalleProveedorProductoDto)
+  detalleProveedores: CreateDetalleProveedorProductoDto[];
 
   @ApiProperty({
     example: 'https://example.com/foto.jpg',
@@ -62,16 +57,6 @@ export class CreateProductoDto {
   })
   @IsUrl()
   fotoUrl: string;
-
-  @ApiProperty({
-    example: '2025-10-11',
-    description: 'Fecha de creación del producto',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  fechaCreacion?: Date;
 
   @ApiProperty({
     example: 'Collar resistente y ajustable para perros grandes',

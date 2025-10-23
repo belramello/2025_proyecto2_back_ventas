@@ -5,27 +5,34 @@ import { Producto } from '../entities/producto.entity';
 import { IProductosRepository } from './producto-repository.interface';
 import { Repository, UpdateResult } from 'typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
-import { FindOneProductoDto } from '../dto/findOne-producto.dto';
 import { DeleteProductoDto } from '../dto/delete-producto.dto';
 import { Transactional } from 'typeorm-transactional';
+import { DetalleProveedorProductoService } from 'src/modules/detalleproveedorproducto/detalleproveedorproducto.service';
+import { CreateDetalleProveedorProductoServiceDto } from 'src/modules/detalleproveedorproducto/dto/create-detalle-proveedor-service.dto';
 
 export class ProductosRepository implements IProductosRepository {
   constructor(
     @InjectRepository(Producto)
     private readonly productoRepository: Repository<Producto>,
+    private readonly detalleProveedorService: DetalleProveedorProductoService,
   ) {}
 
   @Transactional()
   async create(createProductoDto: CreateProductoDto): Promise<Producto> {
     try {
- 
-      const producto = this.productoRepository.create({
-        ...createProductoDto,
-        detallesProveedor: createProductoDto.detalles, 
-      });
-
- 
-      return await this.productoRepository.save(producto);
+      const producto = this.productoRepository.create({ ...createProductoDto });
+      await this.productoRepository.save(producto);
+      const detallesServiceDto: CreateDetalleProveedorProductoServiceDto[] = (
+        createProductoDto.detalleProveedores || []
+      ).map((d) => ({
+        codigo: d.codigo,
+        proveedorId: d.proveedorId,
+        producto,
+      }));
+      if (detallesServiceDto.length > 0) {
+        await this.detalleProveedorService.createDetalles(detallesServiceDto);
+      }
+      return (await this.findOne(producto.id)) as Producto;
     } catch (error) {
       throw new InternalServerErrorException(
         `Error al crear el producto: ${error.message}`,
@@ -46,15 +53,20 @@ export class ProductosRepository implements IProductosRepository {
     }
   }
 
-  async findOne(data: FindOneProductoDto): Promise<Producto | null> {
+  async findOne(id: number): Promise<Producto | null> {
     try {
-      const producto = await this.productoRepository.findOne({
-        where: { id: data.id },
-      });
+      const producto = await this.productoRepository
+        .createQueryBuilder('producto')
+        .leftJoinAndSelect('producto.detallesProveedor', 'detallesProveedor')
+        .leftJoinAndSelect('detallesProveedor.proveedor', 'proveedor', '1=1')
+        .where('producto.id = :id', { id: id })
+        .withDeleted()
+        .getOne();
+
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error al buscar el producto con ID ${data.id}: ${error.message}`,
+        `Error al buscar el producto con ID ${id}: ${error.message}`,
       );
     }
   }
@@ -65,7 +77,6 @@ export class ProductosRepository implements IProductosRepository {
         .createQueryBuilder('producto')
         .where('producto.codigo = :codigo', { codigo })
         .getOne();
-      console.log(producto);
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -134,13 +145,13 @@ export class ProductosRepository implements IProductosRepository {
   }> {
     try {
       const query = this.productoRepository
-      .createQueryBuilder('producto')
-      .where('producto.fechaEliminacion IS NULL'); // excluye soft-deleted
+        .createQueryBuilder('producto')
+        .where('producto.fechaEliminacion IS NULL'); // excluye soft-deleted
 
       query
-      .orderBy('producto.nombre', 'ASC')
-      .skip((page - 1) * limit)
-      .take(limit);
+        .orderBy('producto.nombre', 'ASC')
+        .skip((page - 1) * limit)
+        .take(limit);
 
       const [productos, total] = await query.getManyAndCount();
 

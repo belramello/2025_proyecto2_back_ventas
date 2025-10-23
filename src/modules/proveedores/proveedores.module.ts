@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Proveedore } from './entities/proveedore.entity';
+import { Proveedor } from './entities/proveedore.entity';
 import { ProveedoresService } from './proveedores.service';
 import { ProveedoresController } from './proveedores.controller';
 import { ProveedorMapper } from './mappers/proveedores.mapper';
 import { ProveedoresRepository } from './repository/proveedor.repository';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Proveedore]),
-  ],
+  imports: [TypeOrmModule.forFeature([Proveedor])],
   controllers: [ProveedoresController],
   providers: [
     ProveedoresService,

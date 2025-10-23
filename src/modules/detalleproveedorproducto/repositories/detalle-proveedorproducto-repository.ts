@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { DetalleProveedorProducto } from '../entities/detalleproveedorproducto.entity';
 import { CreateDetalleProveedorProductoDto } from '../dto/create-detalleproveedorproducto.dto';
 import { IDetalleProveedorProductoRepository } from './detalle-proveedorproducto-repository.interface';
+import { CreateDetalleProveedorRepositoryDto } from '../dto/create-detalle-proveedor-repository.dto';
 
 @Injectable()
 export class DetalleProveedorProductoRepository
@@ -15,7 +16,7 @@ export class DetalleProveedorProductoRepository
   ) {}
 
   async create(
-    createDetalleDto: CreateDetalleProveedorProductoDto,
+    createDetalleDto: CreateDetalleProveedorRepositoryDto,
   ): Promise<DetalleProveedorProducto> {
     try {
       const detalle = this.detalleRepository.create(createDetalleDto);
@@ -48,7 +49,9 @@ export class DetalleProveedorProductoRepository
     }
   }
 
-  async findAllByProducto(productoId: number): Promise<DetalleProveedorProducto[]> {
+  async findAllByProducto(
+    productoId: number,
+  ): Promise<DetalleProveedorProducto[]> {
     try {
       const detalles = await this.detalleRepository
         .createQueryBuilder('detalle')
@@ -68,7 +71,9 @@ export class DetalleProveedorProductoRepository
       );
     }
   }
-  async save(detalle: DetalleProveedorProducto): Promise<DetalleProveedorProducto> {
+  async save(
+    detalle: DetalleProveedorProducto,
+  ): Promise<DetalleProveedorProducto> {
     try {
       return await this.detalleRepository.save(detalle);
     } catch (error) {

@@ -12,8 +12,12 @@ export class DetalleProveedorProductoMapper {
       codigo: detalle.producto.codigo,
       proveedorId: detalle.proveedor.id,
       proveedorNombre: detalle.proveedor.nombre,
-      productoId: detalle.producto.id,
-      productoNombre: detalle.producto.nombre,
     };
+  }
+
+  toResponsesDto(
+    detalles: DetalleProveedorProducto[],
+  ): RespuestaFindOneDetalleProveedorProductoDto[] {
+    return detalles.map((detalle) => this.toResponseDto(detalle));
   }
 }

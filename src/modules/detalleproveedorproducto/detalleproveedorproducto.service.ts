@@ -1,11 +1,16 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateDetalleProveedorProductoDto } from './dto/create-detalleproveedorproducto.dto';
-import { DetalleProveedorProducto } from './entities/detalleproveedorproducto.entity';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import type { IDetalleProveedorProductoRepository } from './repositories/detalle-proveedorproducto-repository.interface';
 import { ProductosService } from '../productos/productos.service';
 import { ProveedoresService } from '../proveedores/proveedores.service';
 import { RespuestaFindOneDetalleProveedorProductoDto } from './dto/respuesta-find-one-detalleproveedorproducto.dto';
 import { DetalleProveedorProductoMapper } from './mapper/detalle-proveedor-producto.mapper';
+import { CreateDetalleProveedorProductoServiceDto } from './dto/create-detalle-proveedor-service.dto';
+import { CreateDetalleProveedorRepositoryDto } from './dto/create-detalle-proveedor-repository.dto';
 
 @Injectable()
 export class DetalleProveedorProductoService {
@@ -19,63 +24,41 @@ export class DetalleProveedorProductoService {
   ) {}
 
   async createDetalles(
-    detallesDto: CreateDetalleProveedorProductoDto[],
+    detallesDto: CreateDetalleProveedorProductoServiceDto[],
   ): Promise<RespuestaFindOneDetalleProveedorProductoDto[]> {
     const resultados: RespuestaFindOneDetalleProveedorProductoDto[] = [];
-
+    //Agregar en un validador para verificar existencia de los proveedores.
     for (const dto of detallesDto) {
-      const producto = await this.productosService.findOne(dto.producto.id);
-      if (!producto) {
-        throw new NotFoundException(
-          `No se encontró el producto con ID ${dto.producto.id}`,
-        );
-      }
-
-      const proveedor = await this.proveedoresService.findOne(dto.proveedor.id);
-      if (!proveedor) {
-        throw new NotFoundException(
-          `No se encontró el proveedor con ID ${dto.proveedor.id}`,
-        );
-      }
-
-      const detalle: DetalleProveedorProducto = {
-        id: 0,
-        codigo: dto.codigo,
-        producto,
-        proveedor,
-      };
-
-      const detalleGuardado = await this.detalleRepository.create(detalle);
-      resultados.push(this.detalleMapper.toResponseDto(detalleGuardado));
+      resultados.push(await this.create(dto));
     }
 
     return resultados;
   }
 
   async create(
-    createDetalleDto: CreateDetalleProveedorProductoDto,
+    createDetalleDto: CreateDetalleProveedorProductoServiceDto,
   ): Promise<RespuestaFindOneDetalleProveedorProductoDto> {
-    const producto = await this.productosService.findOne(createDetalleDto.producto.id);
+    const producto = await this.productosService.findOne(
+      createDetalleDto.producto.id,
+    );
     if (!producto) {
       throw new NotFoundException(
         `No se encontró el producto con ID ${createDetalleDto.producto.id}`,
       );
     }
-
-    const proveedor = await this.proveedoresService.findOne(createDetalleDto.proveedor.id);
+    const proveedor = await this.proveedoresService.findOne(
+      createDetalleDto.proveedorId,
+    );
     if (!proveedor) {
       throw new NotFoundException(
-        `No se encontró el proveedor con ID ${createDetalleDto.proveedor.id}`,
+        `No se encontró el proveedor con ID ${createDetalleDto.proveedorId}`,
       );
     }
-
-    const detalle: DetalleProveedorProducto = {
-      id: 0,
+    const detalle: CreateDetalleProveedorRepositoryDto = {
       codigo: createDetalleDto.codigo,
       producto,
       proveedor,
     };
-
     const detalleGuardado = await this.detalleRepository.create(detalle);
     return this.detalleMapper.toResponseDto(detalleGuardado);
   }

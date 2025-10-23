@@ -2,7 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Producto } from './entities/producto.entity';
 import { DetalleProveedorProducto } from '../detalleproveedorproducto/entities/detalleproveedorproducto.entity';
-import { Proveedore } from '../proveedores/entities/proveedore.entity';
+import { Proveedor } from '../proveedores/entities/proveedore.entity';
 import { ProductosService } from './productos.service';
 import { ProductosController } from './productos.controller';
 import { ProductosRepository } from './repository/producto.repository';
@@ -15,11 +15,11 @@ import { DetalleProveedorProductoModule } from '../detalleproveedorproducto/deta
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Producto, DetalleProveedorProducto, Proveedore]),
+    TypeOrmModule.forFeature([Producto, DetalleProveedorProducto, Proveedor]),
     JwtModule,
     UsuarioModule,
     ProveedoresModule,
-    forwardRef(() => DetalleProveedorProductoModule), // Usamos forwardRef para evitar circular dependency
+    forwardRef(() => DetalleProveedorProductoModule),
   ],
   controllers: [ProductosController],
   providers: [

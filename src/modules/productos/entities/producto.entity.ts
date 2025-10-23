@@ -26,12 +26,9 @@ export class Producto {
   @Column()
   precio: number;
 
-  //@Column()
-  //marca: string; //Reemplazar por entidad Marca. Al modificar, modificar DTOs.
-
   @Column()
   stock: number;
-
+  //ManyToMany
   @ManyToOne(() => Linea, (linea) => linea.productos)
   linea: Linea;
 
@@ -57,7 +54,7 @@ export class Producto {
   usuarioId: number; //Reemplazar por entidad Usuario
 
   @OneToMany(() => DetalleProveedorProducto, (detalle) => detalle.producto, {
-    cascade: true, 
+    cascade: true,
   })
   detallesProveedor: DetalleProveedorProducto[];
 }

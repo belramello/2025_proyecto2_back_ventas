@@ -15,10 +15,12 @@ export class ProductosService {
     @Inject('IProductosRepository')
     private readonly productosRepository: IProductosRepository,
     private readonly productoMapper: ProductoMapper,
-    private readonly validator: ProductosValidator,
+    private readonly validator: ProductosValidator, //validadores
   ) {}
 
+  //agregar validadores para linea, marca, y codigo unico
   async create(createProductoDto: CreateProductoDto) {
+    await this.validator.validateProductoConCodigo(createProductoDto.codigo);
     return this.productosRepository.create(createProductoDto);
   }
 
@@ -36,7 +38,7 @@ export class ProductosService {
   }
 
   async findOne(id: number) {
-    return this.productosRepository.findOne({ id });
+    return this.productosRepository.findOne(id);
   }
 
   async findOneByCodigo(codigo: string) {
