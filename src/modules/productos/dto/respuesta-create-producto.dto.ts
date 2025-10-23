@@ -30,11 +30,6 @@ export class RespuestaCreateProductoDto {
   @Min(0)
   precio: number;
 
-  @ApiProperty({ example: 'Pedigree', description: 'Marca del producto' })
-  @IsString()
-  @MaxLength(50)
-  marca: number;
-
   @ApiProperty({ example: 30, description: 'Cantidad de stock disponible' })
   @IsInt()
   @Min(0)

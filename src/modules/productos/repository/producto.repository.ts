@@ -22,7 +22,6 @@ export class ProductosRepository implements IProductosRepository {
       const producto = this.productoRepository.create({
         ...createProductoDto,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        marca: { id: createProductoDto.marca }, // Asignar la relación con Marca
         usuarioCreacion: { id: usuarioId },
       });
       return await this.productoRepository.save(producto);
@@ -110,7 +109,6 @@ export class ProductosRepository implements IProductosRepository {
     try {
       return await this.productoRepository.update(id, {
         ...data,
-        marca: data.marca ? { id: data.marca } : undefined, // Asignar la relación si se proporciona
         fechaActualizacion: new Date(),
         usuarioModificacion: { id: usuarioId },
       });

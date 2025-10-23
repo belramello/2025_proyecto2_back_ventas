@@ -30,11 +30,6 @@ export class CreateProductoDto {
   @Min(0)
   precio: number;
 
-  @ApiProperty({ example: 'Pedigree', description: 'Marca del producto' })
-  @IsNumber()
-  @Min(0)
-  marca: number;
-
   @ApiProperty({ example: 30, description: 'Cantidad de stock disponible' })
   @IsInt()
   @Min(0)

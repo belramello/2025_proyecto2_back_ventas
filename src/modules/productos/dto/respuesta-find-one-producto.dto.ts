@@ -37,14 +37,6 @@ export class RespuestaFindOneProductoDto {
   @IsPositive()
   precio: number;
 
-  @ApiProperty({
-    example: 1,
-    description: 'ID de la Marca asociada al producto',
-  })
-  @IsInt()
-  @Min(1)
-  marca: number; // Asume que estás devolviendo el ID de la marca
-
   @ApiProperty({ example: 50, description: 'Cantidad actual en stock' })
   @IsInt()
   @Min(0)
