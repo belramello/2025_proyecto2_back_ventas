@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
+import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 //Tabla Productos
 @Entity('productos')
 export class Producto {
@@ -53,4 +53,9 @@ export class Producto {
 
   @Column()
   usuarioId: number; //Reemplazar por entidad Usuario
+
+  @OneToMany(() => DetalleProveedorProducto, (detalle) => detalle.producto, {
+    cascade: true, 
+  })
+  detallesProveedor: DetalleProveedorProducto[];
 }
