@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MarcasService } from './marcas.service';
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a34b23287d8d09cdb20af3b8a1237d335dc23a83
 import { MarcaRepository } from './repositories/marca-repository';
 import { BadRequestException, ConflictException } from '@nestjs/common';
 import { Marca } from './entities/marca.entity';
@@ -305,6 +308,7 @@ describe('MarcasService', () => {
       expect(repository.restore).not.toHaveBeenCalled();
     });
   });
+<<<<<<< HEAD
 =======
 
 describe('MarcasService', () => {
@@ -322,4 +326,6 @@ describe('MarcasService', () => {
     expect(service).toBeDefined();
   });
 >>>>>>> 6ff62d53cd6513f49d98258a7d127e3026125ebe
+=======
+>>>>>>> a34b23287d8d09cdb20af3b8a1237d335dc23a83
 });

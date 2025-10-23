@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UpdateUsuarioDto } from '../dto/update-usuario.dto';
 import { Usuario } from '../entities/usuario.entity';
-import { hashPassword } from 'src/modules/auth/helpers/password-helper';
+import { hashPassword } from '../../../modules/auth/helpers/password-helper';
 import { UsuariosValidator } from './usuarios-validator';
 
 @Injectable()

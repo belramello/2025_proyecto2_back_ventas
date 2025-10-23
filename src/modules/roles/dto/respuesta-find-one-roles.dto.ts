@@ -1,4 +1,4 @@
-import { Permiso } from 'src/modules/permisos/entities/permiso.entity';
+import { Permiso } from '../../../modules/permisos/entities/permiso.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RespuestaFindOneRolesDto {
