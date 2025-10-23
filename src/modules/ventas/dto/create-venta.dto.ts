@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsIn, ValidateNested, Min } from 'class-validator';
+import { IsArray, IsIn, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { DetalleVentaDto } from '../detalle-ventas/dto/detalle-venta.dto';
 import { ApiProperty } from '@nestjs/swagger';

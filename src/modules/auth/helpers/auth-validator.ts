@@ -3,8 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
-import { UsuarioService } from 'src/modules/usuario/usuario.service';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
+import { UsuarioService } from '../../../modules/usuario/usuario.service';
 import { comparePasswords } from './password-helper';
 
 @Injectable()

@@ -72,6 +72,7 @@ export class UsuarioService {
       id,
       updateUsuarioDto,
     );
+    await this.usuariosRepository.updateUsuario(actualizado);
     return this.usuarioMappers.toResponseDto(actualizado);
   }
 

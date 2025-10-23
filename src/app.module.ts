@@ -15,6 +15,8 @@ import { PermisosModule } from './modules/permisos/permisos.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { HistorialActividadesModule } from './modules/historial-actividades/historial-actividades.module';
+import { ServeStaticModule } from '@nestjs/serve-static'; 
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -48,8 +50,9 @@ import { HistorialActividadesModule } from './modules/historial-actividades/hist
     MulterModule.register({
       dest: './uploads/logos',
     }),
-    MulterModule.register({
-      dest: './uploads/logos',
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads', 
     }),
     ProductosModule,
     VentasModule,
