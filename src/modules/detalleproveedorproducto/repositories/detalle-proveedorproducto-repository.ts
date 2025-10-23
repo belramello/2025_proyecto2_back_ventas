@@ -2,7 +2,6 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { DetalleProveedorProducto } from '../entities/detalleproveedorproducto.entity';
-import { CreateDetalleProveedorProductoDto } from '../dto/create-detalleproveedorproducto.dto';
 import { IDetalleProveedorProductoRepository } from './detalle-proveedorproducto-repository.interface';
 import { CreateDetalleProveedorRepositoryDto } from '../dto/create-detalle-proveedor-repository.dto';
 
