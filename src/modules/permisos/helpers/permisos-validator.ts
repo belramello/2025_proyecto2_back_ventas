@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { RolesValidator } from 'src/modules/roles/helpers/roles-validator';
+import { RolesValidator } from '../../../modules/roles/helpers/roles-validator';
 
 @Injectable()
 export class PermisosValidator {
