@@ -2,12 +2,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DetalleVenta } from '../entities/detalle-venta.entity';
 import { Repository } from 'typeorm';
 import { CreateDetalleVentaDto } from '../dto/create-detalle-venta.dto';
-import {
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import { IDetalleVentasRepository } from './detalle-ventas-repository.interface';
-import { RespuestaFindOneDetalleVentaDto } from '../dto/respuesta-find-one-detalle-venta.dto';
 
 export class DetalleVentasRepository implements IDetalleVentasRepository {
   constructor(
@@ -30,10 +26,17 @@ export class DetalleVentasRepository implements IDetalleVentasRepository {
 
   async findOne(id: number): Promise<DetalleVenta | null> {
     try {
-      const detalle = await this.detalleVentaRepository.findOne({
-        where: { id },
-        relations: ['producto'],
-      });
+      const detalle = await this.detalleVentaRepository
+        .createQueryBuilder('detalleVenta')
+        .leftJoinAndSelect(
+          'detalleVenta.producto',
+          'producto',
+          '1=1 OR producto.fechaEliminacion IS NOT NULL',
+        )
+        .where('detalleVenta.id = :id', { id })
+        .withDeleted()
+        .getOne();
+
       return detalle;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -44,10 +47,17 @@ export class DetalleVentasRepository implements IDetalleVentasRepository {
 
   async findAllByVenta(ventaId: number): Promise<DetalleVenta[]> {
     try {
-      const detalles = await this.detalleVentaRepository.find({
-        where: { venta: { id: ventaId } },
-        relations: ['producto'],
-      });
+      const detalles = await this.detalleVentaRepository
+        .createQueryBuilder('detalleVenta')
+        .leftJoinAndSelect(
+          'detalleVenta.producto',
+          'producto',
+          '1=1 OR producto.fechaEliminacion IS NOT NULL',
+        )
+        .where('detalleVenta.ventaId = :ventaId', { ventaId })
+        .withDeleted()
+        .getMany();
+
       return detalles;
     } catch (error) {
       throw new InternalServerErrorException(

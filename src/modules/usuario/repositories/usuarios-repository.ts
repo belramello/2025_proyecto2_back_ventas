@@ -34,12 +34,11 @@ export class UsuarioRepository implements IUsuarioRepository {
   async findByEmail(email: string): Promise<Usuario | null> {
     try {
       const usuario = await this.usuarioRepository
-        .createQueryBuilder('usuario')
-        .leftJoinAndSelect('usuario.rol', 'rol')
+        .createQueryBuilder('usuarios')
+        .leftJoinAndSelect('usuarios.rol', 'rol')
         .leftJoinAndSelect('rol.permisos', 'permisos')
-        .where('usuario.email = :email', { email })
+        .where('usuarios.email = :email', { email })
         .getOne();
-
       return usuario;
     } catch (error) {
       if (error instanceof NotFoundException) {

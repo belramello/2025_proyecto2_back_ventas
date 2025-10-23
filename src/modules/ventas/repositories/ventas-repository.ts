@@ -57,9 +57,18 @@ export class VentasRepository implements IVentasRepository {
     try {
       const query = this.ventasRepository
         .createQueryBuilder('venta')
-        .leftJoinAndSelect('venta.vendedor', 'vendedor')
+        .leftJoinAndSelect(
+          'venta.vendedor',
+          'vendedor',
+          '1=1 OR vendedor.fechaEliminacion IS NOT NULL',
+        )
+        .withDeleted()
         .leftJoinAndSelect('venta.detalleVentas', 'detalleVenta')
-        .leftJoinAndSelect('detalleVenta.producto', 'producto')
+        .leftJoinAndSelect(
+          'detalleVenta.producto',
+          'producto',
+          '1=1 OR producto.fechaEliminacion IS NOT NULL',
+        )
         .orderBy('venta.fechaCreacion', 'DESC')
         .skip((page - 1) * limit)
         .take(limit);
@@ -83,10 +92,17 @@ export class VentasRepository implements IVentasRepository {
     try {
       const venta = await this.ventasRepository
         .createQueryBuilder('venta')
-        .leftJoinAndSelect('venta.detalleVentas', 'detalle')
+        .leftJoinAndSelect('venta.detalle_ventas', 'detalle')
+        .leftJoinAndSelect(
+          'venta.vendedor',
+          'vendedor',
+          '1=1 OR vendedor.fechaEliminacion IS NOT NULL',
+        )
         .leftJoinAndSelect('detalle.producto', 'producto')
         .where('venta.id = :ventaId', { ventaId })
+        .withDeleted()
         .getOne();
+
       return venta;
     } catch (error) {
       throw new InternalServerErrorException(

@@ -1,5 +1,4 @@
 import { CreateDetalleVentaDto } from '../dto/create-detalle-venta.dto';
-import { RespuestaFindOneDetalleVentaDto } from '../dto/respuesta-find-one-detalle-venta.dto';
 import { DetalleVenta } from '../entities/detalle-venta.entity';
 
 export interface IDetalleVentasRepository {

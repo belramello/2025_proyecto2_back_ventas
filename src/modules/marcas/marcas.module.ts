@@ -5,9 +5,11 @@ import { MarcasController } from './marcas.controller';
 import { Marca } from './entities/marca.entity';
 import { MarcaRepository } from './repositories/marca-repository';
 import { MarcaNombreUniqueValidator } from './helpers/marcas-validator';
+import { UsuarioModule } from '../usuario/usuario.module';
+import { JwtModule } from '../jwt/jwt.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Marca])],
+  imports: [TypeOrmModule.forFeature([Marca]), UsuarioModule, JwtModule],
   controllers: [MarcasController],
   providers: [MarcasService, MarcaRepository, MarcaNombreUniqueValidator],
 })
