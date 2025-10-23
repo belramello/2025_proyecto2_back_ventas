@@ -22,6 +22,7 @@ async function bootstrap() {
       whitelist: true, // elimina propiedades que no están en el DTO
       forbidNonWhitelisted: true, // lanza error si vienen propiedades extra
       transform: true, // transforma tipos automáticamente (string → number, string → Date, etc.)
+      transformOptions: { enableImplicitConversion: true },
     }),
   );
   //Para poder utilizar @Transactional()
