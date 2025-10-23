@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, Min } from 'class-validator';
+import { RespuestaFindOneDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/respuesta-find-one-detalleproveedorproducto.dto';
+import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 
 export class RespuestaFindOneProductoDto {
   @ApiProperty({ example: 3, description: 'ID del producto a buscar' })
@@ -26,4 +28,5 @@ export class RespuestaFindOneProductoDto {
   fechaCreacion:Date;
       
   descripcion:string;
+  detalles?: RespuestaFindOneDetalleProveedorProductoDto[];
 }

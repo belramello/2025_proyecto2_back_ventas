@@ -8,8 +8,11 @@ import {
   IsInt,
   Min,
   MaxLength,
+  IsArray,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { DetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/detalle-proveedorproducto.dto';
 
 export class CreateProductoDto {
   @ApiProperty({
@@ -46,6 +49,12 @@ export class CreateProductoDto {
   })
   @IsInt()
   lineaId: number;
+ @ApiProperty({description: 'Lista de proveedores asociados al producto',type: [DetalleProveedorProductoDto],required: false,})
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => DetalleProveedorProductoDto)
+  detalles: DetalleProveedorProductoDto[];
+  
 
   @ApiProperty({
     example: 'https://example.com/foto.jpg',

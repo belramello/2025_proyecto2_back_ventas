@@ -53,19 +53,20 @@ export class ProveedoresRepository implements IProveedoresRepository {
         }
     }
 
-    async findByEmail(email: string): Promise<Proveedore | null> {
+    async findByNombre(nombre: string): Promise<Proveedore | null> {
         try {
-        return await this.proveedorRepository
+            return await this.proveedorRepository
             .createQueryBuilder('proveedor')
-            .where('proveedor.email = :email', { email })
+            .where('proveedor.nombre = :nombre', { nombre })
             .andWhere('proveedor.fechaEliminacion IS NULL')
             .getOne();
         } catch (error) {
-        throw new InternalServerErrorException(
-            `Error al buscar el proveedor con email ${email}: ${error.message}`,
-        );
+            throw new InternalServerErrorException(
+            `Error al buscar el proveedor con nombre ${nombre}: ${error.message}`,
+            );
         }
     }
+
 
     async remove(deleteProveedorDto: DeleteProveedoreDto): Promise<UpdateResult> {
         try {

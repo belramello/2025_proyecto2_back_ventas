@@ -1,24 +1,53 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable,Inject} from '@nestjs/common';
 import { CreateProveedoreDto } from './dto/create-proveedore.dto';
+import type { IProveedoresRepository } from './repository/proveedor-interface.repository';
+import { ProveedorMapper } from './mappers/proveedores.mapper';
+import { RespuestaFindOneProveedorDto } from './dto/respuesta-find-one-proveedor.dto';
+import { PaginationProveedoresDto } from './dto/pagination.dto';
+import { RespuestaFindAllPaginatedProveedorDTO } from './dto/respuesta-find-all-paginated.dto';
+import { DeleteProveedoreDto } from './dto/delete-proveedore.dto';
 
 
 @Injectable()
 export class ProveedoresService {
+  constructor(
+      @Inject('IProveedoresRepository')
+      private readonly proveedoresRepository: IProveedoresRepository,
+      private readonly proveedorMapper: ProveedorMapper,
+      //private readonly validator: ProductosValidator,
+    ) {}
+  
   create(createProveedoreDto: CreateProveedoreDto) {
-    return 'This action adds a new proveedore';
+    return this.proveedoresRepository.create(createProveedoreDto);
   }
 
-  findAll() {
-    return `This action returns all proveedores`;
+  async findAll(): Promise<RespuestaFindOneProveedorDto[]> {
+      return this.proveedorMapper.toRespuestaFindAllProveedoresDTO(
+      await this.proveedoresRepository.findAll(),
+    );
   }
+ 
 
   findOne(id: number) {
-    return `This action returns a #${id} proveedore`;
+    return this.proveedoresRepository.findOne({id});
+  }
+
+  async findByNombre(nombre: string) {
+    return await this.proveedoresRepository.findByNombre(nombre);
+  }
+
+  async findAllPaginated(
+      paginationDto: PaginationProveedoresDto,
+    ): Promise<RespuestaFindAllPaginatedProveedorDTO> {
+      const { limit = 10, page = 1 } = paginationDto;
+      return this.proveedorMapper.toRespuestaFindAllPaginatedProveedorDTO(
+        await this.proveedoresRepository.findAllPaginated(page, limit),
+      );
   }
 
 
 
-  remove(id: number) {
-    return `This action removes a #${id} proveedore`;
+  async remove(deleteProveedorDto: DeleteProveedoreDto) {
+    return this.proveedoresRepository.remove(deleteProveedorDto);
   }
 }

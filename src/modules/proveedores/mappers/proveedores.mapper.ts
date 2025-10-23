@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Proveedore } from '../entities/proveedore.entity';
 import { RespuestaCreateProveedorDto } from '../dto/respuesta-create-proveedor.dto';
 import { RespuestaFindOneProveedorDto } from '../dto/respuesta-find-one-proveedor.dto';
-import { RespuestaFindAllPaginatedProductoDTO } from '../dto/respuesta-find-all-paginated.dto';
+import { RespuestaFindAllPaginatedProveedorDTO } from '../dto/respuesta-find-all-paginated.dto';
 
 @Injectable()
 export class ProveedorMapper {
@@ -45,7 +45,7 @@ export class ProveedorMapper {
     total: number;
     page: number;
     lastPage: number;
-  }): RespuestaFindAllPaginatedProductoDTO {
+  }): RespuestaFindAllPaginatedProveedorDTO {
     return {
       proveedores: this.toRespuestaFindAllProveedoresDTO(paginated.proveedores),
       total: paginated.total,

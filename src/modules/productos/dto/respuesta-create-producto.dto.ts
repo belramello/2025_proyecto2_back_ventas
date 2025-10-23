@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNumber, IsUrl, IsOptional, IsDate, IsInt, Min, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
+import { RespuestaFindOneDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/respuesta-find-one-detalleproveedorproducto.dto';
 
 export class RespuestaCreateProductoDto {
   @ApiProperty({ example: 'Collar para perro', description: 'Nombre del producto' })
@@ -32,6 +33,8 @@ export class RespuestaCreateProductoDto {
   @IsString()
   @MaxLength(50)
   linea: string;
+  @ApiProperty({description: 'Detalles de la venta',type: [RespuestaFindOneDetalleProveedorProductoDto],})
+  detalles: RespuestaFindOneDetalleProveedorProductoDto[];
 
   @ApiProperty({ example: 'https://example.com/foto.jpg', description: 'URL de la imagen del producto' })
   @IsUrl()

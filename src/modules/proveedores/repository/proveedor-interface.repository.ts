@@ -9,7 +9,7 @@ export interface IProveedoresRepository {
   create(data: CreateProveedoreDto): Promise<Proveedore>;
   findAll(): Promise<Proveedore[]>;
   findOne(data: FindOneProveedoreDto): Promise<Proveedore | null>;
-  findByEmail(email: string): Promise<Proveedore | null>;
+  findByNombre(nombre: string): Promise<Proveedore | null>;
   remove(data: DeleteProveedoreDto): Promise<UpdateResult>; 
 
     findAllPaginated(

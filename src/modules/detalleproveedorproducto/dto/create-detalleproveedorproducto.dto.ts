@@ -5,8 +5,8 @@ import { Proveedore } from 'src/modules/proveedores/entities/proveedore.entity';
 export class CreateDetalleProveedorProductoDto {
   @IsString()
   codigo: string;
+  @IsInt()
+  proveedorid: number;
 
-  proveedor: Proveedore;
 
-  producto: Producto;
 }

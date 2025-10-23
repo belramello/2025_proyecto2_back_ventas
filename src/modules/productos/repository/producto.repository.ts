@@ -7,6 +7,7 @@ import { Repository, UpdateResult } from 'typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
 import { FindOneProductoDto } from '../dto/findOne-producto.dto';
 import { DeleteProductoDto } from '../dto/delete-producto.dto';
+import { Transactional } from 'typeorm-transactional';
 
 export class ProductosRepository implements IProductosRepository {
   constructor(
@@ -14,11 +15,16 @@ export class ProductosRepository implements IProductosRepository {
     private readonly productoRepository: Repository<Producto>,
   ) {}
 
+  @Transactional()
   async create(createProductoDto: CreateProductoDto): Promise<Producto> {
     try {
+ 
       const producto = this.productoRepository.create({
         ...createProductoDto,
+        detallesProveedor: createProductoDto.detalles, 
       });
+
+ 
       return await this.productoRepository.save(producto);
     } catch (error) {
       throw new InternalServerErrorException(

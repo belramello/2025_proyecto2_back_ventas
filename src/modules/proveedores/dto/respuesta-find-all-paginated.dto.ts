@@ -3,7 +3,7 @@ import { Expose, Type } from 'class-transformer';
 import { IsInt } from 'class-validator';
 import { RespuestaFindOneProveedorDto } from './respuesta-find-one-proveedor.dto';
 
-export class RespuestaFindAllPaginatedProductoDTO {
+export class RespuestaFindAllPaginatedProveedorDTO {
   @ApiProperty({
     description: 'Lista de proveedores',
     type: [RespuestaFindOneProveedorDto],
