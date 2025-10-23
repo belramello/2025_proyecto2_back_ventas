@@ -30,10 +30,10 @@ export class CreateProductoDto {
   @Min(0)
   precio: number;
 
-  @ApiProperty({ example: 'Pedigree', description: 'Marca del producto' })
-  @IsString()
-  @MaxLength(50)
-  marca: string;
+ // @ApiProperty({ example: 'Pedigree', description: 'Marca del producto' })
+ // @IsString()
+  //@MaxLength(50)
+  //marca: string;
 
   @ApiProperty({ example: 30, description: 'Cantidad de stock disponible' })
   @IsInt()
@@ -44,9 +44,8 @@ export class CreateProductoDto {
     example: 'Premium',
     description: 'Línea o categoría del producto',
   })
-  @IsString()
-  @MaxLength(50)
-  linea: string;
+  @IsInt()
+  lineaId: number;
 
   @ApiProperty({
     example: 'https://example.com/foto.jpg',

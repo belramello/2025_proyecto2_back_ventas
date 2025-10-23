@@ -3,8 +3,9 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
-
+import { Linea } from 'src/modules/lineas/entities/linea.entity';
 @Entity('marcas')
 export class Marca {
   @PrimaryGeneratedColumn()
@@ -20,9 +21,7 @@ export class Marca {
   logo: string;
   @DeleteDateColumn()
   deletedAt?: Date;
-  // agregarr la relación con lineas cuando lo termine la belu:
-  // import { OneToMany } from 'typeorm';
-  // import { Linea } from '../../lineas/entities/linea.entity';
-  // @OneToMany(() => Linea, (linea) => linea.marca)
-  // lineas: Linea[];
+
+  @OneToMany(() => Linea, (linea) => linea.marca)
+  lineas: Linea[];
 }

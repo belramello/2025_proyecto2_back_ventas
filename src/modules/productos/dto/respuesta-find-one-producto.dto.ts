@@ -6,24 +6,24 @@ export class RespuestaFindOneProductoDto {
   @IsInt()
   @Min(1)
   id: number;
-      nombre:string;
+  nombre:string;
   
-      codigo:string;
-  
-
-      precio:number;
+  codigo:string;
   
 
-      marca:string; //Reemplazar por entidad Marca
-
-      stock:number;
+  precio:number;
   
 
-      linea:string; //Reemplazar por entidad Linea
+  //marca:string; //Reemplazar por entidad Marca
+
+  stock:number;
   
-      fotoUrl:string;
+
+  linea:string; //Reemplazar por entidad Linea
   
-      fechaCreacion:Date;
+  fotoUrl:string;
+  
+  fechaCreacion:Date;
       
-      descripcion:string;
+  descripcion:string;
 }

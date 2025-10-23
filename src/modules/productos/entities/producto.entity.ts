@@ -4,11 +4,13 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
+import { Linea } from 'src/modules/lineas/entities/linea.entity';
 //Tabla Productos
 @Entity('productos')
 export class Producto {
@@ -24,14 +26,14 @@ export class Producto {
   @Column()
   precio: number;
 
-  @Column()
-  marca: string; //Reemplazar por entidad Marca. Al modificar, modificar DTOs.
+  //@Column()
+  //marca: string; //Reemplazar por entidad Marca. Al modificar, modificar DTOs.
 
   @Column()
   stock: number;
 
-  @Column()
-  linea: string; //Reemplazar por entidad Linea
+  @ManyToOne(() => Linea, (linea) => linea.productos)
+  linea: Linea;
 
   @Column()
   fotoUrl: string;

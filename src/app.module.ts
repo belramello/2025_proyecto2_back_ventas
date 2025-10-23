@@ -10,8 +10,10 @@ import { VentasModule } from './modules/ventas/ventas.module';
 import { UsuarioModule } from './modules/usuario/usuario.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtModule } from './modules/jwt/jwt.module';
-import { ProveedoresModule } from './modules/proveedores/proveedores.module';
-import { DetalleproveedorproductoModule } from './modules/detalleproveedorproducto/detalleproveedorproducto.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { PermisosModule } from './modules/permisos/permisos.module';
+import { MarcasModule } from './modules/marcas/marcas.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -50,8 +52,9 @@ import { DetalleproveedorproductoModule } from './modules/detalleproveedorproduc
     UsuarioModule,
     AuthModule,
     JwtModule,
-    ProveedoresModule,
-    DetalleproveedorproductoModule,
+    RolesModule,
+    PermisosModule,
+    MarcasModule,
   ],
   controllers: [AppController],
   providers: [AppService],

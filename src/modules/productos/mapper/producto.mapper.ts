@@ -12,9 +12,9 @@ export class ProductoMapper {
       nombre: producto.nombre,
       codigo: producto.codigo,
     precio: producto.precio,
-    marca: producto.marca,
+    //marca: producto.marca,
     stock: producto.stock,
-    linea: producto.linea,
+    linea: producto.linea.nombre,
     fotoUrl: producto.fotoUrl,
     descripcion: producto.descripcion
 
@@ -27,9 +27,9 @@ export class ProductoMapper {
       nombre: producto.nombre,
       codigo: producto.codigo,
       precio: producto.precio,
-      marca: producto.marca,
+      //marca: producto.marca,
       stock: producto.stock,
-      linea: producto.linea,
+      linea: producto.linea.nombre,
       fotoUrl: producto.fotoUrl,
       fechaCreacion: producto.fechaCreacion,
       descripcion: producto.descripcion};
