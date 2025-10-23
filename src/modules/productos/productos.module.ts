@@ -8,16 +8,24 @@ import { JwtModule } from '../jwt/jwt.module';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { ProductosValidator } from './helpers/productos-validator';
 import { ProductoMapper } from './mapper/producto.mapper';
+import { HistorialActividadesModule } from '../historial-actividades/historial-actividades.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Producto]), JwtModule, UsuarioModule],
+  imports: [
+    TypeOrmModule.forFeature([Producto]),
+    JwtModule,
+    UsuarioModule,
+    HistorialActividadesModule,
+  ],
   controllers: [ProductosController],
-  providers: [ProductosService,
-     {
+  providers: [
+    ProductosService,
+    {
       provide: 'IProductosRepository',
       useClass: ProductosRepository,
     },
-    ProductosValidator, ProductoMapper
+    ProductosValidator,
+    ProductoMapper,
   ],
   exports: [ProductosService],
 })

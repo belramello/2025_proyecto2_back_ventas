@@ -8,6 +8,7 @@ import { RespuestaFindAllPaginatedProductoDTO } from './dto/respuesta-find-all-p
 import { ProductoMapper } from './mapper/producto.mapper';
 import { Producto } from './entities/producto.entity';
 import { ProductosValidator } from './helpers/productos-validator';
+import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
 
 @Injectable()
 export class ProductosService {
@@ -16,10 +17,34 @@ export class ProductosService {
     private readonly productosRepository: IProductosRepository,
     private readonly productoMapper: ProductoMapper,
     private readonly validator: ProductosValidator,
+    private readonly historialActividades: HistorialActividadesService,
   ) {}
 
-  async create(createProductoDto: CreateProductoDto) {
-    return this.productosRepository.create(createProductoDto);
+  async create(createProductoDto: CreateProductoDto, usuarioId: number) {
+    try {
+      const producto = await this.productosRepository.create(
+        createProductoDto,
+        usuarioId,
+      );
+
+      // Registro historial exitoso
+      await this.historialActividades.create({
+        usuario: usuarioId,
+        accionId: 7, // Acción de creación de producto
+        estadoId: 1, // Exitoso
+      });
+
+      return producto;
+    } catch (error) {
+      // Registro historial fallido
+      await this.historialActividades.create({
+        usuario: usuarioId,
+        accionId: 7,
+        estadoId: 2, // Fallido
+      });
+
+      throw error; // Opcional: volver a lanzar el error
+    }
   }
 
   async findAll() {
@@ -43,8 +68,36 @@ export class ProductosService {
     return await this.productosRepository.findByCodigo(codigo);
   }
 
-  async update(id: number, updateProductoDto: UpdateProductoDto) {
-    return this.productosRepository.update(id, updateProductoDto);
+  async update(
+    id: number,
+    updateProductoDto: UpdateProductoDto,
+    usuarioId: number,
+  ) {
+    try {
+      const producto = this.productosRepository.update(
+        id,
+        updateProductoDto,
+        usuarioId,
+      );
+
+      // Registro actualización exitosa
+      await this.historialActividades.create({
+        usuario: usuarioId,
+        accionId: 8, // Acción de borrado de producto
+        estadoId: 1, // Exitoso
+      });
+
+      return producto;
+    } catch (error) {
+      // Registro historial fallido
+      await this.historialActividades.create({
+        usuario: usuarioId,
+        accionId: 8,
+        estadoId: 2, // Fallido
+      });
+
+      throw error; // Opcional: volver a lanzar el error
+    }
   }
 
   async decrementarStock(producto: Producto, cantidad: number) {
@@ -52,7 +105,27 @@ export class ProductosService {
     await this.productosRepository.decrementStock(producto.id, cantidad);
   }
 
-  async remove(deleteProductoDto: DeleteProductoDto) {
-    return this.productosRepository.remove(deleteProductoDto);
+  async remove(deleteProductoDto: DeleteProductoDto): Promise<any> {
+    try {
+      const producto = await this.productosRepository.remove(deleteProductoDto);
+
+      // Registro borrado exitoso
+      await this.historialActividades.create({
+        usuario: deleteProductoDto.usuarioId as unknown as number,
+        accionId: 9, // Acción de borrado de producto
+        estadoId: 1, // Exitoso
+      });
+
+      return producto;
+    } catch (error) {
+      // Registro historial fallido
+      await this.historialActividades.create({
+        usuario: deleteProductoDto.usuarioId as unknown as number,
+        accionId: 9,
+        estadoId: 2, // Fallido
+      });
+
+      throw error; // Opcional: volver a lanzar el error
+    }
   }
 }

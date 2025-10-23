@@ -14,14 +14,20 @@ export class ProductosRepository implements IProductosRepository {
     private readonly productoRepository: Repository<Producto>,
   ) {}
 
-  async create(createProductoDto: CreateProductoDto): Promise<Producto> {
+  async create(
+    createProductoDto: CreateProductoDto,
+    usuarioId: number,
+  ): Promise<Producto> {
     try {
       const producto = this.productoRepository.create({
         ...createProductoDto,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        usuarioCreacion: { id: usuarioId },
       });
       return await this.productoRepository.save(producto);
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al crear el producto: ${error.message}`,
       );
     }
@@ -30,11 +36,12 @@ export class ProductosRepository implements IProductosRepository {
   async findAllByUsuarioId(usuarioId: number): Promise<Producto[]> {
     try {
       return await this.productoRepository.find({
-        where: { usuarioId },
+        where: { usuarioCreacion: { id: usuarioId } },
         order: { fechaCreacion: 'DESC' },
       });
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al encontrar los productos del usuario con ID ${usuarioId}: ${error.message}`,
       );
     }
@@ -48,6 +55,7 @@ export class ProductosRepository implements IProductosRepository {
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al buscar el producto con ID ${data.id}: ${error.message}`,
       );
     }
@@ -63,6 +71,7 @@ export class ProductosRepository implements IProductosRepository {
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al buscar el producto con codigo ${codigo}: ${error.message}`,
       );
     }
@@ -86,19 +95,26 @@ export class ProductosRepository implements IProductosRepository {
       return result;
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al actualizar el producto con ID ${id}: ${error.message}`,
       );
     }
   }
 
-  async update(id: number, data: UpdateProductoDto): Promise<UpdateResult> {
+  async update(
+    id: number,
+    data: UpdateProductoDto,
+    usuarioId: number,
+  ): Promise<UpdateResult> {
     try {
       return await this.productoRepository.update(id, {
         ...data,
         fechaActualizacion: new Date(),
+        usuarioModificacion: { id: usuarioId },
       });
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al actualizar el producto con ID ${id}: ${error.message}`,
       );
     }
@@ -109,9 +125,11 @@ export class ProductosRepository implements IProductosRepository {
       // Soft delete:  marca fechaEliminacion
       return await this.productoRepository.update(deleteProductodto.id, {
         fechaEliminacion: new Date(),
+        usuarioEliminacion: { id: deleteProductodto.usuarioId },
       });
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al eliminar (soft delete) el producto con ID ${deleteProductodto.id}: ${error.message}`,
       );
     }
@@ -128,13 +146,13 @@ export class ProductosRepository implements IProductosRepository {
   }> {
     try {
       const query = this.productoRepository
-      .createQueryBuilder('producto')
-      .where('producto.fechaEliminacion IS NULL'); // excluye soft-deleted
+        .createQueryBuilder('producto')
+        .where('producto.fechaEliminacion IS NULL'); // excluye soft-deleted
 
       query
-      .orderBy('producto.nombre', 'ASC')
-      .skip((page - 1) * limit)
-      .take(limit);
+        .orderBy('producto.nombre', 'ASC')
+        .skip((page - 1) * limit)
+        .take(limit);
 
       const [productos, total] = await query.getManyAndCount();
 
@@ -146,6 +164,7 @@ export class ProductosRepository implements IProductosRepository {
       };
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al encontrar las ventas paginadas: ${error.message}`,
       );
     }

@@ -1,4 +1,4 @@
-import { UpdateResult, DeleteResult } from 'typeorm';
+import { UpdateResult } from 'typeorm';
 import { CreateMarcaDto } from '../dto/create-marca.dto';
 import { UpdateMarcaDto } from '../dto/update-marca.dto';
 import { Marca } from '../entities/marca.entity';

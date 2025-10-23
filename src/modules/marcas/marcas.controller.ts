@@ -28,9 +28,11 @@ export class MarcasController {
   @Post()
   @UseInterceptors(
     FileInterceptor('logo', {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       storage: diskStorage({
         destination: './uploads/logos',
         filename: (req, file, cb) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
           cb(null, Date.now() + extname(file.originalname));
         },
       }),
@@ -41,6 +43,7 @@ export class MarcasController {
     @Body() createMarcaDto: CreateMarcaDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const logoPath = file ? `uploads/logos/${file.filename}` : undefined;
     return this.marcasService.create(createMarcaDto, logoPath);
   }
@@ -58,9 +61,11 @@ export class MarcasController {
   @Patch(':id')
   @UseInterceptors(
     FileInterceptor('logo', {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       storage: diskStorage({
         destination: './uploads/logos',
         filename: (req, file, cb) => {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
           cb(null, Date.now() + extname(file.originalname));
         },
       }),
@@ -72,6 +77,7 @@ export class MarcasController {
     @Body() updateMarcaDto: UpdateMarcaDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const logoPath = file ? `uploads/logos/${file.filename}` : undefined;
     return this.marcasService.update(+id, updateMarcaDto, logoPath);
   }

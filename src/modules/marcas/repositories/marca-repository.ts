@@ -19,7 +19,10 @@ export class MarcaRepository implements IMarcaRepository {
       const marca = this.marcaRepository.create(createMarcaDto);
       return await this.marcaRepository.save(marca);
     } catch (error) {
-      throw new InternalServerErrorException(`Error al crear la marca: ${error.message}`);
+      throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        `Error al crear la marca: ${error.message}`,
+      );
     }
   }
 
@@ -30,7 +33,10 @@ export class MarcaRepository implements IMarcaRepository {
         order: { nombre: 'ASC' },
       });
     } catch (error) {
-      throw new InternalServerErrorException(`Error al encontrar las marcas: ${error.message}`);
+      throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        `Error al encontrar las marcas: ${error.message}`,
+      );
     }
   }
 
@@ -40,7 +46,10 @@ export class MarcaRepository implements IMarcaRepository {
         where: { id, deletedAt: IsNull() },
       });
     } catch (error) {
-      throw new InternalServerErrorException(`Error al buscar la marca con ID ${id}: ${error.message}`);
+      throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        `Error al buscar la marca con ID ${id}: ${error.message}`,
+      );
     }
   }
 
@@ -48,7 +57,10 @@ export class MarcaRepository implements IMarcaRepository {
     try {
       return await this.marcaRepository.findOneBy({ nombre });
     } catch (error) {
-      throw new InternalServerErrorException(`Error al buscar la marca con nombre ${nombre}: ${error.message}`);
+      throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        `Error al buscar la marca con nombre ${nombre}: ${error.message}`,
+      );
     }
   }
 
@@ -56,7 +68,10 @@ export class MarcaRepository implements IMarcaRepository {
     try {
       return await this.marcaRepository.update(id, data);
     } catch (error) {
-      throw new InternalServerErrorException(`Error al actualizar la marca con ID ${id}: ${error.message}`);
+      throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        `Error al actualizar la marca con ID ${id}: ${error.message}`,
+      );
     }
   }
 
@@ -64,7 +79,10 @@ export class MarcaRepository implements IMarcaRepository {
     try {
       return await this.marcaRepository.softDelete(id);
     } catch (error) {
-      throw new InternalServerErrorException(`Error al eliminar (soft delete) la marca con ID ${id}: ${error.message}`);
+      throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        `Error al eliminar (soft delete) la marca con ID ${id}: ${error.message}`,
+      );
     }
   }
 
@@ -72,7 +90,10 @@ export class MarcaRepository implements IMarcaRepository {
     try {
       return await this.marcaRepository.restore(id);
     } catch (error) {
-      throw new InternalServerErrorException(`Error al restaurar la marca con ID ${id}: ${error.message}`);
+      throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        `Error al restaurar la marca con ID ${id}: ${error.message}`,
+      );
     }
   }
 }

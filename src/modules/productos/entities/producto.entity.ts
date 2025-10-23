@@ -1,9 +1,12 @@
+import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
 import { DetalleVenta } from '../../../modules/ventas/detalle-ventas/entities/detalle-venta.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -25,9 +28,6 @@ export class Producto {
   precio: number;
 
   @Column()
-  marca: string; //Reemplazar por entidad Marca. Al modificar, modificar DTOs.
-
-  @Column()
   stock: number;
 
   @Column()
@@ -42,15 +42,24 @@ export class Producto {
   @CreateDateColumn()
   fechaCreacion: Date;
 
-  @UpdateDateColumn({ nullable: true }) //Puede no tener fecha de actualizacion
+  @UpdateDateColumn({ nullable: true })
   fechaActualizacion: Date;
 
-  @DeleteDateColumn({ nullable: true }) //Puede no tener fecha de eliminacion
+  @DeleteDateColumn({ nullable: true })
   fechaEliminacion: Date;
 
   @Column()
   descripcion: string;
 
-  @Column()
-  usuarioId: number; //Reemplazar por entidad Usuario
+  @ManyToOne(() => Usuario)
+  @JoinColumn({ name: 'usuario_creacion_id' })
+  usuarioCreacion: Usuario;
+
+  @ManyToOne(() => Usuario)
+  @JoinColumn({ name: 'usuario_modificacion_id' })
+  usuarioModificacion: Usuario;
+
+  @ManyToOne(() => Usuario)
+  @JoinColumn({ name: 'usuario_eliminacion_id' })
+  usuarioEliminacion: Usuario;
 }

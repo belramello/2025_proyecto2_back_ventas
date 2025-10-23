@@ -4,13 +4,18 @@ import { MarcasService } from './marcas.service';
 import { MarcasController } from './marcas.controller';
 import { Marca } from './entities/marca.entity';
 import { MarcaRepository } from './repositories/marca-repository';
-import { IMarcaRepository } from './repositories/marca-repository.interface';
 import { MarcaNombreUniqueValidator } from './helpers/marcas-validator';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { JwtModule } from '../jwt/jwt.module';
+import { HistorialActividadesModule } from '../historial-actividades/historial-actividades.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Marca]), UsuarioModule, JwtModule],
+  imports: [
+    TypeOrmModule.forFeature([Marca]),
+    UsuarioModule,
+    JwtModule,
+    HistorialActividadesModule,
+  ],
   controllers: [MarcasController],
   providers: [
     MarcasService,

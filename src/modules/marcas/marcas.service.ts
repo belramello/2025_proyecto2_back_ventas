@@ -3,15 +3,20 @@ import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
 import type { IMarcaRepository } from './repositories/marca-repository.interface';
 import { Marca } from './entities/marca.entity';
+import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
 
 @Injectable()
 export class MarcasService {
   constructor(
     @Inject('IMarcaRepository')
     private readonly marcaRepository: IMarcaRepository,
+    private readonly historialActividades: HistorialActividadesService,
   ) {}
 
-  async create(createMarcaDto: CreateMarcaDto, logoPath?: string): Promise<Marca> {
+  async create(
+    createMarcaDto: CreateMarcaDto,
+    logoPath?: string,
+  ): Promise<Marca> {
     const marcaData = { ...createMarcaDto, logo: logoPath };
     return this.marcaRepository.create(marcaData);
   }
@@ -26,10 +31,16 @@ export class MarcasService {
     return _marca;
   }
 
-  async update(id: number, updateMarcaDto: UpdateMarcaDto, logoPath?: string): Promise<Marca> {
+  async update(
+    id: number,
+    updateMarcaDto: UpdateMarcaDto,
+    logoPath?: string,
+  ): Promise<Marca> {
     const _marca = await this.findOne(id);
     if (updateMarcaDto.nombre && updateMarcaDto.nombre !== _marca.nombre) {
-      const existing = await this.marcaRepository.findByNombre(updateMarcaDto.nombre);
+      const existing = await this.marcaRepository.findByNombre(
+        updateMarcaDto.nombre,
+      );
       if (existing) throw new BadRequestException('Nombre ya registrado');
     }
     if (logoPath) updateMarcaDto['logo'] = logoPath;
@@ -38,6 +49,7 @@ export class MarcasService {
   }
 
   async remove(id: number): Promise<void> {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _marca = await this.findOne(id);
     // TODO: Chequeo de productos asociados cuando lineas esté listo
     await this.marcaRepository.remove(id);
@@ -45,7 +57,8 @@ export class MarcasService {
 
   async restore(id: number): Promise<void> {
     const _marca = await this.marcaRepository.findOne(id);
-    if (!_marca?.deletedAt) throw new BadRequestException('La marca no se encuentra eliminada');
+    if (!_marca?.deletedAt)
+      throw new BadRequestException('La marca no se encuentra eliminada');
     await this.marcaRepository.restore(id);
   }
 }

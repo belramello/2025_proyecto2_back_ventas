@@ -7,6 +7,7 @@ import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
 import { hashPassword } from './helpers/password-helper';
 import { AuthValidator } from './helpers/auth-validator';
 import { AuthMapper } from './mappers/auth-mapper';
+import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
 
 @Injectable()
 export class AuthService {
@@ -15,22 +16,46 @@ export class AuthService {
     private readonly userService: UsuarioService,
     private readonly authValidator: AuthValidator,
     private readonly authMapper: AuthMapper,
+    private readonly historialActividades: HistorialActividadesService,
   ) {}
 
   async login(loginDto: LoginDto): Promise<LoginResponseDto> {
-    const usuario = await this.authValidator.validarEmailExistente(
-      loginDto.email,
-    );
-    await this.authValidator.validarContraseñaCorrecta(
-      loginDto.password,
-      usuario.password,
-    );
-    const payload = { email: usuario.email, sub: usuario.id.toString() };
-    return this.authMapper.toLoginResponseDto(
-      this.jwtService.generateToken(payload, 'auth'),
-      this.jwtService.generateToken(payload, 'refresh'),
-      usuario,
-    );
+    try {
+      const usuario = await this.authValidator.validarEmailExistente(
+        loginDto.email,
+      );
+      await this.authValidator.validarContraseñaCorrecta(
+        loginDto.password,
+        usuario.password,
+      );
+      const payload = { email: usuario.email, sub: usuario.id.toString() };
+
+      // Registrar acción exitosa en el historial
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 1, // Suponiendo que 1 es el ID para "inicio de sesión exitoso"
+        estadoId: 1, // Estado de éxito
+      });
+
+      return this.authMapper.toLoginResponseDto(
+        this.jwtService.generateToken(payload, 'auth'),
+        this.jwtService.generateToken(payload, 'refresh'),
+        usuario,
+      );
+    } catch (error) {
+      // Solo registrar historial si el usuario existe
+      const usuario = await this.authValidator
+        .validarEmailExistente(loginDto.email)
+        .catch(() => null);
+      if (usuario) {
+        await this.historialActividades.create({
+          usuario: usuario.id,
+          accionId: 1,
+          estadoId: 2,
+        });
+      }
+      throw error;
+    }
   }
 
   async register(createUserDto: CreateUsuarioDto): Promise<LoginResponseDto> {
@@ -40,6 +65,12 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
     });
+    await this.historialActividades.create({
+      usuario: nuevoUsuario.id,
+      accionId: 17,
+      estadoId: 1,
+    });
+
     const payload = {
       email: nuevoUsuario.email,
       sub: nuevoUsuario.id.toString(),
