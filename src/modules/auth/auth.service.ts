@@ -1,0 +1,102 @@
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '../jwt/jwt.service';
+import { UsuarioService } from '../usuario/usuario.service';
+import { LoginDto } from '../usuario/dto/login.dto';
+import { LoginResponseDto } from '../usuario/dto/login-response.dto';
+import { CreateUsuarioDto } from '../usuario/dto/create-usuario.dto';
+import { hashPassword } from './helpers/password-helper';
+import { AuthValidator } from './helpers/auth-validator';
+import { AuthMapper } from './mappers/auth-mapper';
+import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly userService: UsuarioService,
+    private readonly authValidator: AuthValidator,
+    private readonly authMapper: AuthMapper,
+    private readonly historialActividades: HistorialActividadesService,
+  ) {}
+
+  async login(loginDto: LoginDto): Promise<LoginResponseDto> {
+    try {
+      const usuario = await this.authValidator.validarEmailExistente(
+        loginDto.email,
+      );
+      await this.authValidator.validarContraseñaCorrecta(
+        loginDto.password,
+        usuario.password,
+      );
+      const payload = { email: usuario.email, sub: usuario.id.toString() };
+
+      // Registrar acción exitosa en el historial
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 1, // Suponiendo que 1 es el ID para "inicio de sesión exitoso"
+        estadoId: 1, // Estado de éxito
+      });
+
+      return this.authMapper.toLoginResponseDto(
+        this.jwtService.generateToken(payload, 'auth'),
+        this.jwtService.generateToken(payload, 'refresh'),
+        usuario,
+      );
+    } catch (error) {
+      // Solo registrar historial si el usuario existe
+      const usuario = await this.authValidator
+        .validarEmailExistente(loginDto.email)
+        .catch(() => null);
+      if (usuario) {
+        await this.historialActividades.create({
+          usuario: usuario.id,
+          accionId: 1,
+          estadoId: 2,
+        });
+      }
+      throw error;
+    }
+  }
+
+  async register(createUserDto: CreateUsuarioDto): Promise<LoginResponseDto> {
+    await this.authValidator.validarEmailSinUsar(createUserDto.email);
+    const hashedPassword = await hashPassword(createUserDto.password);
+    const nuevoUsuario = await this.userService.createUsuario({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+    await this.historialActividades.create({
+      usuario: nuevoUsuario.id,
+      accionId: 17,
+      estadoId: 1,
+    });
+
+    const payload = {
+      email: nuevoUsuario.email,
+      sub: nuevoUsuario.id.toString(),
+    };
+    const accessToken = this.jwtService.generateToken(payload, 'auth');
+    const refreshToken = this.jwtService.generateToken(payload, 'refresh');
+    return this.authMapper.toLoginResponseDto(
+      accessToken,
+      refreshToken,
+      nuevoUsuario,
+    );
+  }
+
+  async refresh(refreshToken: string): Promise<LoginResponseDto> {
+    const tokens = this.jwtService.refreshToken(refreshToken);
+    const payload = this.jwtService.getPayload(refreshToken, 'refresh') as {
+      sub: string;
+      email: string;
+    };
+    const user = await this.authValidator.validarUsuarioExistente(
+      parseInt(payload.sub),
+    );
+    return this.authMapper.toLoginResponseDto(
+      tokens.accessToken,
+      tokens.refreshToken || refreshToken,
+      user,
+    );
+  }
+}
