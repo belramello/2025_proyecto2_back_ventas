@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 import { Linea } from 'src/modules/lineas/entities/linea.entity';
+import { Marca } from 'src/modules/marcas/entities/marca.entity';
 //Tabla Productos
 @Entity('productos')
 export class Producto {
@@ -31,6 +32,8 @@ export class Producto {
   //ManyToMany
   @ManyToOne(() => Linea, (linea) => linea.productos)
   linea: Linea;
+  @ManyToOne(() => Marca, (marca) => marca.productos)
+  marca: Marca;
 
   @Column()
   fotoUrl: string;
