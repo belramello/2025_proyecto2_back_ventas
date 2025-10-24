@@ -15,6 +15,7 @@ import { PermisosModule } from './modules/permisos/permisos.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { ProveedoresModule } from './modules/proveedores/proveedores.module';
+import { LineasModule } from './modules/lineas/lineas.module';
 
 @Module({
   imports: [
@@ -56,7 +57,8 @@ import { ProveedoresModule } from './modules/proveedores/proveedores.module';
     RolesModule,
     PermisosModule,
     MarcasModule,
-    ProveedoresModule
+    ProveedoresModule, 
+    LineasModule
   ],
   controllers: [AppController],
   providers: [AppService],

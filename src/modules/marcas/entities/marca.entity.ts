@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   DeleteDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 import { Linea } from 'src/modules/lineas/entities/linea.entity';
 @Entity('marcas')
@@ -22,6 +23,8 @@ export class Marca {
   @DeleteDateColumn()
   deletedAt?: Date;
 
-  @OneToMany(() => Linea, (linea) => linea.marca)
+
+
+  @ManyToMany(() => Linea, (linea) => linea.marcas)
   lineas: Linea[];
 }

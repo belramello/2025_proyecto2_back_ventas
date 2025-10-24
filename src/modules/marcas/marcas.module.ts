@@ -11,6 +11,15 @@ import { JwtModule } from '../jwt/jwt.module';
 @Module({
   imports: [TypeOrmModule.forFeature([Marca]), UsuarioModule, JwtModule],
   controllers: [MarcasController],
-  providers: [MarcasService, MarcaRepository, MarcaNombreUniqueValidator],
+  providers: [
+    MarcasService,
+    {
+      provide: 'IMarcaRepository', 
+      useClass: MarcaRepository,    
+    },
+    MarcaNombreUniqueValidator,
+    MarcaRepository
+  ],
+  exports: ['IMarcaRepository'],   
 })
 export class MarcasModule {}

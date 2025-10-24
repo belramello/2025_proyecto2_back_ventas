@@ -1,26 +1,67 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLineaDto } from './dto/create-linea.dto';
-import { UpdateLineaDto } from './dto/update-linea.dto';
+import { AddMarcaToLineaDto } from './dto/add-marca-to-linea.dto';
+import { RespuestaLineaDto } from './dto/respuesta-linea.dto';
+import { LineaMapper } from './mapper/linea.mapper';
+import type { ILineaRepository } from './repositories/lineas-repository.interface';
+import type { MarcaRepositoryInterface } from '../marcas/repositories/marca-repository.interface';
+import { Linea } from './entities/linea.entity';
 
 @Injectable()
 export class LineasService {
-  create(createLineaDto: CreateLineaDto) {
-    return 'This action adds a new linea';
+  constructor(
+    @Inject('ILineaRepository')
+    private readonly lineaRepository: ILineaRepository,
+
+    @Inject('IMarcaRepository')
+    private readonly marcaRepository: MarcaRepositoryInterface,
+
+    private readonly lineaMapper: LineaMapper,
+  ) {}
+
+  async createLinea(dto: CreateLineaDto): Promise<RespuestaLineaDto> {
+    const linea = await this.lineaRepository.create(dto.nombre);
+    return this.lineaMapper.toDto(linea);
   }
 
-  findAll() {
-    return `This action returns all lineas`;
+  async findLinea(id: number): Promise<RespuestaLineaDto> {
+    const linea = await this.lineaRepository.findWithBrands(id);
+    if (!linea) {
+      throw new NotFoundException('Line not found');
+    }
+    return this.lineaMapper.toDto(linea);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} linea`;
+  async findOne(id: number): Promise<Linea | null> {
+    return await this.lineaRepository.findById(id);
   }
 
-  update(id: number, updateLineaDto: UpdateLineaDto) {
-    return `This action updates a #${id} linea`;
+  async addBrandToLinea(dto: AddMarcaToLineaDto): Promise<RespuestaLineaDto> {
+    const lineaId = Number(dto.lineaId);
+    if (isNaN(lineaId)) {
+      throw new BadRequestException('Invalid lineaId');
+    }
+
+    const linea = await this.lineaRepository.findWithBrands(lineaId);
+    if (!linea) {
+      throw new NotFoundException('Line not found');
+    }
+
+    const marca = await this.marcaRepository.findByNombre(dto.marca);
+    if (!marca) {
+      throw new NotFoundException('Brand not found');
+    }
+
+    const updated = await this.lineaRepository.addBrand(linea, marca);
+    return this.lineaMapper.toDto(updated);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} linea`;
+  async delete(id: number): Promise<void> {
+    const linea = await this.lineaRepository.findById(id);
+    if (!linea) {
+      throw new NotFoundException('Line not found');
+    }
+
+    await this.lineaRepository.delete(id);
   }
 }
