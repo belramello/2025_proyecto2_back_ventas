@@ -22,6 +22,7 @@ async function bootstrap() {
       whitelist: true, // elimina propiedades que no están en el DTO
       forbidNonWhitelisted: true, // lanza error si vienen propiedades extra
       transform: true, // transforma tipos automáticamente (string → number, string → Date, etc.)
+      transformOptions: { enableImplicitConversion: true },
     }),
   );
   //Para poder utilizar @Transactional()
@@ -35,12 +36,11 @@ async function bootstrap() {
       'Aplicación para gestionar productos, marcas, lineas, proveedores y ventas',
     )
     .setVersion('1.0')
-    .addTag('IMC')
+    .addTag('Ventas')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
-
+void bootstrap();

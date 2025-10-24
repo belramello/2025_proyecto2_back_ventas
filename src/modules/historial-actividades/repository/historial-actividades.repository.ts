@@ -12,6 +12,7 @@ export class HistorialActividadesRepository
     @InjectRepository(HistorialActividades)
     private readonly historialRepository: Repository<HistorialActividades>,
   ) {}
+
   async create(
     dto: CreateHistorialActividadesDto,
   ): Promise<HistorialActividades> {
@@ -22,9 +23,12 @@ export class HistorialActividadesRepository
     });
     return this.historialRepository.save(historial);
   }
+
   async findAllPaginated(
     page: number,
     limit: number,
+    search?: string,
+    action?: string,
   ): Promise<{
     historial: HistorialActividades[];
     total: number;
@@ -36,9 +40,22 @@ export class HistorialActividadesRepository
         .createQueryBuilder('historial')
         .leftJoinAndSelect('historial.accion', 'accion')
         .leftJoinAndSelect('historial.estado', 'estado')
-        .orderBy('historial.fechaHora', 'DESC')
-        .skip((page - 1) * limit)
-        .take(limit);
+        .orderBy('historial.fechaHora', 'DESC');
+
+      // Filtro por usuario (asumiendo que usuario es un número/ID)
+      if (search) {
+        query.andWhere('historial.usuario = :search', {
+          search: Number(search),
+        });
+      }
+
+      // Filtro por acción
+      if (action) {
+        query.andWhere('accion.nombre = :action', { action });
+      }
+
+      // Paginación
+      query.skip((page - 1) * limit).take(limit);
 
       const [historial, total] = await query.getManyAndCount();
       return {
@@ -50,7 +67,7 @@ export class HistorialActividadesRepository
     } catch (error) {
       throw new InternalServerErrorException(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        `Error al encontrar las ventas paginadas: ${error.message}`,
+        `Error al encontrar las actividades paginadas: ${error.message}`,
       );
     }
   }

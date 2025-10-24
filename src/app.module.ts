@@ -15,7 +15,7 @@ import { PermisosModule } from './modules/permisos/permisos.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { HistorialActividadesModule } from './modules/historial-actividades/historial-actividades.module';
-import { ServeStaticModule } from '@nestjs/serve-static'; 
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
 @Module({
@@ -50,9 +50,10 @@ import { join } from 'path';
     MulterModule.register({
       dest: './uploads/logos',
     }),
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/uploads', 
+      serveRoot: '/uploads',
     }),
     ProductosModule,
     VentasModule,
