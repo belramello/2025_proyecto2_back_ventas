@@ -1,15 +1,27 @@
-import { Injectable, Inject, BadRequestException } from '@nestjs/common';
+import { Injectable, Inject, BadRequestException, InternalServerErrorException, Logger } from '@nestjs/common';
 import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
 import type { IMarcaRepository } from './repositories/marca-repository.interface';
+<<<<<<< HEAD
 import { Marca } from './entities/marca.entity';
 import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
+=======
+import { PaginationDto } from './dto/pagination.dto';
+import { RespuestaFindAllPaginatedMarcasDTO } from './dto/respuesta-find-all-paginated-marcas.dto';
+import { MarcaMapper } from './mapper/marca.mapper';
+import { MarcaResponseDto } from './dto/marca-response.dto'; 
+import * as fs from 'fs/promises';
+import * as path from 'path';
+>>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
 
 @Injectable()
 export class MarcasService {
+  private readonly logger = new Logger(MarcasService.name);
+
   constructor(
     @Inject('IMarcaRepository')
     private readonly marcaRepository: IMarcaRepository,
+<<<<<<< HEAD
     private readonly historialActividades: HistorialActividadesService,
   ) {}
 
@@ -19,18 +31,30 @@ export class MarcasService {
   ): Promise<Marca> {
     const marcaData = { ...createMarcaDto, logo: logoPath };
     return this.marcaRepository.create(marcaData);
+=======
+    private readonly marcaMapper: MarcaMapper,
+  ) {}
+
+  async create(createMarcaDto: CreateMarcaDto): Promise<MarcaResponseDto> {
+    const nuevaMarca = await this.marcaRepository.create(createMarcaDto);
+    return this.marcaMapper.toResponseDto(nuevaMarca);
+>>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
   }
 
-  async findAll(): Promise<Marca[]> {
-    return this.marcaRepository.findAll();
+  async findAllPaginated(
+    paginationDto: PaginationDto,
+  ): Promise<RespuestaFindAllPaginatedMarcasDTO> {
+    const paginatedResult = await this.marcaRepository.findAllPaginated(paginationDto);
+    return this.marcaMapper.toRespuestaFindAllPaginatedMarcasDTO(paginatedResult);
   }
 
-  async findOne(id: number): Promise<Marca> {
-    const _marca = await this.marcaRepository.findOne(id);
-    if (!_marca) throw new BadRequestException('Marca no encontrada');
-    return _marca;
+  async findOne(id: number): Promise<MarcaResponseDto> {
+    const marca = await this.marcaRepository.findOne(id);
+    if (!marca) throw new BadRequestException('Marca no encontrada');
+    return this.marcaMapper.toResponseDto(marca);
   }
 
+<<<<<<< HEAD
   async update(
     id: number,
     updateMarcaDto: UpdateMarcaDto,
@@ -42,13 +66,36 @@ export class MarcasService {
         updateMarcaDto.nombre,
       );
       if (existing) throw new BadRequestException('Nombre ya registrado');
+=======
+  async update(id: number, updateMarcaDto: UpdateMarcaDto): Promise<MarcaResponseDto> {
+    const marcaActual = await this.marcaRepository.findOne(id);
+    if (!marcaActual) throw new BadRequestException('Marca no encontrada');
+
+    // Validación de nombre único (manejada por DTO/Validator)
+
+    const logoAntiguo = marcaActual.logo;
+    const logoNuevo = updateMarcaDto.logo;
+
+    if (logoNuevo && logoAntiguo && logoNuevo !== logoAntiguo) {
+      try {
+        const rutaLogoAntiguo = path.join(process.cwd(), 'uploads', 'logos', logoAntiguo);
+        await fs.unlink(rutaLogoAntiguo);
+        this.logger.log(`Logo anterior eliminado: ${rutaLogoAntiguo}`);
+      } catch (error) {
+        this.logger.error(`No se pudo eliminar el logo anterior: ${logoAntiguo}`, error.stack);
+      }
+>>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
     }
-    if (logoPath) updateMarcaDto['logo'] = logoPath;
+
     await this.marcaRepository.update(id, updateMarcaDto);
-    return this.findOne(id);
+
+    const marcaActualizada = await this.marcaRepository.findOne(id);
+    if (!marcaActualizada) throw new InternalServerErrorException('Error al obtener la marca actualizada');
+    return this.marcaMapper.toResponseDto(marcaActualizada);
   }
 
   async remove(id: number): Promise<void> {
+<<<<<<< HEAD
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _marca = await this.findOne(id);
     // TODO: Chequeo de productos asociados cuando lineas esté listo
@@ -59,6 +106,31 @@ export class MarcasService {
     const _marca = await this.marcaRepository.findOne(id);
     if (!_marca?.deletedAt)
       throw new BadRequestException('La marca no se encuentra eliminada');
+=======
+    const marca = await this.marcaRepository.findOne(id);
+    if (!marca) throw new BadRequestException('Marca no encontrada');
+
+    // TODO: Chequeo de productos asociados
+
+    await this.marcaRepository.remove(id); // Soft delete
+
+    if (marca.logo) {
+      try {
+        const rutaLogo = path.join(process.cwd(), 'uploads', 'logos', marca.logo);
+        await fs.unlink(rutaLogo);
+        this.logger.log(`Logo eliminado (soft delete): ${rutaLogo}`);
+      } catch (error) {
+        this.logger.error(`No se pudo eliminar el logo durante el soft delete: ${marca.logo}`, error.stack);
+      }
+    }
+  }
+
+  async restore(id: number): Promise<void> {
+    const marca = await this.marcaRepository.findOneWithDeleted(id);
+    if (!marca) throw new BadRequestException('Marca no encontrada o no eliminada');
+    if (!marca.deletedAt) throw new BadRequestException('La marca no se encuentra eliminada');
+
+>>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
     await this.marcaRepository.restore(id);
   }
 }
