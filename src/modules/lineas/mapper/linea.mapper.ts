@@ -6,8 +6,9 @@ import { RespuestaLineaDto } from '../dto/respuesta-linea.dto';
 export class LineaMapper {
   toDto(linea: Linea): RespuestaLineaDto {
     return {
+      id:linea.id,
       nombre: linea.nombre,
-      marcas: linea.marcas?.map(m => m.nombre) ?? [],
+
     };
   }
 

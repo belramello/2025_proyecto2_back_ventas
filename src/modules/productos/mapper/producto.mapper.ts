@@ -17,7 +17,8 @@ export class ProductoMapper {
       codigo: producto.codigo,
       precio: producto.precio,
       stock: producto.stock,
-      linea: producto.linea?.nombre,
+      lineaId: producto.linea.id,
+      marcaId:producto.marca.id,
       fotoUrl: producto.fotoUrl,
       descripcion: producto.descripcion,
       detalles: this.detalleProveedorProductoMapper.toResponsesDto(
@@ -36,7 +37,14 @@ export class ProductoMapper {
       codigo: producto.codigo,
       precio: producto.precio,
       stock: producto.stock,
-      linea: producto.linea?.nombre,
+      marca: {
+        id: producto.marca.id,
+        nombre: producto.marca.nombre,
+      },
+        linea: {
+        id: producto.linea.id,
+        nombre: producto.linea.nombre,
+      },
       fotoUrl: producto.fotoUrl,
       fechaCreacion: producto.fechaCreacion,
       descripcion: producto.descripcion,

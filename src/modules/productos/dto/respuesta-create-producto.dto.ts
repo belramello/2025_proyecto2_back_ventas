@@ -31,10 +31,16 @@ export class RespuestaCreateProductoDto {
   @Min(0)
   precio: number;
 
-  /*@ApiProperty({ example: 'Pedigree', description: 'Marca del producto' })
-  @IsString()
-  @MaxLength(50)
-  marca: string;*/
+  @ApiProperty({ example: 'Pedigree', description: 'Marca del producto' })
+  @IsInt()
+
+  marcaId: number;
+
+  @ApiProperty({ example: 'Pedigree', description: 'Linea del Producto' })
+  @IsInt()
+
+  lineaId: number;
+
 
   @ApiProperty({ example: 30, description: 'Cantidad de stock disponible' })
   @IsInt()
@@ -45,9 +51,7 @@ export class RespuestaCreateProductoDto {
     example: 'Premium',
     description: 'Línea o categoría del producto',
   })
-  @IsString()
-  @MaxLength(50)
-  linea: string;
+
 
   @ApiProperty({
     description: 'Detalles de la venta',

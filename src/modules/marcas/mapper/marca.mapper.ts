@@ -7,7 +7,7 @@ export class MarcaMapper {
 
   toDto(marca: Marca): RespuestaMarcaDto {
     return {
-
+      id: marca.id,
       nombre: marca.nombre,
     };
   }

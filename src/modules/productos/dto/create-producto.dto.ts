@@ -34,15 +34,22 @@ export class CreateProductoDto {
   @IsInt()
   @Min(0)
   stock: number;
+  @ApiProperty({
+    example: 'Faber Castell',
+    description: 'Marca del producto',
+  })
+  
+  @IsInt()
+  marcaId: number;
 
   @ApiProperty({
     example: 'Premium',
     description: 'Línea o categoría del producto',
   })
-  /*
+  
   @IsInt()
   lineaId: number;
-  */
+  
   @ApiProperty({
     type: [CreateDetalleProveedorProductoDto],
     description: 'Listado de proveedores del producto',

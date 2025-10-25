@@ -18,7 +18,7 @@ import { JwtModule } from '../jwt/jwt.module';
       useClass: MarcaRepository,    
     },
     MarcaNombreUniqueValidator,
-    MarcaRepository
+
   ],
   exports: ['IMarcaRepository'],   
 })

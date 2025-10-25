@@ -1,16 +1,16 @@
-import {
+/*import {
   Injectable,
   ConflictException,
   BadRequestException,
-} from '@nestjs/common';
-import { MarcaRepository } from './repositories/marca-repository';
+} from '@nestjs/common';¡
 import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
 import { Marca } from './entities/marca.entity';
+import type { MarcaRepositoryInterface } from './repositories/marca-repository.interface';
 
 @Injectable()
 export class MarcasService {
-  constructor(private readonly marcaRepository: MarcaRepository) {}
+  constructor(private readonly marcaRepository: MarcaRepositoryInterface) {}
 
   async create(
     createMarcaDto: CreateMarcaDto,
@@ -28,7 +28,7 @@ export class MarcasService {
   }
 
   async findOne(id: number): Promise<Marca> {
-    const marca = await this.marcaRepository.findOneBy({ id });
+    const marca = await this.marcaRepository.findOne({ id });
     if (!marca) throw new BadRequestException('Marca no encontrada');
     return marca;
   }
@@ -75,3 +75,4 @@ export class MarcasService {
     await this.marcaRepository.restore(id);
   }
 }
+  */

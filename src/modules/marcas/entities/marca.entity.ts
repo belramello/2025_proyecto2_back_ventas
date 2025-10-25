@@ -31,4 +31,7 @@ export class Marca {
 
   @OneToMany(() => Producto, (producto) => producto.marca)
   productos: Producto[];
+
+  @DeleteDateColumn({ nullable: true }) 
+  fechaEliminacion: Date;
 }
