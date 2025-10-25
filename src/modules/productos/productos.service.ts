@@ -21,6 +21,8 @@ export class ProductosService {
   //agregar validadores para linea, marca, y codigo unico
   async create(createProductoDto: CreateProductoDto) {
     await this.validator.validateProductoConCodigo(createProductoDto.codigo);
+    await this.validator.validateMarcaExistente(createProductoDto.marcaId);
+    await this.validator.validateLineaExistente(createProductoDto.lineaId);
     return this.productosRepository.create(createProductoDto);
   }
 

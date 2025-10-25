@@ -18,6 +18,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ProveedoresModule } from './modules/proveedores/proveedores.module';
 import { LineasModule } from './modules/lineas/lineas.module';
+import { MailModule } from './modules/mails/mail.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { LineasModule } from './modules/lineas/lineas.module';
     MarcasModule,
     ProveedoresModule,
     LineasModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -18,4 +18,12 @@ export interface IUsuarioRepository {
   actualizarRolDeUsuario(rol: Rol, usuario: Usuario): Promise<void>;
   delete(usuario: Usuario): Promise<void>;
   updateUsuario(usuario: Usuario): Promise<Usuario>;
+
+  guardarTokenReset(
+    email: string,
+    token: string,
+    expiration: Date,
+  ): Promise<void>;
+  findOneByResetToken(token: string): Promise<Usuario | null>;
+  updatePassword(id: number, newPassword: string): Promise<void>;
 }

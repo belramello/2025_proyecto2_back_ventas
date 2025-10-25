@@ -8,13 +8,14 @@ import {
 import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
 import type { IMarcaRepository } from './repositories/marca-repository.interface';
+import { Marca } from './entities/marca.entity';
+
 import { PaginationDto } from './dto/pagination.dto';
 import { RespuestaFindAllPaginatedMarcasDTO } from './dto/respuesta-find-all-paginated-marcas.dto';
 import { MarcaMapper } from './mapper/marca.mapper';
 import { MarcaResponseDto } from './dto/marca-response.dto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { Marca } from './entities/marca.entity';
 
 @Injectable()
 export class MarcasService {

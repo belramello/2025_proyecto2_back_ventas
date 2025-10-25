@@ -89,4 +89,26 @@ export class Usuario {
 
   @DeleteDateColumn()
   fechaEliminacion: Date;
+
+
+  @ApiProperty({
+    example: null,
+    description: 'Token para reset de contraseña (nullable)',
+    required: false,
+  })
+  @Column({
+    name: 'passwordresettoken',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  passwordResetToken: string | null;
+
+  @ApiProperty({
+    example: null,
+    description: 'Fecha de expiración del token de reset (nullable)',
+    required: false,
+  })
+  @Column({ type: 'timestamp', nullable: true })
+  passwordResetExpiration: Date | null;
 }

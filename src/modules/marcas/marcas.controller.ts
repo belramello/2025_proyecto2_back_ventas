@@ -82,7 +82,7 @@ export class MarcasController {
     }
     return this.marcasService.create(createMarcaDto);
   }
-
+  @PermisoRequerido(PermisosEnum.VER_MARCAS)
   @Get()
   @PermisoRequerido(PermisosEnum.VER_MARCAS)
   @ApiOperation({ summary: 'Obtener lista paginada de marcas' })
@@ -108,7 +108,7 @@ export class MarcasController {
   ): Promise<RespuestaFindAllPaginatedMarcasDTO> {
     return this.marcasService.findAllPaginated(paginationDto);
   }
-
+  @PermisoRequerido(PermisosEnum.VER_MARCAS)
   @Get(':id')
   @PermisoRequerido(PermisosEnum.VER_MARCAS)
   @ApiOperation({ summary: 'Obtener una marca por ID' })
@@ -179,6 +179,7 @@ export class MarcasController {
     return this.marcasService.update(id, updateMarcaDto);
   }
 
+  @PermisoRequerido(PermisosEnum.ELIMINAR_MARCAS)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT) // Establecer código 204 para delete exitoso
   @PermisoRequerido(PermisosEnum.ELIMINAR_MARCAS)

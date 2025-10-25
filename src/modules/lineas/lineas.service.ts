@@ -9,6 +9,7 @@ import { AddMarcaToLineaDto } from './dto/add-marca-to-linea.dto';
 import { RespuestaLineaDto } from './dto/respuesta-linea.dto';
 import { LineaMapper } from './mapper/linea.mapper';
 import type { ILineaRepository } from './repositories/lineas-repository.interface';
+import type { IMarcaRepository } from '../marcas/repositories/marca-repository.interface';
 import { Linea } from './entities/linea.entity';
 import { MarcasService } from '../marcas/marcas.service';
 
@@ -17,6 +18,10 @@ export class LineasService {
   constructor(
     @Inject('ILineaRepository')
     private readonly lineaRepository: ILineaRepository,
+
+    @Inject('IMarcaRepository')
+    private readonly marcaRepository: IMarcaRepository,
+
     private readonly lineaMapper: LineaMapper,
     private readonly marcaService: MarcasService,
   ) {}
