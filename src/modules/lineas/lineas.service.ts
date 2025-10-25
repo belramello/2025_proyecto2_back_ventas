@@ -2,6 +2,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateLineaDto } from './dto/create-linea.dto';
@@ -12,6 +13,8 @@ import type { ILineaRepository } from './repositories/lineas-repository.interfac
 import { Linea } from './entities/linea.entity';
 import { LineasValidator } from './helpers/lineas-validator';
 import { MarcaValidator } from '../marcas/helpers/marcas-validator';
+import { PaginationLineaDto } from './dto/pagination.dto';
+import { RespuestaFindAllPaginatedLineasDTO } from './dto/respuesta-find-all-lineas-paginated.dto';
 
 @Injectable()
 export class LineasService {
@@ -26,10 +29,15 @@ export class LineasService {
   ) {}
 
   async createLinea(dto: CreateLineaDto): Promise<RespuestaLineaDto> {
-    const linea = await this.lineaRepository.create(dto.nombre);
-    return this.lineaMapper.toRespuestaLineaDto(linea);
+    try {
+      const lineaCreada = await this.lineaRepository.create(dto);
+      return this.lineaMapper.toRespuestaLineaDto(lineaCreada);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al crear la línea: ${error.message}`,
+      );
+    }
   }
-
   async findLinea(id: number): Promise<RespuestaLineaDto> {
     const linea = await this.lineaRepository.findOne(id);
     if (!linea) throw new NotFoundException('Linea no encontrada');
@@ -50,9 +58,19 @@ export class LineasService {
     return this.lineaMapper.toRespuestaLineaDto(updated);
   }
 
-  //Agregar validación que no se pueda borrar lineas si están actualmente vinculadas a un producto.
+  async findAllPaginated(
+      paginationDto: PaginationLineaDto,
+    ): Promise<RespuestaFindAllPaginatedLineasDTO> {
+      const { limit = 10, page = 1 } = paginationDto;
+      return this.lineaMapper.toRespuestaFindAllPaginatedLineasDTO(
+        await this.lineaRepository.findAllPaginated(page, limit),
+      );
+  }
+
+
   async delete(id: number): Promise<void> {
     const linea = await this.lineaValidator.validateLineaExistente(id);
+    await this.lineaValidator.validateLineaNoVinculadaAProductos(linea);
     await this.lineaRepository.delete(linea.id);
   }
 }

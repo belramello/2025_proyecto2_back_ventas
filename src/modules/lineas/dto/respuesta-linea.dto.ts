@@ -6,5 +6,8 @@ export class RespuestaLineaDto {
 
   @ApiProperty({ example: 'Lapiceras' })
   nombre: string;
+
+  @ApiProperty({ example: 'Línea de lapiceras y bolígrafos de uso diario' })
+  descripcion?: string;
   
 }

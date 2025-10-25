@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { Linea } from '../entities/linea.entity';
 import { Marca } from 'src/modules/marcas/entities/marca.entity';
 import { ILineaRepository } from './lineas-repository.interface';
+import { CreateLineaDto } from '../dto/create-linea.dto';
 
 @Injectable()
 export class LineaRepository implements ILineaRepository {
@@ -16,13 +17,18 @@ export class LineaRepository implements ILineaRepository {
     private readonly lineaRepository: Repository<Linea>,
   ) {}
 
-  async create(name: string): Promise<Linea> {
+  async create(createLineaDto: CreateLineaDto): Promise<Linea> {
     try {
-      const newLinea = this.lineaRepository.create({ nombre: name });
-      return await this.lineaRepository.save(newLinea);
+      const linea = this.lineaRepository.create({
+        nombre: createLineaDto.nombre,
+        descripcion: createLineaDto.descripcion, 
+      });
+      await this.lineaRepository.save(linea);
+
+      return linea;
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error creating line: ${error.message}`,
+        `Error al crear la línea: ${error.message}`,
       );
     }
   }
@@ -31,7 +37,7 @@ export class LineaRepository implements ILineaRepository {
     try {
       return await this.lineaRepository.findOne({
         where: { id },
-        relations: ['marcas'],
+        relations: ['marcas','productos'],
       });
     } catch (error) {
       throw new InternalServerErrorException(
@@ -60,4 +66,35 @@ export class LineaRepository implements ILineaRepository {
       );
     }
   }
+  async findAllPaginated(
+    page: number,
+    limit: number,
+  ): Promise<{
+    lineas: Linea[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }> {
+    try {
+      const query = this.lineaRepository
+        .createQueryBuilder('linea')
+        .orderBy('linea.nombre', 'ASC')
+        .skip((page - 1) * limit)
+        .take(limit);
+
+      const [lineas, total] = await query.getManyAndCount();
+
+      return {
+        lineas,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al encontrar las líneas paginadas: ${error.message}`,
+      );
+    }
+  }
+
 }

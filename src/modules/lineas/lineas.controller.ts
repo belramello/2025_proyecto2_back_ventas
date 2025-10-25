@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query } from '@nestjs/common';
 import { LineasService } from './lineas.service';
 import { CreateLineaDto } from './dto/create-linea.dto';
 import { AddMarcaToLineaDto } from './dto/add-marca-to-linea.dto';
 import { RespuestaLineaDto } from './dto/respuesta-linea.dto';
 
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { PaginationLineaDto } from './dto/pagination.dto';
 
 @Controller('lineas')
 export class LineasController {
@@ -53,5 +54,16 @@ export class LineasController {
   })
   async delete(@Param('id') id: number): Promise<void> {
     return await this.lineaService.delete(id);
+  }
+
+  @Get()
+    @ApiOperation({ summary: 'Obtener todas las lineas' })
+    @ApiResponse({
+      status: 200,
+      description: 'Lista de lineas',
+      type: [RespuestaLineaDto],
+    })
+    async findAll(@Query() paginationDto: PaginationLineaDto) {
+      return this.lineaService.findAllPaginated(paginationDto);
   }
 }

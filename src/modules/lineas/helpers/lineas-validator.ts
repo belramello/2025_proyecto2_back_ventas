@@ -44,4 +44,12 @@ export class LineasValidator {
       throw new BadRequestException('La marca no está vinculada a la línea');
     }
   }
+
+  async validateLineaNoVinculadaAProductos(linea: Linea): Promise<void> {
+    if (linea.productos && linea.productos.length > 0) {
+      throw new BadRequestException(
+        `No se puede eliminar la línea con ID ${linea.id} porque está vinculada a ${linea.productos.length} producto(s).`,
+      );
+    }
+  }
 }

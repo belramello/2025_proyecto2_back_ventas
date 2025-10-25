@@ -5,6 +5,7 @@ import { ProveedoresService } from './proveedores.service';
 import { ProveedoresController } from './proveedores.controller';
 import { ProveedorMapper } from './mappers/proveedores.mapper';
 import { ProveedoresRepository } from './repository/proveedor.repository';
+import { ProveedoresValidator } from './helpers/proveedor-validator';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Proveedor])],
@@ -12,14 +13,17 @@ import { ProveedoresRepository } from './repository/proveedor.repository';
   providers: [
     ProveedoresService,
     ProveedorMapper,
+    ProveedoresRepository, // ← necesario para que el validator lo reciba
+    ProveedoresValidator,
     {
       provide: 'IProveedoresRepository',
-      useClass: ProveedoresRepository,
+      useExisting: ProveedoresRepository, // ← correcto si usás la interfaz
     },
   ],
   exports: [
     ProveedoresService,
-    ProveedorMapper, // exportar el mapper para que otros módulos lo puedan usar
+    ProveedorMapper,
+    ProveedoresValidator,
   ],
 })
 export class ProveedoresModule {}
