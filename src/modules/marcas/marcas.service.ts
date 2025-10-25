@@ -14,6 +14,7 @@ import { MarcaMapper } from './mapper/marca.mapper';
 import { MarcaResponseDto } from './dto/marca-response.dto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { Marca } from './entities/marca.entity';
 
 @Injectable()
 export class MarcasService {
@@ -44,6 +45,10 @@ export class MarcasService {
     const marca = await this.marcaRepository.findOne(id);
     if (!marca) throw new BadRequestException('Marca no encontrada');
     return this.marcaMapper.toResponseDto(marca);
+  }
+
+  async findOneForServices(id: number): Promise<Marca | null> {
+    return await this.marcaRepository.findOne(id);
   }
 
   async update(

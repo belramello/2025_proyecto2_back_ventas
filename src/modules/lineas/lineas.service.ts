@@ -1,22 +1,24 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateLineaDto } from './dto/create-linea.dto';
 import { AddMarcaToLineaDto } from './dto/add-marca-to-linea.dto';
 import { RespuestaLineaDto } from './dto/respuesta-linea.dto';
 import { LineaMapper } from './mapper/linea.mapper';
 import type { ILineaRepository } from './repositories/lineas-repository.interface';
-import type { MarcaRepositoryInterface } from '../marcas/repositories/marca-repository.interface';
 import { Linea } from './entities/linea.entity';
+import { MarcasService } from '../marcas/marcas.service';
 
 @Injectable()
 export class LineasService {
   constructor(
     @Inject('ILineaRepository')
     private readonly lineaRepository: ILineaRepository,
-
-    @Inject('IMarcaRepository')
-    private readonly marcaRepository: MarcaRepositoryInterface,
-
     private readonly lineaMapper: LineaMapper,
+    private readonly marcaService: MarcasService,
   ) {}
 
   async createLinea(dto: CreateLineaDto): Promise<RespuestaLineaDto> {
@@ -47,11 +49,10 @@ export class LineasService {
       throw new NotFoundException('Line not found');
     }
 
-    const marca = await this.marcaRepository.findByNombre(dto.marca);
+    const marca = await this.marcaService.findOneForServices(dto.marcaId);
     if (!marca) {
-      throw new NotFoundException('Brand not found');
+      throw new NotFoundException('Marca no encontrada');
     }
-
     const updated = await this.lineaRepository.addBrand(linea, marca);
     return this.lineaMapper.toDto(updated);
   }

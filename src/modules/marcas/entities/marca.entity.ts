@@ -1,3 +1,4 @@
+import { Linea } from 'src/modules/lineas/entities/linea.entity';
 import { Producto } from 'src/modules/productos/entities/producto.entity';
 import {
   Column,
@@ -5,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   DeleteDateColumn,
   OneToMany,
+  ManyToMany,
 } from 'typeorm';
 
 @Entity('marcas')
@@ -22,6 +24,9 @@ export class Marca {
   logo: string;
   @DeleteDateColumn()
   deletedAt?: Date;
+
+  @ManyToMany(() => Linea, (linea) => linea.marcas)
+  lineas: Linea[];
 
   @OneToMany(() => Producto, (producto) => producto.marca)
   productos: Producto[];
