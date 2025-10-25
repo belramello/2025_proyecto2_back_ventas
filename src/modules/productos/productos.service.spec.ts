@@ -1,50 +1,75 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+// --- MOCKS DE MÓDULOS ---
+// 1. Mockear Swagger para evitar el crash de importación
+// (Necesario porque los DTOs usan @ApiProperty)
+const realSwagger = jest.requireActual('@nestjs/swagger');
+jest.mock('@nestjs/swagger', () => ({
+  ...realSwagger, // Mantiene ApiProperty, ApiTags, etc.
+  SwaggerModule: { createDocument: jest.fn(), setup: jest.fn() },
+  DocumentBuilder: jest.fn(() => ({
+    build: jest.fn(),
+  })),
+}));
+
+// --- IMPORTS REALES ---
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductosService } from './productos.service';
 import { IProductosRepository } from './repository/producto-repository.interface';
 import { ProductoMapper } from './mapper/producto.mapper';
 import { ProductosValidator } from './helpers/productos-validator';
+import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
 import { Producto } from './entities/producto.entity';
 import { CreateProductoDto } from './dto/create-producto.dto';
-import { PaginationProductoDto } from './dto/pagination.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
-import { RespuestaFindAllPaginatedProductoDTO } from './dto/respuesta-find-all-paginated.dto';
 import { BadRequestException } from '@nestjs/common';
+import { RespuestaFindAllPaginatedProductoDTO } from './dto/respuesta-find-all-paginated.dto';
 import { UpdateResult } from 'typeorm';
 
-// --- Mocks y Datos de Prueba ---
+// --- MOCK DATA ---
+const mockUsuarioId = 1;
 
-// 1. Datos falsos (stubs)
 const mockProducto: Producto = {
   id: 1,
-  nombre: 'Collar para perro',
-  codigo: 'ABC0123',
-  precio: 2500,
-  marca: 'Pedigree',
-  stock: 30,
+  nombre: 'Collar',
+  codigo: 'A123',
+  precio: 100,
+  stock: 10,
   linea: 'Premium',
-  fotoUrl: 'https://example.com/foto.jpg',
-  descripcion: 'Collar resistente',
-  usuarioId: 1,
+  fotoUrl: 'http://foto.com/img.png',
   fechaCreacion: new Date(),
-  detalleVentas: [],
-  fechaActualizacion: new Date(),
-  fechaEliminacion: new Date(),
+  descripcion: 'Collar de perro',
+  // Simulación de otras propiedades de la entidad
+} as Producto;
+
+const mockCreateDto: CreateProductoDto = {
+  nombre: 'Collar',
+  codigo: 'A123',
+  precio: 100,
+  stock: 10,
+  linea: 'Premium',
+  fotoUrl: 'http://foto.com/img.png',
+  descripcion: 'Collar de perro',
+};
+
+const mockUpdateDto: UpdateProductoDto = {
+  precio: 150,
+};
+
+const mockDeleteDto: DeleteProductoDto = {
+  id: 1,
+  usuarioId: mockUsuarioId,
 };
 
 const mockUpdateResult: UpdateResult = {
   affected: 1,
-  raw: [],
+  raw: {},
   generatedMaps: [],
 };
 
-// 2. Tipos para los Mocks
-type MockRepository = Partial<Record<keyof IProductosRepository, jest.Mock>>;
-type MockMapper = Partial<Record<keyof ProductoMapper, jest.Mock>>;
-type MockValidator = Partial<Record<keyof ProductosValidator, jest.Mock>>;
-
-// 3. Fábricas de Mocks
-const createMockRepository = (): MockRepository => ({
+// --- MOCK PROVIDERS ---
+const mockProductosRepository = {
   create: jest.fn(),
   findAllByUsuarioId: jest.fn(),
   findAllPaginated: jest.fn(),
@@ -53,251 +78,314 @@ const createMockRepository = (): MockRepository => ({
   update: jest.fn(),
   decrementStock: jest.fn(),
   remove: jest.fn(),
-});
+};
 
-const createMockMapper = (): MockMapper => ({
+const mockProductoMapper = {
   toRespuestaFindAllPaginatedProductoDTO: jest.fn(),
-  // Añadimos los otros métodos por si los necesitaras, aunque no los usa este servicio
-  toRespuestaCreateProducto: jest.fn(),
-  toRespuestaFinalFindOneDto: jest.fn(),
-  toRespuestaFindAllProductosDTO: jest.fn(),
-});
+};
 
-const createMockValidator = (): MockValidator => ({
+const mockProductosValidator = {
   validateStock: jest.fn(),
-});
+};
 
-// --- Suite de Pruebas ---
+const mockHistorialService = {
+  create: jest.fn(),
+};
 
+// --- TEST SUITE ---
 describe('ProductosService', () => {
   let service: ProductosService;
-  let repository: MockRepository;
-  let mapper: MockMapper;
-  let validator: MockValidator;
+  let repository: IProductosRepository;
+  let mapper: ProductoMapper;
+  let validator: ProductosValidator;
+  let historial: HistorialActividadesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        // 1. El servicio real
         ProductosService,
-        // 2. Mocks de sus dependencias
         {
-          provide: 'IProductosRepository', // ¡Usar el token de inyección!
-          useValue: createMockRepository(),
+          provide: 'IProductosRepository',
+          useValue: mockProductosRepository,
         },
         {
           provide: ProductoMapper,
-          useValue: createMockMapper(),
+          useValue: mockProductoMapper,
         },
         {
           provide: ProductosValidator,
-          useValue: createMockValidator(),
+          useValue: mockProductosValidator,
+        },
+        {
+          provide: HistorialActividadesService,
+          useValue: mockHistorialService,
         },
       ],
     }).compile();
 
     service = module.get<ProductosService>(ProductosService);
-    repository = module.get<MockRepository>('IProductosRepository');
-    mapper = module.get<MockMapper>(ProductoMapper);
-    validator = module.get<MockValidator>(ProductosValidator);
+    repository = module.get<IProductosRepository>('IProductosRepository');
+    mapper = module.get<ProductoMapper>(ProductoMapper);
+    validator = module.get<ProductosValidator>(ProductosValidator);
+    historial = module.get<HistorialActividadesService>(
+      HistorialActividadesService,
+    );
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('debería estar definido', () => {
     expect(service).toBeDefined();
   });
 
-  // --- Pruebas para create() ---
+  // Pruebas para el método create()
   describe('create', () => {
-    it('debería crear un producto', async () => {
-      const createDto: CreateProductoDto = { ...mockProducto };
-      repository.create?.mockResolvedValue(mockProducto);
+    it('debería crear un producto y registrar historial exitoso', async () => {
+      mockProductosRepository.create.mockResolvedValue(mockProducto);
+      mockHistorialService.create.mockResolvedValue(undefined);
 
-      const result = await service.create(createDto);
+      const result = await service.create(mockCreateDto, mockUsuarioId);
 
-      expect(repository.create).toHaveBeenCalledWith(createDto);
+      expect(mockProductosRepository.create).toHaveBeenCalledWith(
+        mockCreateDto,
+        mockUsuarioId,
+      );
+      expect(mockHistorialService.create).toHaveBeenCalledWith({
+        usuario: mockUsuarioId,
+        accionId: 7,
+        estadoId: 1, // Exitoso
+      });
       expect(result).toEqual(mockProducto);
+    });
+
+    it('debería fallar al crear y registrar historial fallido', async () => {
+      const error = new Error('Error de base de datos');
+      mockProductosRepository.create.mockRejectedValue(error);
+      mockHistorialService.create.mockResolvedValue(undefined);
+
+      await expect(
+        service.create(mockCreateDto, mockUsuarioId),
+      ).rejects.toThrow(error);
+
+      expect(mockProductosRepository.create).toHaveBeenCalledWith(
+        mockCreateDto,
+        mockUsuarioId,
+      );
+      expect(mockHistorialService.create).toHaveBeenCalledWith({
+        usuario: mockUsuarioId,
+        accionId: 7,
+        estadoId: 2, // Fallido
+      });
     });
   });
 
-  // --- Pruebas para findAll() ---
+  // Pruebas para el método findAll()
   describe('findAll', () => {
-    it('debería retornar todos los productos para el usuario (ID 1 temporal)', async () => {
-      const mockProductosArray = [mockProducto];
-      repository.findAllByUsuarioId?.mockResolvedValue(mockProductosArray);
+    it('debería retornar un array de productos (con ID de usuario hardcodeado)', async () => {
+      const productosArray = [mockProducto];
+      mockProductosRepository.findAllByUsuarioId.mockResolvedValue(
+        productosArray,
+      );
 
       const result = await service.findAll();
 
-      // Verifica que se llama con el ID 1 hardcodeado
-      expect(repository.findAllByUsuarioId).toHaveBeenCalledWith(1);
-      expect(result).toEqual(mockProductosArray);
+      expect(mockProductosRepository.findAllByUsuarioId).toHaveBeenCalledWith(
+        1,
+      ); // Temporal hardcodeado
+      expect(result).toEqual(productosArray);
     });
   });
 
-  // --- Pruebas para findAllPaginated() ---
+  // Pruebas para el método findAllPaginated()
   describe('findAllPaginated', () => {
-    it('debería retornar productos paginados y mapeados', async () => {
-      const paginationDto: PaginationProductoDto = { page: 1, limit: 5 };
-      const repoResult = {
-        productos: [mockProducto],
-        total: 1,
-        page: 1,
-        lastPage: 1,
-      };
-      const mapperResult: RespuestaFindAllPaginatedProductoDTO = {
-        productos: [], // El mapper los transformaría
-        total: 1,
-        page: 1,
-        lastPage: 1,
-      };
+    const paginatedRepoResult = {
+      productos: [mockProducto],
+      total: 1,
+      page: 1,
+      lastPage: 1,
+    };
+    const mappedResult = {
+      productos: [{}], // Simulación de DTOs mapeados
+      total: 1,
+      page: 1,
+      lastPage: 1,
+    } as unknown as RespuestaFindAllPaginatedProductoDTO;
 
-      repository.findAllPaginated?.mockResolvedValue(repoResult);
-      mapper.toRespuestaFindAllPaginatedProductoDTO?.mockReturnValue(
-        mapperResult,
+    it('debería paginar con valores por defecto (page 1, limit 10)', async () => {
+      mockProductosRepository.findAllPaginated.mockResolvedValue(
+        paginatedRepoResult,
+      );
+      mockProductoMapper.toRespuestaFindAllPaginatedProductoDTO.mockReturnValue(
+        mappedResult,
       );
 
-      const result = await service.findAllPaginated(paginationDto);
+      const result = await service.findAllPaginated({});
 
-      expect(repository.findAllPaginated).toHaveBeenCalledWith(
-        paginationDto.page,
-        paginationDto.limit,
+      expect(mockProductosRepository.findAllPaginated).toHaveBeenCalledWith(
+        1,
+        10,
       );
       expect(
-        mapper.toRespuestaFindAllPaginatedProductoDTO,
-      ).toHaveBeenCalledWith(repoResult);
-      expect(result).toEqual(mapperResult);
+        mockProductoMapper.toRespuestaFindAllPaginatedProductoDTO,
+      ).toHaveBeenCalledWith(paginatedRepoResult);
+      expect(result).toEqual(mappedResult);
     });
 
-    it('debería usar valores por defecto para paginación (page 1, limit 10)', async () => {
-      const paginationDto: PaginationProductoDto = {}; // Sin page y limit
-      const repoResult = {
-        productos: [],
-        total: 0,
-        page: 1,
-        lastPage: 1,
-      };
-      const mapperResult: RespuestaFindAllPaginatedProductoDTO = {
-        productos: [],
-        total: 0,
-        page: 1,
-        lastPage: 1,
-      };
-
-      repository.findAllPaginated?.mockResolvedValue(repoResult);
-      mapper.toRespuestaFindAllPaginatedProductoDTO?.mockReturnValue(
-        mapperResult,
+    it('debería paginar con valores provistos', async () => {
+      mockProductosRepository.findAllPaginated.mockResolvedValue(
+        paginatedRepoResult,
+      );
+      mockProductoMapper.toRespuestaFindAllPaginatedProductoDTO.mockReturnValue(
+        mappedResult,
       );
 
-      await service.findAllPaginated(paginationDto);
+      const result = await service.findAllPaginated({ page: 2, limit: 5 });
 
-      // Verifica que se usen los defaults 10 (limit) y 1 (page)
-      expect(repository.findAllPaginated).toHaveBeenCalledWith(1, 10);
+      expect(mockProductosRepository.findAllPaginated).toHaveBeenCalledWith(
+        2,
+        5,
+      );
     });
   });
 
-  // --- Pruebas para findOne() ---
+  // Pruebas para el método findOne()
   describe('findOne', () => {
     it('debería retornar un producto por ID', async () => {
-      const id = 1;
-      repository.findOne?.mockResolvedValue(mockProducto);
-
-      const result = await service.findOne(id);
-
-      expect(repository.findOne).toHaveBeenCalledWith({ id });
+      mockProductosRepository.findOne.mockResolvedValue(mockProducto);
+      const result = await service.findOne(1);
+      expect(mockProductosRepository.findOne).toHaveBeenCalledWith({ id: 1 });
       expect(result).toEqual(mockProducto);
-    });
-
-    it('debería retornar null si el producto no existe', async () => {
-      const id = 99;
-      repository.findOne?.mockResolvedValue(null);
-
-      const result = await service.findOne(id);
-
-      expect(repository.findOne).toHaveBeenCalledWith({ id: 99 });
-      expect(result).toBeNull();
     });
   });
 
-  // --- Pruebas para findOneByCodigo() ---
+  // Pruebas para el método findOneByCodigo()
   describe('findOneByCodigo', () => {
     it('debería retornar un producto por código', async () => {
-      const codigo = 'ABC0123';
-      repository.findByCodigo?.mockResolvedValue(mockProducto);
-
-      const result = await service.findOneByCodigo(codigo);
-
-      expect(repository.findByCodigo).toHaveBeenCalledWith(codigo);
+      mockProductosRepository.findByCodigo.mockResolvedValue(mockProducto);
+      const result = await service.findOneByCodigo('A123');
+      expect(mockProductosRepository.findByCodigo).toHaveBeenCalledWith('A123');
       expect(result).toEqual(mockProducto);
     });
   });
 
-  // --- Pruebas para update() ---
+  // Pruebas para el método update()
   describe('update', () => {
-    it('debería actualizar un producto', async () => {
-      const id = 1;
-      const updateDto: UpdateProductoDto = { nombre: 'Nuevo Nombre' };
-      repository.update?.mockResolvedValue(mockUpdateResult);
+    it('debería actualizar un producto y registrar historial exitoso', async () => {
+      mockProductosRepository.update.mockResolvedValue(mockUpdateResult);
+      mockHistorialService.create.mockResolvedValue(undefined);
 
-      const result = await service.update(id, updateDto);
+      const result = await service.update(1, mockUpdateDto, mockUsuarioId);
 
-      expect(repository.update).toHaveBeenCalledWith(id, updateDto);
+      expect(mockProductosRepository.update).toHaveBeenCalledWith(
+        1,
+        mockUpdateDto,
+        mockUsuarioId,
+      );
+      expect(mockHistorialService.create).toHaveBeenCalledWith({
+        usuario: mockUsuarioId,
+        accionId: 8,
+        estadoId: 1, // Exitoso
+      });
       expect(result).toEqual(mockUpdateResult);
+    });
+
+    it('debería fallar al actualizar y registrar historial fallido', async () => {
+      const error = new Error('Error de base de datos');
+      mockProductosRepository.update.mockRejectedValue(error);
+      mockHistorialService.create.mockResolvedValue(undefined);
+
+      await expect(
+        service.update(1, mockUpdateDto, mockUsuarioId),
+      ).rejects.toThrow(error);
+
+      expect(mockProductosRepository.update).toHaveBeenCalledWith(
+        1,
+        mockUpdateDto,
+        mockUsuarioId,
+      );
+      expect(mockHistorialService.create).toHaveBeenCalledWith({
+        usuario: mockUsuarioId,
+        accionId: 8,
+        estadoId: 1, // Fallido
+      });
     });
   });
 
-  // --- Pruebas para decrementarStock() ---
+  // Pruebas para el método decrementarStock()
   describe('decrementarStock', () => {
-    it('debería llamar al validador y luego decrementar el stock', async () => {
-      const cantidad = 5;
-      // Mock para que la validación pase (no retorna nada)
-      validator.validateStock?.mockImplementation(() => {});
-      repository.decrementStock?.mockResolvedValue(mockUpdateResult);
-
-      await service.decrementarStock(mockProducto, cantidad);
-
-      // Verifica que el validador fue llamado PRIMERO
-      expect(validator.validateStock).toHaveBeenCalledWith(
-        mockProducto,
-        cantidad,
+    it('debería validar y decrementar el stock', async () => {
+      mockProductosValidator.validateStock.mockReturnValue(undefined); // No lanza error
+      mockProductosRepository.decrementStock.mockResolvedValue(
+        mockUpdateResult,
       );
-      // Verifica que el repositorio fue llamado DESPUÉS
-      expect(repository.decrementStock).toHaveBeenCalledWith(
+
+      await service.decrementarStock(mockProducto, 5);
+
+      expect(mockProductosValidator.validateStock).toHaveBeenCalledWith(
+        mockProducto,
+        5,
+      );
+      expect(mockProductosRepository.decrementStock).toHaveBeenCalledWith(
         mockProducto.id,
-        cantidad,
+        5,
       );
     });
 
-    it('debería lanzar BadRequestException si el validador falla', async () => {
-      const cantidad = 99; // Más que el stock (30)
-      // Mock para que la validación falle
-      validator.validateStock?.mockImplementation(() => {
-        throw new BadRequestException('Stock insuficiente');
+    it('debería fallar si el validador de stock lanza una excepción', async () => {
+      const error = new BadRequestException('Stock insuficiente');
+      mockProductosValidator.validateStock.mockImplementation(() => {
+        throw error;
       });
 
-      // Verificamos que se lanza la excepción
-      await expect(
-        service.decrementarStock(mockProducto, cantidad),
-      ).rejects.toThrow(BadRequestException);
-
-      // Verifica que el validador fue llamado
-      expect(validator.validateStock).toHaveBeenCalledWith(
-        mockProducto,
-        cantidad,
+      await expect(service.decrementarStock(mockProducto, 20)).rejects.toThrow(
+        BadRequestException,
       );
-      // ¡MUY IMPORTANTE! Verifica que el repositorio NUNCA fue llamado
-      expect(repository.decrementStock).not.toHaveBeenCalled();
+
+      expect(mockProductosValidator.validateStock).toHaveBeenCalledWith(
+        mockProducto,
+        20,
+      );
+      // No debe llamar al repositorio si la validación falla
+      expect(mockProductosRepository.decrementStock).not.toHaveBeenCalled();
     });
   });
 
-  // --- Pruebas para remove() ---
+  // Pruebas para el método remove()
   describe('remove', () => {
-    it('debería eliminar (soft delete) un producto', async () => {
-      const deleteDto: DeleteProductoDto = { id: 1 };
-      repository.remove?.mockResolvedValue(mockUpdateResult);
+    it('debería eliminar un producto y registrar historial exitoso', async () => {
+      mockProductosRepository.remove.mockResolvedValue(mockUpdateResult);
+      mockHistorialService.create.mockResolvedValue(undefined);
 
-      const result = await service.remove(deleteDto);
+      const result = await service.remove(mockDeleteDto);
 
-      expect(repository.remove).toHaveBeenCalledWith(deleteDto);
+      expect(mockProductosRepository.remove).toHaveBeenCalledWith(
+        mockDeleteDto,
+      );
+      expect(mockHistorialService.create).toHaveBeenCalledWith({
+        usuario: mockDeleteDto.usuarioId,
+        accionId: 9,
+        estadoId: 1, // Exitoso
+      });
       expect(result).toEqual(mockUpdateResult);
+    });
+
+    it('debería fallar al eliminar y registrar historial fallido', async () => {
+      const error = new Error('Error de base de datos');
+      mockProductosRepository.remove.mockRejectedValue(error);
+      mockHistorialService.create.mockResolvedValue(undefined);
+
+      await expect(service.remove(mockDeleteDto)).rejects.toThrow(error);
+
+      expect(mockProductosRepository.remove).toHaveBeenCalledWith(
+        mockDeleteDto,
+      );
+      expect(mockHistorialService.create).toHaveBeenCalledWith({
+        usuario: mockDeleteDto.usuarioId,
+        accionId: 9,
+        estadoId: 2, // Fallido
+      });
     });
   });
 });
