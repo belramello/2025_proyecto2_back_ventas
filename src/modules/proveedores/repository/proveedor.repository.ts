@@ -43,7 +43,7 @@ export class ProveedoresRepository implements IProveedoresRepository {
   async findOne(data: FindOneProveedoreDto): Promise<Proveedor | null> {
     try {
       const proveedor = await this.proveedorRepository.findOne({
-        where: { id: data.id, fechaEliminacion: IsNull() },
+        where: { id: data.id },
       });
       return proveedor;
     } catch (error) {

@@ -12,7 +12,7 @@ import {
   Query,
   ParseIntPipe,
   HttpCode,
-  HttpStatus, // Importar HttpCode y HttpStatus
+  HttpStatus,
 } from '@nestjs/common';
 import { MarcasService } from './marcas.service';
 import { CreateMarcaDto } from './dto/create-marca.dto';
@@ -53,7 +53,6 @@ export class MarcasController {
           cb(null, `logo-${uniqueSuffix}${extension}`);
         },
       }),
-      // fileFilter: ... (opcional para validar tipo/tamaño)
     }),
   )
   @PermisoRequerido(PermisosEnum.CREAR_MARCAS)
@@ -63,7 +62,7 @@ export class MarcasController {
     status: 201,
     description: 'Marca creada exitosamente.',
     type: MarcaResponseDto,
-  }) // Usar tipo mapeado
+  })
   @ApiResponse({
     status: 400,
     description: 'Datos inválidos (ej. nombre requerido, formato incorrecto).',
@@ -76,9 +75,8 @@ export class MarcasController {
     @Body() createMarcaDto: CreateMarcaDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<MarcaResponseDto> {
-    // Especificar tipo de retorno
     if (file) {
-      createMarcaDto.logo = file.filename; // Asignar solo el nombre del archivo
+      createMarcaDto.logo = file.filename;
     }
     return this.marcasService.create(createMarcaDto);
   }
@@ -164,7 +162,6 @@ export class MarcasController {
     @Body() updateMarcaDto: UpdateMarcaDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<MarcaResponseDto> {
-    updateMarcaDto.id = id;
     if (file) {
       updateMarcaDto.logo = file.filename;
     } else {

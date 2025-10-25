@@ -38,6 +38,7 @@ export class DetalleProveedorProductoService {
   async create(
     createDetalleDto: CreateDetalleProveedorProductoServiceDto,
   ): Promise<RespuestaFindOneDetalleProveedorProductoDto> {
+    //pasar toda esta validación de si existe un producto a un validador.
     const producto = await this.productosService.findOne(
       createDetalleDto.producto.id,
     );
@@ -46,6 +47,7 @@ export class DetalleProveedorProductoService {
         `No se encontró el producto con ID ${createDetalleDto.producto.id}`,
       );
     }
+    //pasar toda esta validación de si existe un proveedor a un validador.
     const proveedor = await this.proveedoresService.findOne(
       createDetalleDto.proveedorId,
     );

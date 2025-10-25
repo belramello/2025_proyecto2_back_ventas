@@ -4,6 +4,7 @@ import {
   BadRequestException,
   InternalServerErrorException,
   Logger,
+  forwardRef,
 } from '@nestjs/common';
 import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
@@ -16,6 +17,7 @@ import { MarcaMapper } from './mapper/marca.mapper';
 import { MarcaResponseDto } from './dto/marca-response.dto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { MarcaValidator } from './helpers/marcas-validator';
 
 @Injectable()
 export class MarcasService {
@@ -25,10 +27,19 @@ export class MarcasService {
     @Inject('IMarcaRepository')
     private readonly marcaRepository: IMarcaRepository,
     private readonly marcaMapper: MarcaMapper,
+    @Inject(forwardRef(() => MarcaValidator))
+    private readonly marcaValidator: MarcaValidator,
   ) {}
 
   async create(createMarcaDto: CreateMarcaDto): Promise<MarcaResponseDto> {
-    const nuevaMarca = await this.marcaRepository.create(createMarcaDto);
+    await this.marcaValidator.validateNombreUnico(createMarcaDto.nombre);
+    const lineas = await this.marcaValidator.validateLineasExistentes(
+      createMarcaDto.lineasId,
+    );
+    const nuevaMarca = await this.marcaRepository.create(
+      createMarcaDto,
+      lineas,
+    );
     return this.marcaMapper.toResponseDto(nuevaMarca);
   }
 
@@ -56,8 +67,7 @@ export class MarcasService {
     id: number,
     updateMarcaDto: UpdateMarcaDto,
   ): Promise<MarcaResponseDto> {
-    const marcaActual = await this.marcaRepository.findOne(id);
-    if (!marcaActual) throw new BadRequestException('Marca no encontrada');
+    const marcaActual = await this.marcaValidator.validateExistencia(id);
 
     // Validación de nombre único (manejada por DTO/Validator)
 
@@ -81,7 +91,6 @@ export class MarcasService {
         );
       }
     }
-
     await this.marcaRepository.update(id, updateMarcaDto);
 
     const marcaActualizada = await this.marcaRepository.findOne(id);
@@ -127,5 +136,9 @@ export class MarcasService {
       throw new BadRequestException('La marca no se encuentra eliminada');
 
     await this.marcaRepository.restore(id);
+  }
+
+  async findOneByNombre(nombre: string): Promise<Marca | null> {
+    return await this.marcaRepository.findByNombre(nombre);
   }
 }

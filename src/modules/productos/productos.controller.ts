@@ -10,6 +10,7 @@ import {
   HttpStatus,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ProductosService } from './productos.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
@@ -24,6 +25,7 @@ import {
 import { Producto } from './entities/producto.entity';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
 import { AuthGuard } from '../../middlewares/auth.middleware';
+import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
 import { PermisosGuard } from '../../common/guards/permisos.guard';
 import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
@@ -48,8 +50,11 @@ export class ProductosController {
   @ApiResponse({ status: 500, description: 'Error interno del servidor' })
   @ApiBody({ type: CreateProductoDto })
   @PermisoRequerido(PermisosEnum.CREAR_PRODUCTO)
-  async create(@Body() createProductoDto: CreateProductoDto) {
-    return this.productosService.create(createProductoDto);
+  async create(
+    @Body() createProductoDto: CreateProductoDto,
+    @Req() req: RequestWithUsuario,
+  ) {
+    return this.productosService.create(createProductoDto, req.usuario);
   }
 
   // ────────────────────────────────

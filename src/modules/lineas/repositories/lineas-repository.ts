@@ -1,7 +1,6 @@
 import {
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,63 +16,48 @@ export class LineaRepository implements ILineaRepository {
     private readonly lineaRepository: Repository<Linea>,
   ) {}
 
-    async create(name: string): Promise<Linea> {
-        try {
-        const newLinea = this.lineaRepository.create({ nombre: name });
-        return await this.lineaRepository.save(newLinea);
-        } catch (error) {
-        throw new InternalServerErrorException(
-            `Error creating line: ${error.message}`,
-        );
-        }
+  async create(name: string): Promise<Linea> {
+    try {
+      const newLinea = this.lineaRepository.create({ nombre: name });
+      return await this.lineaRepository.save(newLinea);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error creating line: ${error.message}`,
+      );
     }
+  }
 
-    async findById(id: number): Promise<Linea | null> {
-        try {
-        return await this.lineaRepository.findOne({ where: { id } });
-        } catch (error) {
-        throw new InternalServerErrorException(
-            `Error finding line with ID ${id}: ${error.message}`,
-        );
-        }
+  async findOne(id: number): Promise<Linea | null> {
+    try {
+      return await this.lineaRepository.findOne({
+        where: { id },
+        relations: ['marcas'],
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error finding line with ID ${id}: ${error.message}`,
+      );
     }
+  }
 
-    async findWithBrands(id: number): Promise<Linea | null> {
-        try {
-        return await this.lineaRepository.findOne({
-            where: { id },
-            relations: ['marcas'],
-        });
-        } catch (error) {
-        throw new InternalServerErrorException(
-            `Error loading line with brands: ${error.message}`,
-        );
-        }
+  async añadirMarca(linea: Linea, marca: Marca): Promise<Linea> {
+    try {
+      linea.marcas.push(marca);
+      return await this.lineaRepository.save(linea);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error vinculando la marca con la linea: ${error.message}`,
+      );
     }
+  }
 
-    async addBrand(linea: Linea, marca: Marca): Promise<Linea> {
-        try {
-        const alreadyLinked = linea.marcas.some((m) => m.id === marca.id);
-        if (alreadyLinked) {
-            throw new BadRequestException('Brand is already linked to this line');
-        }
-
-        linea.marcas.push(marca);
-        return await this.lineaRepository.save(linea);
-        } catch (error) {
-        throw new InternalServerErrorException(
-            `Error linking brand to line: ${error.message}`,
-        );
-        }
+  async delete(id: number): Promise<void> {
+    try {
+      await this.lineaRepository.delete(id);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error eliminando la marca con ID ${id}: ${error.message}`,
+      );
     }
-
-    async delete(id: number): Promise<void> {
-        try {
-        await this.lineaRepository.delete(id);
-        } catch (error) {
-        throw new InternalServerErrorException(
-            `Error deleting line with ID ${id}: ${error.message}`,
-        );
-        }
-    }
+  }
 }

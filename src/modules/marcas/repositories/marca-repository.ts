@@ -6,6 +6,7 @@ import { IMarcaRepository } from './marca-repository.interface';
 import { CreateMarcaDto } from '../dto/create-marca.dto';
 import { UpdateMarcaDto } from '../dto/update-marca.dto';
 import { PaginationDto } from '../dto/pagination.dto';
+import { Linea } from 'src/modules/lineas/entities/linea.entity';
 
 @Injectable()
 export class MarcaRepository implements IMarcaRepository {
@@ -14,9 +15,12 @@ export class MarcaRepository implements IMarcaRepository {
     private readonly marcaRepository: Repository<Marca>,
   ) {}
 
-  async create(createMarcaDto: CreateMarcaDto): Promise<Marca> {
+  async create(
+    createMarcaDto: CreateMarcaDto,
+    lineas: Linea[],
+  ): Promise<Marca> {
     try {
-      const marca = this.marcaRepository.create(createMarcaDto);
+      const marca = this.marcaRepository.create({ ...createMarcaDto, lineas });
       return await this.marcaRepository.save(marca);
     } catch (error) {
       throw new InternalServerErrorException(
@@ -25,9 +29,7 @@ export class MarcaRepository implements IMarcaRepository {
     }
   }
 
-  async findAllPaginated(
-    paginationDto: PaginationDto,
-  ): Promise<{
+  async findAllPaginated(paginationDto: PaginationDto): Promise<{
     marcas: Marca[];
     total: number;
     page: number;

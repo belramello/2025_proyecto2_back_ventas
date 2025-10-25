@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Producto } from 'src/modules/productos/entities/producto.entity';
 
 @Entity('usuarios')
 export class Usuario {
@@ -84,12 +85,14 @@ export class Usuario {
   tokenReinicioContraseña: TokenReinicioContraseña[]
   */
 
+  @OneToMany(() => Producto, (producto) => producto.usuario)
+  productos: Producto[];
+
   @OneToMany(() => Venta, (venta) => venta.vendedor)
   ventas: Venta[];
 
   @DeleteDateColumn()
   fechaEliminacion: Date;
-
 
   @ApiProperty({
     example: null,

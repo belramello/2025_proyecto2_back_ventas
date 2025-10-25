@@ -3,13 +3,12 @@ import {
   BadRequestException,
   forwardRef,
   Inject,
-  NotFoundException,
 } from '@nestjs/common';
 import { Producto } from '../entities/producto.entity';
 import { ProductosService } from '../productos.service';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Marca } from 'src/modules/marcas/entities/marca.entity';
-import { Repository } from 'typeorm';
+import { MarcaValidator } from 'src/modules/marcas/helpers/marcas-validator';
+import { LineasValidator } from 'src/modules/lineas/helpers/lineas-validator';
 import { Linea } from 'src/modules/lineas/entities/linea.entity';
 
 @Injectable()
@@ -17,11 +16,8 @@ export class ProductosValidator {
   constructor(
     @Inject(forwardRef(() => ProductosService))
     private readonly productosService: ProductosService,
-   @InjectRepository(Marca)
-    private readonly marcaRepository: Repository<Marca>,
-
-    @InjectRepository(Linea)
-    private readonly lineaRepository: Repository<Linea>,
+    private readonly marcaValidator: MarcaValidator,
+    private readonly lineaValidator: LineasValidator,
   ) {}
   validateStock(producto: Producto, cantidad: number) {
     if (producto.stock < cantidad) {
@@ -30,7 +26,6 @@ export class ProductosValidator {
       );
     }
   }
-
 
   async validateProductoConCodigo(codigo: string): Promise<void> {
     const producto = await this.productosService.findOneByCodigo(codigo);
@@ -41,17 +36,17 @@ export class ProductosValidator {
     }
   }
 
-   async validateMarcaExistente(marcaId: number): Promise<void> {
-    const marca = await this.marcaRepository.findOne({ where: { id: marcaId } });
-    if (!marca) {
-      throw new NotFoundException(`La marca con ID ${marcaId} no existe`);
-    }
+  async validateMarcaExistente(marcaId: number): Promise<Marca> {
+    const marca = await this.marcaValidator.validateExistencia(marcaId);
+    return marca;
   }
 
-  async validateLineaExistente(lineaId: number): Promise<void> {
-    const linea = await this.lineaRepository.findOne({ where: { id: lineaId } });
-    if (!linea) {
-      throw new NotFoundException(`La línea con ID ${lineaId} no existe`);
-    }
+  async validateLineaExistente(lineaId: number): Promise<Linea> {
+    const linea = await this.lineaValidator.validateLineaExistente(lineaId);
+    return linea;
+  }
+
+  async validateLineaParaMarca(linea: Linea, marca: Marca): Promise<void> {
+    await this.lineaValidator.validateLineaVinculadaAMarca(linea, marca);
   }
 }

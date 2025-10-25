@@ -1,33 +1,37 @@
 import {
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-  ValidationArguments,
-} from 'class-validator';
-import { Injectable, Inject } from '@nestjs/common';
-import type { IMarcaRepository } from '../repositories/marca-repository.interface';
-import { UpdateMarcaDto } from '../dto/update-marca.dto';
+  Injectable,
+  Inject,
+  NotFoundException,
+  forwardRef,
+  BadRequestException,
+} from '@nestjs/common';
+import { Marca } from '../entities/marca.entity';
+import { MarcasService } from '../marcas.service';
+import { LineasValidator } from 'src/modules/lineas/helpers/lineas-validator';
+import { Linea } from 'src/modules/lineas/entities/linea.entity';
 
-@ValidatorConstraint({ name: 'MarcaNombreUnique', async: true })
 @Injectable()
-export class MarcaNombreUniqueValidator
-  implements ValidatorConstraintInterface
-{
+export class MarcaValidator {
   constructor(
-    @Inject('IMarcaRepository')
-    private readonly marcaRepository: IMarcaRepository,
+    @Inject(forwardRef(() => LineasValidator))
+    private readonly lineaValidator: LineasValidator,
+    @Inject(forwardRef(() => MarcasService))
+    private readonly marcaService: MarcasService,
   ) {}
 
-  async validate(nombre: string, args: ValidationArguments): Promise<boolean> {
-    const id = (args.object as UpdateMarcaDto).id; // Obtiene el ID del DTO
-    const marca = await this.marcaRepository.findByNombre(nombre);
-
-    if (!marca) return true; // Si no existe, es válido
-    if (id && marca.id === id) return true; // Si existe pero es el mismo ID, es válido
-
-    return false; // Si existe y es otro ID, no es válido
+  async validateNombreUnico(nombre: string): Promise<void> {
+    const marca = await this.marcaService.findOneByNombre(nombre);
+    if (marca) throw new BadRequestException('El nombre de la marca ya existe');
   }
 
-  defaultMessage(args: ValidationArguments) {
-    return `El nombre de la marca '${args.value}' ya está registrado.`;
+  async validateLineasExistentes(lineasId: number[]): Promise<Linea[]> {
+    const lineas = await this.lineaValidator.validateLineasExistentes(lineasId);
+    return lineas;
+  }
+
+  async validateExistencia(id: number): Promise<Marca> {
+    const marca = await this.marcaService.findOneForServices(id);
+    if (!marca) throw new NotFoundException(`La marca con ID ${id} no existe`);
+    return marca;
   }
 }

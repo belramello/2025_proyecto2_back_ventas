@@ -1,19 +1,10 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { LineasService } from './lineas.service';
 import { CreateLineaDto } from './dto/create-linea.dto';
 import { AddMarcaToLineaDto } from './dto/add-marca-to-linea.dto';
 import { RespuestaLineaDto } from './dto/respuesta-linea.dto';
 
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-
 
 @Controller('lineas')
 export class LineasController {
@@ -48,8 +39,10 @@ export class LineasController {
     description: 'Marca asociada exitosamente',
     type: RespuestaLineaDto,
   })
-  async addBrand(@Body() dto: AddMarcaToLineaDto): Promise<RespuestaLineaDto> {
-    return await this.lineaService.addBrandToLinea(dto);
+  async añadirMarca(
+    @Body() dto: AddMarcaToLineaDto,
+  ): Promise<RespuestaLineaDto> {
+    return await this.lineaService.agregarMarcaALinea(dto);
   }
 
   @Delete(':id')

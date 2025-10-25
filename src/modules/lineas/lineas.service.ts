@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  forwardRef,
   Inject,
   Injectable,
   NotFoundException,
@@ -9,65 +9,50 @@ import { AddMarcaToLineaDto } from './dto/add-marca-to-linea.dto';
 import { RespuestaLineaDto } from './dto/respuesta-linea.dto';
 import { LineaMapper } from './mapper/linea.mapper';
 import type { ILineaRepository } from './repositories/lineas-repository.interface';
-import type { IMarcaRepository } from '../marcas/repositories/marca-repository.interface';
 import { Linea } from './entities/linea.entity';
-import { MarcasService } from '../marcas/marcas.service';
+import { LineasValidator } from './helpers/lineas-validator';
+import { MarcaValidator } from '../marcas/helpers/marcas-validator';
 
 @Injectable()
 export class LineasService {
   constructor(
     @Inject('ILineaRepository')
     private readonly lineaRepository: ILineaRepository,
-
-    @Inject('IMarcaRepository')
-    private readonly marcaRepository: IMarcaRepository,
-
     private readonly lineaMapper: LineaMapper,
-    private readonly marcaService: MarcasService,
+    @Inject(forwardRef(() => LineasValidator))
+    private readonly lineaValidator: LineasValidator,
+    @Inject(forwardRef(() => MarcaValidator))
+    private readonly marcaValidator: MarcaValidator,
   ) {}
 
   async createLinea(dto: CreateLineaDto): Promise<RespuestaLineaDto> {
     const linea = await this.lineaRepository.create(dto.nombre);
-    return this.lineaMapper.toDto(linea);
+    return this.lineaMapper.toRespuestaLineaDto(linea);
   }
 
   async findLinea(id: number): Promise<RespuestaLineaDto> {
-    const linea = await this.lineaRepository.findWithBrands(id);
-    if (!linea) {
-      throw new NotFoundException('Line not found');
-    }
-    return this.lineaMapper.toDto(linea);
+    const linea = await this.lineaRepository.findOne(id);
+    if (!linea) throw new NotFoundException('Linea no encontrada');
+    return this.lineaMapper.toRespuestaLineaDto(linea);
   }
 
   async findOne(id: number): Promise<Linea | null> {
-    return await this.lineaRepository.findById(id);
+    return await this.lineaRepository.findOne(id);
   }
 
-  async addBrandToLinea(dto: AddMarcaToLineaDto): Promise<RespuestaLineaDto> {
-    const lineaId = Number(dto.lineaId);
-    if (isNaN(lineaId)) {
-      throw new BadRequestException('Invalid lineaId');
-    }
-
-    const linea = await this.lineaRepository.findWithBrands(lineaId);
-    if (!linea) {
-      throw new NotFoundException('Line not found');
-    }
-
-    const marca = await this.marcaService.findOneForServices(dto.marcaId);
-    if (!marca) {
-      throw new NotFoundException('Marca no encontrada');
-    }
-    const updated = await this.lineaRepository.addBrand(linea, marca);
-    return this.lineaMapper.toDto(updated);
+  async agregarMarcaALinea(
+    dto: AddMarcaToLineaDto,
+  ): Promise<RespuestaLineaDto> {
+    const linea = await this.lineaValidator.validateLineaExistente(dto.lineaId);
+    const marca = await this.marcaValidator.validateExistencia(dto.marcaId);
+    await this.lineaValidator.validateLineaNoVinculadaAMarca(linea, marca);
+    const updated = await this.lineaRepository.añadirMarca(linea, marca);
+    return this.lineaMapper.toRespuestaLineaDto(updated);
   }
 
+  //Agregar validación que no se pueda borrar lineas si están actualmente vinculadas a un producto.
   async delete(id: number): Promise<void> {
-    const linea = await this.lineaRepository.findById(id);
-    if (!linea) {
-      throw new NotFoundException('Line not found');
-    }
-
-    await this.lineaRepository.delete(id);
+    const linea = await this.lineaValidator.validateLineaExistente(id);
+    await this.lineaRepository.delete(linea.id);
   }
 }

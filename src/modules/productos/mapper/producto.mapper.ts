@@ -12,7 +12,7 @@ export class ProductoMapper {
   constructor(
     private readonly detalleProveedorProductoMapper: DetalleProveedorProductoMapper,
     private readonly marcaMapper: MarcaMapper,
-    private readonly lineaMapper: LineaMapper
+    private readonly lineaMapper: LineaMapper,
   ) {}
 
   toRespuestaCreateProducto(producto: Producto): RespuestaCreateProductoDto {
@@ -21,8 +21,8 @@ export class ProductoMapper {
       codigo: producto.codigo,
       precio: producto.precio,
       stock: producto.stock,
-      lineaId: producto.linea.id,
-      marcaId:producto.marca.id,
+      linea: this.lineaMapper.toRespuestaLineaDto(producto.linea),
+      marca: this.marcaMapper.toResponseDto(producto.marca),
       fotoUrl: producto.fotoUrl,
       descripcion: producto.descripcion,
       detalles: this.detalleProveedorProductoMapper.toResponsesDto(
@@ -35,18 +35,14 @@ export class ProductoMapper {
     const detalles = this.detalleProveedorProductoMapper.toResponsesDto(
       producto.detallesProveedor,
     );
-    const marcas = this.marcaMapper.toResponsesDto(
-      producto.marca,
-    );
-
     return {
       id: producto.id,
       nombre: producto.nombre,
       codigo: producto.codigo,
       precio: producto.precio,
       stock: producto.stock,
-      marca:this.marcaMapper.toDto(producto.marca),
-      linea:this.lineaMapper.toDto(producto.linea),
+      marca: this.marcaMapper.toResponseDto(producto.marca),
+      linea: this.lineaMapper.toRespuestaLineaDto(producto.linea),
       fotoUrl: producto.fotoUrl,
       fechaCreacion: producto.fechaCreacion,
       descripcion: producto.descripcion,
@@ -68,6 +64,7 @@ export class ProductoMapper {
     page: number;
     lastPage: number;
   }): RespuestaFindAllPaginatedProductoDTO {
+    console.log('Mapping paginated products:', paginated.productos);
     return {
       productos: this.toRespuestaFindAllProductosDTO(paginated.productos),
       total: paginated.total,

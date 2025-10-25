@@ -4,15 +4,14 @@ import { RespuestaLineaDto } from '../dto/respuesta-linea.dto';
 
 @Injectable()
 export class LineaMapper {
-  toDto(linea: Linea): RespuestaLineaDto {
+  toRespuestaLineaDto(linea: Linea): RespuestaLineaDto {
     return {
-      id:linea.id,
+      id: linea.id,
       nombre: linea.nombre,
-
     };
   }
 
   toDtos(lineas: Linea[]): RespuestaLineaDto[] {
-    return lineas.map((linea) => this.toDto(linea));
+    return lineas.map((linea) => this.toRespuestaLineaDto(linea));
   }
 }

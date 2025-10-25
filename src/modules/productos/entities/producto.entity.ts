@@ -12,7 +12,7 @@ import {
 import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 import { Linea } from 'src/modules/lineas/entities/linea.entity';
 import { Marca } from 'src/modules/marcas/entities/marca.entity';
-//Tabla Productos
+import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
 @Entity('productos')
 export class Producto {
   @PrimaryGeneratedColumn()
@@ -29,7 +29,7 @@ export class Producto {
 
   @Column()
   stock: number;
-  
+
   @ManyToOne(() => Linea, (linea) => linea.productos)
   linea: Linea;
   @ManyToOne(() => Marca, (marca) => marca.productos)
@@ -44,17 +44,17 @@ export class Producto {
   @CreateDateColumn()
   fechaCreacion: Date;
 
-  @UpdateDateColumn({ nullable: true }) //Puede no tener fecha de actualizacion
+  @UpdateDateColumn({ nullable: true })
   fechaActualizacion: Date;
 
-  @DeleteDateColumn({ nullable: true }) //Puede no tener fecha de eliminacion
+  @DeleteDateColumn({ nullable: true })
   fechaEliminacion: Date;
 
   @Column()
   descripcion: string;
 
-  @Column()
-  usuarioId: number; //Reemplazar por entidad Usuario
+  @ManyToOne(() => Usuario, (usuario) => usuario.productos)
+  usuario: Usuario;
 
   @OneToMany(() => DetalleProveedorProducto, (detalle) => detalle.producto, {
     cascade: true,

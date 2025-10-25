@@ -38,7 +38,6 @@ export class CreateProductoDto {
     example: 'Faber Castell',
     description: 'Marca del producto',
   })
-  
   @IsInt()
   marcaId: number;
 
@@ -46,10 +45,9 @@ export class CreateProductoDto {
     example: 'Premium',
     description: 'Línea o categoría del producto',
   })
-  
   @IsInt()
   lineaId: number;
-  
+
   @ApiProperty({
     type: [CreateDetalleProveedorProductoDto],
     description: 'Listado de proveedores del producto',
@@ -72,11 +70,4 @@ export class CreateProductoDto {
   @IsString()
   @MaxLength(255)
   descripcion: string;
-
-  @ApiProperty({
-    example: 1,
-    description: 'ID del usuario creador del producto',
-  })
-  @IsInt()
-  usuarioId: number;
 }

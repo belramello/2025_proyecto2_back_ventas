@@ -11,6 +11,8 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { RespuestaFindOneDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/respuesta-find-one-detalleproveedorproducto.dto';
+import { RespuestaLineaDto } from 'src/modules/lineas/dto/respuesta-linea.dto';
+import { MarcaResponseDto } from 'src/modules/marcas/dto/marca-response.dto';
 
 export class RespuestaCreateProductoDto {
   @ApiProperty({
@@ -33,14 +35,11 @@ export class RespuestaCreateProductoDto {
 
   @ApiProperty({ example: 'Pedigree', description: 'Marca del producto' })
   @IsInt()
-
-  marcaId: number;
+  marca: MarcaResponseDto;
 
   @ApiProperty({ example: 'Pedigree', description: 'Linea del Producto' })
   @IsInt()
-
-  lineaId: number;
-
+  linea: RespuestaLineaDto;
 
   @ApiProperty({ example: 30, description: 'Cantidad de stock disponible' })
   @IsInt()
@@ -51,8 +50,6 @@ export class RespuestaCreateProductoDto {
     example: 'Premium',
     description: 'Línea o categoría del producto',
   })
-
-
   @ApiProperty({
     description: 'Detalles de la venta',
     type: [RespuestaFindOneDetalleProveedorProductoDto],

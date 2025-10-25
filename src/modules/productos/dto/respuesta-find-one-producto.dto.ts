@@ -15,11 +15,11 @@ export class RespuestaFindOneProductoDto {
 
   precio: number;
 
-  marca:RespuestaMarcaDto
-  linea:RespuestaLineaDto
+  marca: RespuestaMarcaDto;
+
+  linea: RespuestaLineaDto;
 
   stock: number;
-
 
   fotoUrl: string;
 
