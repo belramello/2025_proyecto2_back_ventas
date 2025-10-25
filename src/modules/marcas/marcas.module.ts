@@ -8,6 +8,7 @@ import { IMarcaRepository } from './repositories/marca-repository.interface';
 import { JwtModule } from '../jwt/jwt.module';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { MarcaNombreUniqueValidator } from './helpers/marcas-validator';
+import { MarcaMapper } from './mapper/marca.mapper';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { MarcaNombreUniqueValidator } from './helpers/marcas-validator';
   controllers: [MarcasController],
   providers: [
     MarcasService,
+    MarcaMapper,
     {
       provide: 'IMarcaRepository',
       useClass: MarcaRepository,

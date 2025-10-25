@@ -50,8 +50,26 @@ import { join } from 'path';
       dest: './uploads/logos',
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/uploads', 
+      // Define la carpeta física raíz donde están tus archivos estáticos
+      // process.cwd() apunta a la raíz del proyecto (donde está package.json)
+      rootPath: join(process.cwd(), 'uploads'),
+
+      // Define el prefijo URL bajo el cual se servirán estos archivos
+      // Si pides /uploads/logos/img.png, buscará en rootPath/logos/img.png
+      serveRoot: '/uploads',
+
+      // Opciones adicionales importantes:
+      serveStaticOptions: {
+        // Asegura que las cabeceras CORS correctas se envíen para los archivos estáticos
+        // (¡Muy importante si frontend y backend están en puertos diferentes!)
+        setHeaders: (res, path, stat) => {
+          res.set('Access-Control-Allow-Origin', '*'); // O sé más específico con tu URL de frontend
+        },
+        // Evita que siga buscando rutas si no encuentra el archivo estático
+        fallthrough: false,
+      },
+      // Excluye la ruta base de la API para evitar conflictos (si tuvieras un prefijo global)
+      // exclude: ['/api/(.*)'], // Descomentar si usas un prefijo global como '/api'
     }),
     ProductosModule,
     VentasModule,
