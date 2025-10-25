@@ -1,29 +1,128 @@
-import { Repository } from 'typeorm';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, IsNull, UpdateResult } from 'typeorm';
 import { Marca } from '../entities/marca.entity';
-import { MarcaRepositoryInterface } from './marca-repository.interface';
-import { FindOneMarcaDto } from '../dto/findOne-marca.dto';
+import { IMarcaRepository } from './marca-repository.interface';
+import { CreateMarcaDto } from '../dto/create-marca.dto';
+import { UpdateMarcaDto } from '../dto/update-marca.dto';
+import { PaginationDto } from '../dto/pagination.dto';
 
 @Injectable()
-export class MarcaRepository implements MarcaRepositoryInterface
-{
- constructor(private readonly marcaRepository: Repository<Marca>){}
-  async findByNombre(nombre: string): Promise<Marca | null> {
-    return this.marcaRepository.findOneBy({ nombre });
-  }
+export class MarcaRepository implements IMarcaRepository {
+  constructor(
+    @InjectRepository(Marca)
+    private readonly marcaRepository: Repository<Marca>,
+  ) {}
 
-  async findOne(data: FindOneMarcaDto): Promise<Marca | null> {
+  async create(createMarcaDto: CreateMarcaDto): Promise<Marca> {
     try {
-      const marca = await this.marcaRepository.findOne({
-        where: {
-          id: data.id,
-        },
-      });
-
-      return marca;
+      const marca = this.marcaRepository.create(createMarcaDto);
+      return await this.marcaRepository.save(marca);
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error al buscar la marca con ID ${data.id}: ${error.message}`,
+        `Error al crear la marca: ${error.message}`,
+      );
+    }
+  }
+
+  async findAllPaginated(
+    paginationDto: PaginationDto,
+  ): Promise<{
+    marcas: Marca[];
+    total: number;
+    page: number;
+    lastPage: number;
+  }> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    try {
+      const query = this.marcaRepository
+        .createQueryBuilder('marca')
+        .where('marca.deletedAt IS NULL')
+        .orderBy('marca.nombre', 'ASC')
+        .skip(skip)
+        .take(limit);
+
+      const [marcas, total] = await query.getManyAndCount();
+
+      return {
+        marcas,
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al encontrar las marcas paginadas: ${error.message}`,
+      );
+    }
+  }
+
+  async findOne(id: number): Promise<Marca | null> {
+    try {
+      return await this.marcaRepository.findOne({
+        where: { id, deletedAt: IsNull() },
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar la marca con ID ${id}: ${error.message}`,
+      );
+    }
+  }
+
+  async findOneWithDeleted(id: number): Promise<Marca | null> {
+    try {
+      return await this.marcaRepository.findOne({
+        where: { id },
+        withDeleted: true,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar la marca con ID ${id} (incluyendo borrados): ${error.message}`,
+      );
+    }
+  }
+
+  async findByNombre(nombre: string): Promise<Marca | null> {
+    try {
+      return await this.marcaRepository.findOneBy({
+        nombre,
+        deletedAt: IsNull(),
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar la marca con nombre ${nombre}: ${error.message}`,
+      );
+    }
+  }
+
+  async update(id: number, data: UpdateMarcaDto): Promise<UpdateResult> {
+    try {
+      return await this.marcaRepository.update(id, data);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al actualizar la marca con ID ${id}: ${error.message}`,
+      );
+    }
+  }
+
+  async remove(id: number): Promise<UpdateResult> {
+    try {
+      return await this.marcaRepository.softDelete(id);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al eliminar (soft delete) la marca con ID ${id}: ${error.message}`,
+      );
+    }
+  }
+
+  async restore(id: number): Promise<UpdateResult> {
+    try {
+      return await this.marcaRepository.restore(id);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al restaurar la marca con ID ${id}: ${error.message}`,
       );
     }
   }
