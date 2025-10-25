@@ -9,7 +9,7 @@ export class DetalleProveedorProductoMapper {
   ): RespuestaFindOneDetalleProveedorProductoDto {
     return {
       id: detalle.id,
-      codigo: detalle.producto.codigo,
+      codigo: detalle.producto?.codigo,
       proveedorId: detalle.proveedor.id,
       proveedorNombre: detalle.proveedor.nombre,
     };

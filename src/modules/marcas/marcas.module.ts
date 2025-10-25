@@ -27,6 +27,10 @@ import { MarcaMapper } from './mapper/marca.mapper';
     },
     MarcaNombreUniqueValidator,
   ],
-  exports: [MarcasService],
+  exports: [MarcasService, 
+    'IMarcaRepository', 
+    MarcaMapper, 
+    TypeOrmModule
+  ],
 })
 export class MarcasModule {}

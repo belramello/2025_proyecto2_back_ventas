@@ -21,6 +21,7 @@ import { MarcasModule } from '../marcas/marcas.module';
   exports: [
     LineasService,
     LineaMapper,
+    TypeOrmModule
   ],
 })
 export class LineasModule {}

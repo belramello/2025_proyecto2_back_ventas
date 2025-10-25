@@ -3,7 +3,7 @@ import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
 import type { IMarcaRepository } from './repositories/marca-repository.interface';
 import { Marca } from './entities/marca.entity';
-import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
+
 import { PaginationDto } from './dto/pagination.dto';
 import { RespuestaFindAllPaginatedMarcasDTO } from './dto/respuesta-find-all-paginated-marcas.dto';
 import { MarcaMapper } from './mapper/marca.mapper';

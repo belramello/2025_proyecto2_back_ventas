@@ -12,6 +12,8 @@ import { JwtModule } from '../jwt/jwt.module';
 import { UsuarioModule } from '../usuario/usuario.module';
 import { ProveedoresModule } from '../proveedores/proveedores.module';
 import { DetalleProveedorProductoModule } from '../detalleproveedorproducto/detalleproveedorproducto.module';
+import { MarcasModule } from '../marcas/marcas.module';
+import { LineasModule } from '../lineas/lineas.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { DetalleProveedorProductoModule } from '../detalleproveedorproducto/deta
     UsuarioModule,
     ProveedoresModule,
     forwardRef(() => DetalleProveedorProductoModule),
+    MarcasModule, 
+    LineasModule
   ],
   controllers: [ProductosController],
   providers: [

@@ -29,7 +29,7 @@ export class Producto {
 
   @Column()
   stock: number;
-  //ManyToMany
+  
   @ManyToOne(() => Linea, (linea) => linea.productos)
   linea: Linea;
   @ManyToOne(() => Marca, (marca) => marca.productos)

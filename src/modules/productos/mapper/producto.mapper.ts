@@ -4,11 +4,15 @@ import { RespuestaCreateProductoDto } from '../dto/respuesta-create-producto.dto
 import { RespuestaFindOneProductoDto } from '../dto/respuesta-find-one-producto.dto';
 import { RespuestaFindAllPaginatedProductoDTO } from '../dto/respuesta-find-all-paginated.dto';
 import { DetalleProveedorProductoMapper } from 'src/modules/detalleproveedorproducto/mapper/detalle-proveedor-producto.mapper';
+import { MarcaMapper } from 'src/modules/marcas/mapper/marca.mapper';
+import { LineaMapper } from 'src/modules/lineas/mapper/linea.mapper';
 
 @Injectable()
 export class ProductoMapper {
   constructor(
     private readonly detalleProveedorProductoMapper: DetalleProveedorProductoMapper,
+    private readonly marcaMapper: MarcaMapper,
+    private readonly lineaMapper: LineaMapper
   ) {}
 
   toRespuestaCreateProducto(producto: Producto): RespuestaCreateProductoDto {
@@ -31,20 +35,18 @@ export class ProductoMapper {
     const detalles = this.detalleProveedorProductoMapper.toResponsesDto(
       producto.detallesProveedor,
     );
+    const marcas = this.marcaMapper.toResponsesDto(
+      producto.marca,
+    );
+
     return {
       id: producto.id,
       nombre: producto.nombre,
       codigo: producto.codigo,
       precio: producto.precio,
       stock: producto.stock,
-      marca: {
-        id: producto.marca.id,
-        nombre: producto.marca.nombre,
-      },
-        linea: {
-        id: producto.linea.id,
-        nombre: producto.linea.nombre,
-      },
+      marca:this.marcaMapper.toDto(producto.marca),
+      linea:this.lineaMapper.toDto(producto.linea),
       fotoUrl: producto.fotoUrl,
       fechaCreacion: producto.fechaCreacion,
       descripcion: producto.descripcion,

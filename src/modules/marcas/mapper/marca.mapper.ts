@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { Marca } from '../entities/marca.entity';
 import { RespuestaFindAllPaginatedMarcasDTO } from '../dto/respuesta-find-all-paginated-marcas.dto';
 import { MarcaResponseDto } from '../dto/marca-response.dto';
+import { RespuestaMarcaDto } from '../dto/respuesta-marca.dto';
 
 @Injectable()
 export class MarcaMapper {
@@ -40,6 +41,12 @@ export class MarcaMapper {
     responseDto.logoUrl = this.buildLogoUrl(marca.logo); // La lógica está encapsulada
     return responseDto;
   }
+  toResponsesDto(marca: Marca): RespuestaMarcaDto {
+    const responseDto = new MarcaResponseDto();
+    responseDto.id = marca.id;
+  
+    return responseDto;
+  }
 
   toResponseDtoList(marcas: Marca[]): MarcaResponseDto[] {
     return marcas.map((marca) => this.toResponseDto(marca));
@@ -58,4 +65,12 @@ export class MarcaMapper {
       lastPage: paginated.lastPage,
     };
   }
+   toDto(marca: Marca):RespuestaMarcaDto {
+      return {
+        id:marca.id,
+        nombre: marca.nombre,
+  
+      };
+    }
+  
 }

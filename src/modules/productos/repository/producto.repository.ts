@@ -9,6 +9,8 @@ import { DeleteProductoDto } from '../dto/delete-producto.dto';
 import { Transactional } from 'typeorm-transactional';
 import { DetalleProveedorProductoService } from 'src/modules/detalleproveedorproducto/detalleproveedorproducto.service';
 import { CreateDetalleProveedorProductoServiceDto } from 'src/modules/detalleproveedorproducto/dto/create-detalle-proveedor-service.dto';
+import { Marca } from 'src/modules/marcas/entities/marca.entity';
+import { Linea } from 'src/modules/lineas/entities/linea.entity';
 
 export class ProductosRepository implements IProductosRepository {
   constructor(
@@ -18,27 +20,38 @@ export class ProductosRepository implements IProductosRepository {
   ) {}
 
   @Transactional()
-  async create(createProductoDto: CreateProductoDto): Promise<Producto> {
-    try {
-      const producto = this.productoRepository.create({ ...createProductoDto });
-      await this.productoRepository.save(producto);
-      const detallesServiceDto: CreateDetalleProveedorProductoServiceDto[] = (
-        createProductoDto.detalleProveedores || []
-      ).map((d) => ({
-        codigo: d.codigo,
-        proveedorId: d.proveedorId,
-        producto,
-      }));
-      if (detallesServiceDto.length > 0) {
-        await this.detalleProveedorService.createDetalles(detallesServiceDto);
-      }
-      return (await this.findOne(producto.id)) as Producto;
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `Error al crear el producto: ${error.message}`,
-      );
+async create(createProductoDto: CreateProductoDto): Promise<Producto> {
+  try {
+    // Crear el producto y asignar relaciones por ID
+    const producto = this.productoRepository.create({
+      ...createProductoDto,
+      marca: { id: createProductoDto.marcaId } as Marca,
+      linea: { id: createProductoDto.lineaId } as Linea,
+    });
+
+    await this.productoRepository.save(producto);
+
+    // Crear detalles de proveedor si existen
+    const detallesServiceDto: CreateDetalleProveedorProductoServiceDto[] = (
+      createProductoDto.detalleProveedores || []
+    ).map((d) => ({
+      codigo: d.codigo,
+      proveedorId: d.proveedorId,
+      producto,
+    }));
+
+    if (detallesServiceDto.length > 0) {
+      await this.detalleProveedorService.createDetalles(detallesServiceDto);
     }
+
+    // Devolver producto con relaciones cargadas
+    return (await this.findOne(producto.id)) as Producto;
+  } catch (error) {
+    throw new InternalServerErrorException(
+      `Error al crear el producto: ${error.message}`,
+    );
   }
+}
 
   async findAllByUsuarioId(usuarioId: number): Promise<Producto[]> {
     try {
@@ -59,6 +72,8 @@ export class ProductosRepository implements IProductosRepository {
         .createQueryBuilder('producto')
         .leftJoinAndSelect('producto.detallesProveedor', 'detallesProveedor')
         .leftJoinAndSelect('detallesProveedor.proveedor', 'proveedor', '1=1')
+        .leftJoinAndSelect('producto.marca', 'marca')
+        .leftJoinAndSelect('producto.linea', 'linea')
         .where('producto.id = :id', { id: id })
         .withDeleted()
         .getOne();
@@ -134,7 +149,7 @@ export class ProductosRepository implements IProductosRepository {
     }
   }
 
-  async findAllPaginated(
+    async findAllPaginated(
     page: number,
     limit: number,
   ): Promise<{
@@ -144,16 +159,19 @@ export class ProductosRepository implements IProductosRepository {
     lastPage: number;
   }> {
     try {
-      const query = this.productoRepository
+      const [productos, total] = await this.productoRepository
         .createQueryBuilder('producto')
-        .where('producto.fechaEliminacion IS NULL'); // excluye soft-deleted
-
-      query
+        .leftJoinAndSelect('producto.marca', 'marca')
+        .leftJoinAndSelect('producto.linea', 'linea')
+        .leftJoinAndSelect('producto.detallesProveedor', 'detallesProveedor')
+        .leftJoinAndSelect('detallesProveedor.proveedor', 'proveedor')
+        //.where('producto.fechaEliminacion IS NULL')
+        //.andWhere('producto.marca IS NOT NULL')
+        //.andWhere('producto.linea IS NOT NULL')
         .orderBy('producto.nombre', 'ASC')
         .skip((page - 1) * limit)
-        .take(limit);
-
-      const [productos, total] = await query.getManyAndCount();
+        .take(limit)
+        .getManyAndCount();
 
       return {
         productos,
@@ -163,7 +181,7 @@ export class ProductosRepository implements IProductosRepository {
       };
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error al encontrar las ventas paginadas: ${error.message}`,
+        `Error al encontrar los productos paginados: ${error.message}`,
       );
     }
   }
