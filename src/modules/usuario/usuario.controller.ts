@@ -25,7 +25,6 @@ import { PaginationDto } from '../ventas/dto/pagination.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 
-@UseGuards(PermisosGuard)
 @Controller('usuarios')
 export class UsuarioController {
   constructor(private readonly usuarioService: UsuarioService) {}

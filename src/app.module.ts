@@ -19,6 +19,7 @@ import { join } from 'path';
 import { ProveedoresModule } from './modules/proveedores/proveedores.module';
 import { LineasModule } from './modules/lineas/lineas.module';
 import { MailModule } from './modules/mails/mail.module';
+import { MetabaseModule } from './metabase/metabase.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { MailModule } from './modules/mails/mail.module';
     ProveedoresModule,
     LineasModule,
     MailModule,
+    MetabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],
