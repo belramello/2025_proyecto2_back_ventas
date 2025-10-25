@@ -2,17 +2,14 @@ import { Injectable, Inject, BadRequestException, InternalServerErrorException, 
 import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
 import type { IMarcaRepository } from './repositories/marca-repository.interface';
-<<<<<<< HEAD
 import { Marca } from './entities/marca.entity';
 import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
-=======
 import { PaginationDto } from './dto/pagination.dto';
 import { RespuestaFindAllPaginatedMarcasDTO } from './dto/respuesta-find-all-paginated-marcas.dto';
 import { MarcaMapper } from './mapper/marca.mapper';
 import { MarcaResponseDto } from './dto/marca-response.dto'; 
 import * as fs from 'fs/promises';
 import * as path from 'path';
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
 
 @Injectable()
 export class MarcasService {
@@ -21,24 +18,12 @@ export class MarcasService {
   constructor(
     @Inject('IMarcaRepository')
     private readonly marcaRepository: IMarcaRepository,
-<<<<<<< HEAD
-    private readonly historialActividades: HistorialActividadesService,
-  ) {}
-
-  async create(
-    createMarcaDto: CreateMarcaDto,
-    logoPath?: string,
-  ): Promise<Marca> {
-    const marcaData = { ...createMarcaDto, logo: logoPath };
-    return this.marcaRepository.create(marcaData);
-=======
     private readonly marcaMapper: MarcaMapper,
   ) {}
 
   async create(createMarcaDto: CreateMarcaDto): Promise<MarcaResponseDto> {
     const nuevaMarca = await this.marcaRepository.create(createMarcaDto);
     return this.marcaMapper.toResponseDto(nuevaMarca);
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
   }
 
   async findAllPaginated(
@@ -54,19 +39,6 @@ export class MarcasService {
     return this.marcaMapper.toResponseDto(marca);
   }
 
-<<<<<<< HEAD
-  async update(
-    id: number,
-    updateMarcaDto: UpdateMarcaDto,
-    logoPath?: string,
-  ): Promise<Marca> {
-    const _marca = await this.findOne(id);
-    if (updateMarcaDto.nombre && updateMarcaDto.nombre !== _marca.nombre) {
-      const existing = await this.marcaRepository.findByNombre(
-        updateMarcaDto.nombre,
-      );
-      if (existing) throw new BadRequestException('Nombre ya registrado');
-=======
   async update(id: number, updateMarcaDto: UpdateMarcaDto): Promise<MarcaResponseDto> {
     const marcaActual = await this.marcaRepository.findOne(id);
     if (!marcaActual) throw new BadRequestException('Marca no encontrada');
@@ -84,7 +56,6 @@ export class MarcasService {
       } catch (error) {
         this.logger.error(`No se pudo eliminar el logo anterior: ${logoAntiguo}`, error.stack);
       }
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
     }
 
     await this.marcaRepository.update(id, updateMarcaDto);
@@ -95,18 +66,6 @@ export class MarcasService {
   }
 
   async remove(id: number): Promise<void> {
-<<<<<<< HEAD
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _marca = await this.findOne(id);
-    // TODO: Chequeo de productos asociados cuando lineas esté listo
-    await this.marcaRepository.remove(id);
-  }
-
-  async restore(id: number): Promise<void> {
-    const _marca = await this.marcaRepository.findOne(id);
-    if (!_marca?.deletedAt)
-      throw new BadRequestException('La marca no se encuentra eliminada');
-=======
     const marca = await this.marcaRepository.findOne(id);
     if (!marca) throw new BadRequestException('Marca no encontrada');
 
@@ -130,7 +89,6 @@ export class MarcasService {
     if (!marca) throw new BadRequestException('Marca no encontrada o no eliminada');
     if (!marca.deletedAt) throw new BadRequestException('La marca no se encuentra eliminada');
 
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
     await this.marcaRepository.restore(id);
   }
 }

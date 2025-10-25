@@ -20,10 +20,6 @@ export class MarcaRepository implements IMarcaRepository {
       return await this.marcaRepository.save(marca);
     } catch (error) {
       throw new InternalServerErrorException(
-<<<<<<< HEAD
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-=======
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
         `Error al crear la marca: ${error.message}`,
       );
     }
@@ -53,12 +49,7 @@ export class MarcaRepository implements IMarcaRepository {
       };
     } catch (error) {
       throw new InternalServerErrorException(
-<<<<<<< HEAD
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        `Error al encontrar las marcas: ${error.message}`,
-=======
         `Error al encontrar las marcas paginadas: ${error.message}`,
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
       );
     }
   }
@@ -70,11 +61,6 @@ export class MarcaRepository implements IMarcaRepository {
       });
     } catch (error) {
       throw new InternalServerErrorException(
-<<<<<<< HEAD
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        `Error al buscar la marca con ID ${id}: ${error.message}`,
-      );
-=======
         `Error al buscar la marca con ID ${id}: ${error.message}`,
       );
     }
@@ -90,7 +76,6 @@ export class MarcaRepository implements IMarcaRepository {
       throw new InternalServerErrorException(
         `Error al buscar la marca con ID ${id} (incluyendo borrados): ${error.message}`,
       );
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
     }
   }
 
@@ -99,10 +84,6 @@ export class MarcaRepository implements IMarcaRepository {
       return await this.marcaRepository.findOneBy({ nombre, deletedAt: IsNull() });
     } catch (error) {
       throw new InternalServerErrorException(
-<<<<<<< HEAD
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-=======
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
         `Error al buscar la marca con nombre ${nombre}: ${error.message}`,
       );
     }
@@ -113,10 +94,6 @@ export class MarcaRepository implements IMarcaRepository {
       return await this.marcaRepository.update(id, data);
     } catch (error) {
       throw new InternalServerErrorException(
-<<<<<<< HEAD
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-=======
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
         `Error al actualizar la marca con ID ${id}: ${error.message}`,
       );
     }
@@ -127,10 +104,6 @@ export class MarcaRepository implements IMarcaRepository {
       return await this.marcaRepository.softDelete(id);
     } catch (error) {
       throw new InternalServerErrorException(
-<<<<<<< HEAD
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-=======
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
         `Error al eliminar (soft delete) la marca con ID ${id}: ${error.message}`,
       );
     }
@@ -141,10 +114,6 @@ export class MarcaRepository implements IMarcaRepository {
       return await this.marcaRepository.restore(id);
     } catch (error) {
       throw new InternalServerErrorException(
-<<<<<<< HEAD
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-=======
->>>>>>> 3fc5bb476e60d911280b1b36f7f12920d2e214ef
         `Error al restaurar la marca con ID ${id}: ${error.message}`,
       );
     }
