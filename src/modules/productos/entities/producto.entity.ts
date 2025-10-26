@@ -1,4 +1,4 @@
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 import { DetalleVenta } from '../../../modules/ventas/detalle-ventas/entities/detalle-venta.entity';
 import {
   Column,

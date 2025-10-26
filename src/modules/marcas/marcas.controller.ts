@@ -12,7 +12,7 @@ import {
   Query,
   ParseIntPipe,
   HttpCode,
-  HttpStatus,
+  HttpStatus, // Importar HttpCode y HttpStatus
 } from '@nestjs/common';
 import { MarcasService } from './marcas.service';
 import { CreateMarcaDto } from './dto/create-marca.dto';
@@ -53,6 +53,7 @@ export class MarcasController {
           cb(null, `logo-${uniqueSuffix}${extension}`);
         },
       }),
+      // fileFilter: ... (opcional para validar tipo/tamaño)
     }),
   )
   @PermisoRequerido(PermisosEnum.CREAR_MARCAS)
@@ -62,7 +63,7 @@ export class MarcasController {
     status: 201,
     description: 'Marca creada exitosamente.',
     type: MarcaResponseDto,
-  })
+  }) // Usar tipo mapeado
   @ApiResponse({
     status: 400,
     description: 'Datos inválidos (ej. nombre requerido, formato incorrecto).',
@@ -75,6 +76,7 @@ export class MarcasController {
     @Body() createMarcaDto: CreateMarcaDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<MarcaResponseDto> {
+    // Especificar tipo de retorno
     if (file) {
       createMarcaDto.logo = file.filename;
     }
@@ -164,7 +166,6 @@ export class MarcasController {
   ): Promise<MarcaResponseDto> {
     if (file) {
       updateMarcaDto.logo = file.filename;
-    } else {
     }
     console.log(
       '[MarcasController UPDATE] DTO recibido y modificado:',
@@ -181,6 +182,15 @@ export class MarcasController {
   @HttpCode(HttpStatus.NO_CONTENT) // Establecer código 204 para delete exitoso
   @PermisoRequerido(PermisosEnum.ELIMINAR_MARCAS)
   @ApiOperation({ summary: 'Eliminar (soft delete) una marca por ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID de la marca a eliminar',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Marca eliminada (lógicamente) exitosamente.',
+  })
   @ApiParam({
     name: 'id',
     description: 'ID de la marca a eliminar',

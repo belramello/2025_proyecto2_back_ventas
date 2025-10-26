@@ -9,8 +9,6 @@ import {
 import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
 import type { IMarcaRepository } from './repositories/marca-repository.interface';
-import { Marca } from './entities/marca.entity';
-import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
 import { PaginationDto } from './dto/pagination.dto';
 import { RespuestaFindAllPaginatedMarcasDTO } from './dto/respuesta-find-all-paginated-marcas.dto';
 import { MarcaMapper } from './mapper/marca.mapper';
@@ -18,6 +16,7 @@ import { MarcaResponseDto } from './dto/marca-response.dto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { MarcaValidator } from './helpers/marcas-validator';
+import { Marca } from './entities/marca.entity';
 
 @Injectable()
 export class MarcasService {
@@ -59,15 +58,12 @@ export class MarcasService {
     return this.marcaMapper.toResponseDto(marca);
   }
 
-  async findOneForServices(id: number): Promise<Marca | null> {
-    return await this.marcaRepository.findOne(id);
-  }
-
   async update(
     id: number,
     updateMarcaDto: UpdateMarcaDto,
   ): Promise<MarcaResponseDto> {
-    const marcaActual = await this.marcaValidator.validateExistencia(id);
+    const marcaActual = await this.marcaRepository.findOne(id);
+    if (!marcaActual) throw new BadRequestException('Marca no encontrada');
 
     // Validación de nombre único (manejada por DTO/Validator)
 
