@@ -15,6 +15,7 @@ import { LineasValidator } from './helpers/lineas-validator';
 import { MarcaValidator } from '../marcas/helpers/marcas-validator';
 import { PaginationLineaDto } from './dto/pagination.dto';
 import { RespuestaFindAllPaginatedLineasDTO } from './dto/respuesta-find-all-lineas-paginated.dto';
+import { RespuestaFindAllLineasAsociadasAMarcaDTO } from './dto/respuesta-linea-marca.dto';
 
 @Injectable()
 export class LineasService {
@@ -72,5 +73,19 @@ export class LineasService {
     const linea = await this.lineaValidator.validateLineaExistente(id);
     await this.lineaValidator.validateLineaNoVinculadaAProductos(linea);
     await this.lineaRepository.delete(linea.id);
+  }
+  
+  async obtenerLineasAsociadasAMarca(
+    marcaId: number,
+  ): Promise<RespuestaFindAllLineasAsociadasAMarcaDTO> {
+    const marca = await this.marcaValidator.validateExistencia(marcaId);
+    const lineas = await this.lineaRepository.findLineasPorMarca(marca.id);
+
+    return {
+      marcaId: marca.id,
+      lineas: lineas.map((linea) =>
+        this.lineaMapper.toRespuestaLineaDto(linea),
+      ),
+    };
   }
 }

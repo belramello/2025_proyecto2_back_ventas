@@ -17,6 +17,7 @@ export class LineaRepository implements ILineaRepository {
     private readonly lineaRepository: Repository<Linea>,
   ) {}
 
+
   async create(createLineaDto: CreateLineaDto): Promise<Linea> {
     try {
       const linea = this.lineaRepository.create({
@@ -96,5 +97,19 @@ export class LineaRepository implements ILineaRepository {
       );
     }
   }
-
+  async findLineasPorMarca(marcaId: number): Promise<Linea[]> {
+    try {
+      return await this.lineaRepository
+        .createQueryBuilder('linea')
+        .innerJoin('linea.marcas', 'marca')
+        .where('marca.id = :marcaId', { marcaId })
+        .orderBy('linea.nombre', 'ASC')
+        .getMany();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al obtener líneas de la marca ${marcaId}: ${error.message}`,
+      );
+    }
+  }
+  
 }

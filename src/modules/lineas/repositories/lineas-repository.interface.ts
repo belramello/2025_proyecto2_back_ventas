@@ -7,6 +7,7 @@ export interface ILineaRepository {
   findOne(id: number): Promise<Linea | null>;
   añadirMarca(linea: Linea, marca: Marca): Promise<Linea>;
   delete(id: number): Promise<void>;
+
   findAllPaginated(
     page: number,
     limit: number,
@@ -15,5 +16,7 @@ export interface ILineaRepository {
       total: number;
       page: number;
       lastPage: number;
-    }>;
+  }>;
+  findLineasPorMarca(marcaId: number): Promise<Linea[]>;
+  
 }

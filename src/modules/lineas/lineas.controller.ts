@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
 import { LineasService } from './lineas.service';
 import { CreateLineaDto } from './dto/create-linea.dto';
 import { AddMarcaToLineaDto } from './dto/add-marca-to-linea.dto';
@@ -6,6 +6,7 @@ import { RespuestaLineaDto } from './dto/respuesta-linea.dto';
 
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PaginationLineaDto } from './dto/pagination.dto';
+import { RespuestaFindAllLineasAsociadasAMarcaDTO } from './dto/respuesta-linea-marca.dto';
 
 @Controller('lineas')
 export class LineasController {
@@ -66,4 +67,17 @@ export class LineasController {
     async findAll(@Query() paginationDto: PaginationLineaDto) {
       return this.lineaService.findAllPaginated(paginationDto);
   }
+  @Get('por-marca/:marcaId')
+  @ApiOperation({ summary: 'Obtener líneas asociadas a una marca' })
+  @ApiResponse({
+    status: 200,
+    description: 'Líneas asociadas a la marca seleccionada',
+    type: RespuestaFindAllLineasAsociadasAMarcaDTO,
+  })
+  async obtenerLineasAsociadasAMarca(
+    @Param('marcaId', ParseIntPipe) marcaId: number,
+  ): Promise<RespuestaFindAllLineasAsociadasAMarcaDTO> {
+    return this.lineaService.obtenerLineasAsociadasAMarca(marcaId);
+  }
+
 }
