@@ -36,10 +36,6 @@ import { PaginationDto } from '../ventas/dto/pagination.dto';
 @Controller('productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
-
-  // ────────────────────────────────
-  // 📦 CREAR PRODUCTO
-  // ────────────────────────────────
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo producto' })
   @ApiResponse({
@@ -89,9 +85,6 @@ export class ProductosController {
     return this.productosService.findOne(id);
   }
 
-  // ────────────────────────────────
-  // 🛠️ ACTUALIZAR PRODUCTO
-  // ────────────────────────────────
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar un producto existente' })
   @ApiParam({ name: 'id', description: 'ID del producto', example: 1 })
@@ -103,10 +96,17 @@ export class ProductosController {
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
   @PermisoRequerido(PermisosEnum.MODIFICAR_PRODUCTOS)
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateProductoDto: UpdateProductoDto,
+    @Req() req: RequestWithUsuario,
   ) {
-    return this.productosService.update(+id, updateProductoDto);
+    return this.productosService.update(
+      id,
+      {
+        ...updateProductoDto,
+      },
+      req.usuario, // Pass the usuarioId directly as a number
+    );
   }
 
   @Get('codigo/:codigo')
@@ -123,9 +123,6 @@ export class ProductosController {
     return this.productosService.findOneByCodigo(codigo);
   }
 
-  // ────────────────────────────────
-  // 🗑️ ELIMINAR PRODUCTO (SOFT DELETE)
-  // ────────────────────────────────
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Eliminar (soft delete) un producto' })
@@ -133,8 +130,15 @@ export class ProductosController {
   @ApiResponse({ status: 204, description: 'Producto eliminado correctamente' })
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
   @PermisoRequerido(PermisosEnum.ELIMINAR_PRODUCTOS)
-  async remove(@Param('id') id: string) {
-    const deleteProductoDto: DeleteProductoDto = { id: Number(id) };
+  async remove(@Param('id') id: string, @Req() req: RequestWithUsuario) {
+    const usuarioAutenticadoId = req.usuario.id;
+
+    const deleteProductoDto: DeleteProductoDto = {
+      id: Number(id),
+      usuarioId: usuarioAutenticadoId,
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.productosService.remove(deleteProductoDto);
   }
 }

@@ -11,6 +11,7 @@ import { RolesModule } from '../roles/roles.module';
 import { JwtModule } from '../jwt/jwt.module';
 import { UsuarioUpdater } from './helpers/usuario-updater';
 import { MailModule } from '../mails/mail.module';
+import { HistorialActividadesModule } from '../historial-actividades/historial-actividades.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { MailModule } from '../mails/mail.module';
     AuthModule,
     forwardRef(() => RolesModule),
     JwtModule,
-    MailModule
+    MailModule,
+    HistorialActividadesModule,
   ],
   controllers: [UsuarioController],
   providers: [

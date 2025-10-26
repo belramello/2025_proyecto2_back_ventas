@@ -8,6 +8,7 @@ import { DetalleVentasModule } from './detalle-ventas/detalle-ventas.module';
 import { VentasMapper } from './mappers/ventas.mapper';
 import { JwtModule } from '../jwt/jwt.module';
 import { UsuarioModule } from '../usuario/usuario.module';
+import { HistorialActividadesModule } from '../historial-actividades/historial-actividades.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UsuarioModule } from '../usuario/usuario.module';
     DetalleVentasModule,
     JwtModule,
     UsuarioModule,
+    HistorialActividadesModule,
   ],
   controllers: [VentasController],
   providers: [

@@ -5,7 +5,7 @@ import { RespuestaLineaDto } from 'src/modules/lineas/dto/respuesta-linea.dto';
 import { RespuestaMarcaDto } from 'src/modules/marcas/dto/respuesta-marca.dto';
 
 export class RespuestaFindOneProductoDto {
-  @ApiProperty({ example: 3, description: 'ID del producto a buscar' })
+  @ApiProperty({ example: 3, description: 'ID del producto' })
   @IsInt()
   @Min(1)
   id: number;

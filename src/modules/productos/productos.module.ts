@@ -14,6 +14,7 @@ import { ProveedoresModule } from '../proveedores/proveedores.module';
 import { DetalleProveedorProductoModule } from '../detalleproveedorproducto/detalleproveedorproducto.module';
 import { MarcasModule } from '../marcas/marcas.module';
 import { LineasModule } from '../lineas/lineas.module';
+import { HistorialActividadesModule } from '../historial-actividades/historial-actividades.module';
 
 @Module({
   imports: [
@@ -22,8 +23,9 @@ import { LineasModule } from '../lineas/lineas.module';
     UsuarioModule,
     ProveedoresModule,
     forwardRef(() => DetalleProveedorProductoModule),
-    MarcasModule, 
-    LineasModule
+    MarcasModule,
+    LineasModule,
+    HistorialActividadesModule,
   ],
   controllers: [ProductosController],
   providers: [

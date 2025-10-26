@@ -64,7 +64,6 @@ export class ProductoMapper {
     page: number;
     lastPage: number;
   }): RespuestaFindAllPaginatedProductoDTO {
-    console.log('Mapping paginated products:', paginated.productos);
     return {
       productos: this.toRespuestaFindAllProductosDTO(paginated.productos),
       total: paginated.total,

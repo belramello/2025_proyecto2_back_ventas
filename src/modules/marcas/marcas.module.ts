@@ -10,6 +10,7 @@ import { HistorialActividadesModule } from '../historial-actividades/historial-a
 import { MarcaMapper } from './mapper/marca.mapper';
 import { MarcaValidator } from './helpers/marcas-validator';
 import { LineasModule } from '../lineas/lineas.module';
+import { MarcasUpdater } from './helpers/marcas-updater';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { LineasModule } from '../lineas/lineas.module';
       useClass: MarcaRepository,
     },
     MarcaValidator,
+    MarcasUpdater,
   ],
   exports: [MarcasService, MarcaMapper, MarcaValidator],
 })

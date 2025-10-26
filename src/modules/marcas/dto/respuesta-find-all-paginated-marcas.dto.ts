@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MarcaResponseDto } from './marca-response.dto';
 export class RespuestaFindAllPaginatedMarcasDTO {
-  @ApiProperty({ type: [MarcaResponseDto] }) 
+  @ApiProperty({ type: [MarcaResponseDto] })
   marcas: MarcaResponseDto[];
-
 
   @ApiProperty({ example: 100, description: 'Total de marcas encontradas' })
   total: number;

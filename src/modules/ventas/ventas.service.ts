@@ -8,6 +8,7 @@ import { RespuestaFindOneVentaDto } from './dto/respuesta-find-one-venta.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { RespuestaFindAllPaginatedVentaDTO } from './dto/respuesta-find-all-paginated-venta.dto';
 import { Usuario } from '../usuario/entities/usuario.entity';
+import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
 
 @Injectable()
 export class VentasService {
@@ -15,6 +16,7 @@ export class VentasService {
     @Inject('IVentasRepository')
     private readonly ventasRepository: IVentasRepository,
     private readonly ventasMapper: VentasMapper,
+    private readonly historialActividades: HistorialActividadesService,
   ) {}
 
   @Transactional()
@@ -22,8 +24,22 @@ export class VentasService {
     createVentaDto: CreateVentaDto,
     usuario: Usuario,
   ): Promise<RespuestaCreateVentaDto> {
-    const venta = await this.ventasRepository.create(createVentaDto, usuario);
-    return this.ventasMapper.toRespuestaCreateVentaDto(venta);
+    try {
+      const venta = await this.ventasRepository.create(createVentaDto, usuario);
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 16,
+        estadoId: 1,
+      });
+      return this.ventasMapper.toRespuestaCreateVentaDto(venta);
+    } catch (error) {
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 16,
+        estadoId: 2,
+      });
+      throw error;
+    }
   }
 
   async findAllPaginated(

@@ -68,11 +68,6 @@ export class RespuestaCreateProductoDto {
     description: 'Fecha de creación del producto',
     required: false,
   })
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  fechaCreacion?: Date;
-
   @ApiProperty({
     example: 'Collar resistente y ajustable para perros grandes',
     description: 'Descripción detallada',

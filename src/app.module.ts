@@ -14,11 +14,13 @@ import { RolesModule } from './modules/roles/roles.module';
 import { PermisosModule } from './modules/permisos/permisos.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { HistorialActividadesModule } from './modules/historial-actividades/historial-actividades.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { ProveedoresModule } from './modules/proveedores/proveedores.module';
 import { LineasModule } from './modules/lineas/lineas.module';
 import { MailModule } from './modules/mails/mail.module';
+import { MetabaseModule } from './metabase/metabase.module';
 
 @Module({
   imports: [
@@ -85,6 +87,8 @@ import { MailModule } from './modules/mails/mail.module';
     ProveedoresModule,
     LineasModule,
     MailModule,
+    MetabaseModule,
+    HistorialActividadesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

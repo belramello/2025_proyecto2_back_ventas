@@ -92,15 +92,19 @@ export class VentasRepository implements IVentasRepository {
     try {
       const venta = await this.ventasRepository
         .createQueryBuilder('venta')
-        .leftJoinAndSelect('venta.detalle_ventas', 'detalle')
         .leftJoinAndSelect(
           'venta.vendedor',
           'vendedor',
           '1=1 OR vendedor.fechaEliminacion IS NOT NULL',
         )
-        .leftJoinAndSelect('detalle.producto', 'producto')
-        .where('venta.id = :ventaId', { ventaId })
         .withDeleted()
+        .leftJoinAndSelect('venta.detalleVentas', 'detalleVenta')
+        .leftJoinAndSelect(
+          'detalleVenta.producto',
+          'producto',
+          '1=1 OR producto.fechaEliminacion IS NOT NULL',
+        )
+        .where('venta.id = :ventaId', { ventaId })
         .getOne();
 
       return venta;

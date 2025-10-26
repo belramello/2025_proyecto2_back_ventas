@@ -67,25 +67,7 @@ export class Usuario {
   @UpdateDateColumn()
   fechaActualizacion: Date;
 
-  /*
-  @ApiProperty({
-    type: () => [HistorialSesion],
-    description: 'Historial de sesiones del usuario',
-  })
-  @OneToMany(() => HistorialSesion, (historial) => historial.usuario)
-  historialSesion: HistorialSesion[];
-  */
-
-  /*
-  @ApiProperty({
-    type: () => [TokenReinicioContraseña],
-    description: 'Tokens de reinicio de contraseña asociados al usuario',
-  })
-  @OneToMany(() => TokenReinicioContraseña, (token) => token.usuario)
-  tokenReinicioContraseña: TokenReinicioContraseña[]
-  */
-
-  @OneToMany(() => Producto, (producto) => producto.usuario)
+  @OneToMany(() => Producto, (producto) => producto.usuarioCreacion)
   productos: Producto[];
 
   @OneToMany(() => Venta, (venta) => venta.vendedor)

@@ -31,7 +31,7 @@ export class ProductosRepository implements IProductosRepository {
       // Crear el producto y asignar relaciones por ID
       const producto = this.productoRepository.create({
         ...createProductoDto,
-        usuario,
+        usuarioCreacion: usuario,
         marca,
         linea,
       });
@@ -52,6 +52,7 @@ export class ProductosRepository implements IProductosRepository {
       return (await this.findOne(producto.id)) as Producto;
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al crear el producto: ${error.message}`,
       );
     }
@@ -86,6 +87,7 @@ export class ProductosRepository implements IProductosRepository {
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al buscar el producto con codigo ${codigo}: ${error.message}`,
       );
     }
@@ -108,16 +110,22 @@ export class ProductosRepository implements IProductosRepository {
       return result;
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al actualizar el producto con ID ${id}: ${error.message}`,
       );
     }
   }
 
-  async update(id: number, data: UpdateProductoDto): Promise<UpdateResult> {
+  async update(
+    id: number,
+    data: UpdateProductoDto,
+    usuario: Usuario,
+  ): Promise<UpdateResult> {
     try {
       return await this.productoRepository.update(id, {
         ...data,
         fechaActualizacion: new Date(),
+        usuarioModificacion: usuario,
       });
     } catch (error) {
       throw new InternalServerErrorException(
@@ -131,6 +139,7 @@ export class ProductosRepository implements IProductosRepository {
       return await this.productoRepository.softDelete(deleteProductodto.id);
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al eliminar (soft delete) el producto con ID ${deleteProductodto.id}: ${error.message}`,
       );
     }

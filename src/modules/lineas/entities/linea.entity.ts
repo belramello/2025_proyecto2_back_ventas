@@ -9,7 +9,8 @@ import {
 import { Marca } from 'src/modules/marcas/entities/marca.entity';
 import { Producto } from 'src/modules/productos/entities/producto.entity';
 import { IsOptional } from 'class-validator';
-@Entity()
+
+@Entity('linea')
 export class Linea {
   @PrimaryGeneratedColumn()
   id: number;
@@ -20,6 +21,7 @@ export class Linea {
   @Column({ nullable: true })
   @IsOptional()
   descripcion?: string;
+
   @ManyToMany(() => Marca, (marca) => marca.lineas)
   @JoinTable()
   marcas: Marca[];

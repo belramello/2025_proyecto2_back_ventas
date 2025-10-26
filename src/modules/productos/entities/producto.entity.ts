@@ -1,18 +1,19 @@
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 import { DetalleVenta } from '../../../modules/ventas/detalle-ventas/entities/detalle-venta.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 import { Linea } from 'src/modules/lineas/entities/linea.entity';
 import { Marca } from 'src/modules/marcas/entities/marca.entity';
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
+import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 @Entity('productos')
 export class Producto {
   @PrimaryGeneratedColumn()
@@ -53,11 +54,21 @@ export class Producto {
   @Column()
   descripcion: string;
 
-  @ManyToOne(() => Usuario, (usuario) => usuario.productos)
-  usuario: Usuario;
+  @ManyToOne(() => Usuario)
+  @JoinColumn({ name: 'usuario_creacion_id' })
+  usuarioCreacion: Usuario;
 
-  @OneToMany(() => DetalleProveedorProducto, (detalle) => detalle.producto, {
-    cascade: true,
-  })
+  @ManyToOne(() => Usuario)
+  @JoinColumn({ name: 'usuario_modificacion_id' })
+  usuarioModificacion: Usuario;
+
+  @ManyToOne(() => Usuario)
+  @JoinColumn({ name: 'usuario_eliminacion_id' })
+  usuarioEliminacion: Usuario;
+
+  @OneToMany(
+    () => DetalleProveedorProducto,
+    (detalleProveedorProducto) => detalleProveedorProducto.producto,
+  )
   detallesProveedor: DetalleProveedorProducto[];
 }

@@ -19,16 +19,14 @@ export class CreateMarcaDto {
     example: 'Artículos de librería',
   })
   @IsOptional()
-  @IsString({ message: 'La descripción debe ser texto' })
-  descripcion?: string;
-
-  @ApiPropertyOptional({
-    description: 'URL del logo de la marca',
-    example: 'https://example.com/logos/bic.png',
-  })
-  @IsOptional()
   @IsString({ message: 'El logo debe ser texto (URL)' })
   logo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Descripción de la marca',
+    example: 'Artículos de librería',
+  })
+  descripcion?: string;
 
   @ApiProperty({
     description: 'Lista de IDs de líneas asociadas a la marca',
