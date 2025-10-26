@@ -12,7 +12,7 @@ import {
   Query,
   ParseIntPipe,
   HttpCode,
-  HttpStatus, // Importar HttpCode y HttpStatus
+  HttpStatus,
 } from '@nestjs/common';
 import { MarcasService } from './marcas.service';
 import { CreateMarcaDto } from './dto/create-marca.dto';
@@ -31,6 +31,7 @@ import {
   ApiBody,
   ApiParam,
   ApiQuery,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { RespuestaFindAllPaginatedMarcasDTO } from './dto/respuesta-find-all-paginated-marcas.dto';
 import { MarcaResponseDto } from './dto/marca-response.dto';
@@ -143,17 +144,27 @@ export class MarcasController {
   )
   @PermisoRequerido(PermisosEnum.MODIFICAR_MARCAS)
   @ApiOperation({ summary: 'Actualizar una marca existente' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        nombre: { type: 'string' },
+        logo: { type: 'string', format: 'binary' },
+        lineasId: { type: 'array', items: { type: 'number' } },
+      },
+    },
+  })
   @ApiParam({
     name: 'id',
     description: 'ID de la marca a actualizar',
     type: Number,
   })
-  @ApiBody({ type: UpdateMarcaDto })
   @ApiResponse({
     status: 200,
     description: 'Marca actualizada exitosamente.',
     type: MarcaResponseDto,
-  }) // Usar tipo mapeado
+  })
   @ApiResponse({ status: 404, description: 'Marca no encontrada.' })
   @ApiResponse({
     status: 409,
@@ -167,19 +178,12 @@ export class MarcasController {
     if (file) {
       updateMarcaDto.logo = file.filename;
     }
-    console.log(
-      '[MarcasController UPDATE] DTO recibido y modificado:',
-      updateMarcaDto,
-    );
-    console.log('[MarcasController UPDATE] Archivo recibido:', file);
-    // Si no se sube un nuevo logo, updateMarcaDto.logo será undefined
-    // y el servicio/repositorio no actualizarán ese campo
     return this.marcasService.update(id, updateMarcaDto);
   }
 
   @PermisoRequerido(PermisosEnum.ELIMINAR_MARCAS)
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT) // Establecer código 204 para delete exitoso
+  @HttpCode(HttpStatus.NO_CONTENT)
   @PermisoRequerido(PermisosEnum.ELIMINAR_MARCAS)
   @ApiOperation({ summary: 'Eliminar (soft delete) una marca por ID' })
   @ApiParam({
@@ -205,28 +209,8 @@ export class MarcasController {
     status: 409,
     description:
       'Conflicto: No se puede eliminar si tiene productos asociados.',
-  }) // Anticipar futuro error
+  })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.marcasService.remove(id);
-    // No retornamos nada para que Nest envíe 204
-  }
-
-  @Patch(':id/restore')
-  @HttpCode(HttpStatus.OK) // Status 200 para restore exitoso
-  // TODO: Agregar @PermisoRequerido si aplica
-  @ApiOperation({ summary: 'Restaurar una marca eliminada lógicamente' })
-  @ApiParam({
-    name: 'id',
-    description: 'ID de la marca a restaurar',
-    type: Number,
-  })
-  @ApiResponse({ status: 200, description: 'Marca restaurada exitosamente.' })
-  @ApiResponse({
-    status: 404,
-    description: 'Marca no encontrada o no eliminada.',
-  })
-  async restore(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.marcasService.restore(id);
-    // No retornamos nada para que Nest envíe 200
   }
 }

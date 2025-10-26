@@ -2,7 +2,6 @@ import {
   Injectable,
   Inject,
   BadRequestException,
-  InternalServerErrorException,
   Logger,
   forwardRef,
 } from '@nestjs/common';
@@ -17,6 +16,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { MarcaValidator } from './helpers/marcas-validator';
 import { Marca } from './entities/marca.entity';
+import { MarcasUpdater } from './helpers/marcas-updater';
 
 @Injectable()
 export class MarcasService {
@@ -28,6 +28,8 @@ export class MarcasService {
     private readonly marcaMapper: MarcaMapper,
     @Inject(forwardRef(() => MarcaValidator))
     private readonly marcaValidator: MarcaValidator,
+    @Inject(forwardRef(() => MarcasUpdater))
+    private readonly marcaUpdater: MarcasUpdater,
   ) {}
 
   async create(createMarcaDto: CreateMarcaDto): Promise<MarcaResponseDto> {
@@ -66,49 +68,20 @@ export class MarcasService {
     id: number,
     updateMarcaDto: UpdateMarcaDto,
   ): Promise<MarcaResponseDto> {
-    const marcaActual = await this.marcaRepository.findOne(id);
-    if (!marcaActual) throw new BadRequestException('Marca no encontrada');
-
-    // Validación de nombre único (manejada por DTO/Validator)
-
-    const logoAntiguo = marcaActual.logo;
-    const logoNuevo = updateMarcaDto.logo;
-
-    if (logoNuevo && logoAntiguo && logoNuevo !== logoAntiguo) {
-      try {
-        const rutaLogoAntiguo = path.join(
-          process.cwd(),
-          'uploads',
-          'logos',
-          logoAntiguo,
-        );
-        await fs.unlink(rutaLogoAntiguo);
-        this.logger.log(`Logo anterior eliminado: ${rutaLogoAntiguo}`);
-      } catch (error) {
-        this.logger.error(
-          `No se pudo eliminar el logo anterior: ${logoAntiguo}`,
-          error.stack,
-        );
-      }
-    }
-    await this.marcaRepository.update(id, updateMarcaDto);
-
-    const marcaActualizada = await this.marcaRepository.findOne(id);
-    if (!marcaActualizada)
-      throw new InternalServerErrorException(
-        'Error al obtener la marca actualizada',
-      );
+    const marca = await this.marcaValidator.validateExistencia(id);
+    const marcaAActualizar = await this.marcaUpdater.updateMarca(
+      marca,
+      updateMarcaDto,
+    );
+    const marcaActualizada =
+      await this.marcaRepository.update(marcaAActualizar);
     return this.marcaMapper.toResponseDto(marcaActualizada);
   }
 
+  //AGREGAR VALIDADOR: QUE NO SE PUEDA ELIMINAR UNA MARCA SI ESTÁ ASOCIADA A PRODUCTOS.
   async remove(id: number): Promise<void> {
-    const marca = await this.marcaRepository.findOne(id);
-    if (!marca) throw new BadRequestException('Marca no encontrada');
-
-    // TODO: Chequeo de productos asociados
-
-    await this.marcaRepository.remove(id); // Soft delete
-
+    const marca = await this.marcaValidator.validateExistencia(id);
+    await this.marcaRepository.remove(id);
     if (marca.logo) {
       try {
         const rutaLogo = path.join(
@@ -118,7 +91,6 @@ export class MarcasService {
           marca.logo,
         );
         await fs.unlink(rutaLogo);
-        this.logger.log(`Logo eliminado (soft delete): ${rutaLogo}`);
       } catch (error) {
         this.logger.error(
           `No se pudo eliminar el logo durante el soft delete: ${marca.logo}`,
@@ -126,16 +98,6 @@ export class MarcasService {
         );
       }
     }
-  }
-
-  async restore(id: number): Promise<void> {
-    const marca = await this.marcaRepository.findOneWithDeleted(id);
-    if (!marca)
-      throw new BadRequestException('Marca no encontrada o no eliminada');
-    if (!marca.deletedAt)
-      throw new BadRequestException('La marca no se encuentra eliminada');
-
-    await this.marcaRepository.restore(id);
   }
 
   async findOneByNombre(nombre: string): Promise<Marca | null> {
