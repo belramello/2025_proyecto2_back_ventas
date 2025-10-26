@@ -121,8 +121,8 @@ export class MarcasService {
             `No se pudo eliminar el logo durante el soft delete: ${marca.logo}`,
             error.stack,
           );
+        }
       }
-
       // ✅ Registro de historial exitoso (Eliminación de marca)
       await this.historialActividades.create({
         usuario: usuario.id,
@@ -139,9 +139,6 @@ export class MarcasService {
       throw error;
     }
   }
-  }
-  
-
   async findOneByNombre(nombre: string): Promise<Marca | null> {
     return await this.marcaRepository.findByNombre(nombre);
   }

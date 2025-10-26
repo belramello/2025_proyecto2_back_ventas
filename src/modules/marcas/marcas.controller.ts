@@ -188,14 +188,7 @@ export class MarcasController {
     if (file) {
       updateMarcaDto.logo = file.filename;
     }
-    console.log(
-      '[MarcasController UPDATE] DTO recibido y modificado:',
-      updateMarcaDto,
-    );
-    console.log('[MarcasController UPDATE] Archivo recibido:', file);
-    // Si no se sube un nuevo logo, updateMarcaDto.logo será undefined
-    // y el servicio/repositorio no actualizarán ese campo
-    return this.marcasService.update(id, updateMarcaDto);
+    return this.marcasService.update(id, updateMarcaDto, req.usuario);
   }
 
   // ────────────────────────────────

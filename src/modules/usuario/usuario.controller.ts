@@ -18,7 +18,6 @@ import { PermisoRequerido } from '../../common/decorators/permiso-requerido.deco
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
 import { AuthGuard } from '../../middlewares/auth.middleware';
 import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
-import { PermisosGuard } from '../../common/guards/permisos.guard';
 import { ApiBody, ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { RespuestaFindAllPaginatedUsuariosDTO } from './dto/respuesta-find-all-usuarios-paginated.dto';
 import { PaginationDto } from '../ventas/dto/pagination.dto';
@@ -83,7 +82,6 @@ export class UsuarioController {
     return this.usuarioService.update(id, updateUsuarioDto);
   }
 
-  @UseGuards(AuthGuard)
   @Post('forgot-password')
   @ApiOperation({
     summary: 'Solicitar recuperación de contraseña',
@@ -98,7 +96,6 @@ export class UsuarioController {
     await this.usuarioService.forgotPassword(dto.email);
   }
 
-  @UseGuards(AuthGuard)
   @Post('reset-password')
   @ApiOperation({
     summary: 'Resetear contraseña con token',
