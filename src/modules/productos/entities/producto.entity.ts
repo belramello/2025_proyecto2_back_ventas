@@ -62,7 +62,6 @@ export class Producto {
   @JoinColumn({ name: 'usuario_modificacion_id' })
   usuarioModificacion: Usuario;
 
-  detallesProveedor: any;
   @ManyToOne(() => Usuario)
   @JoinColumn({ name: 'usuario_eliminacion_id' })
   usuarioEliminacion: Usuario;

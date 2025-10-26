@@ -6,24 +6,22 @@ import { ProveedoresController } from './proveedores.controller';
 import { ProveedorMapper } from './mappers/proveedores.mapper';
 import { ProveedoresRepository } from './repository/proveedor.repository';
 import { ProveedoresValidator } from './helpers/proveedor-validator';
+import { JwtModule } from '../jwt/jwt.module';
+import { UsuarioModule } from '../usuario/usuario.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Proveedor])],
+  imports: [TypeOrmModule.forFeature([Proveedor]), JwtModule, UsuarioModule],
   controllers: [ProveedoresController],
   providers: [
     ProveedoresService,
     ProveedorMapper,
-    ProveedoresRepository, 
+    ProveedoresRepository,
     ProveedoresValidator,
     {
       provide: 'IProveedoresRepository',
-      useExisting: ProveedoresRepository, 
+      useExisting: ProveedoresRepository,
     },
   ],
-  exports: [
-    ProveedoresService,
-    ProveedorMapper,
-    ProveedoresValidator,
-  ],
+  exports: [ProveedoresService, ProveedorMapper, ProveedoresValidator],
 })
 export class ProveedoresModule {}
