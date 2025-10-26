@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductoDto } from '../dto/create-producto.dto';
 import { UpdateProductoDto } from '../dto/update-producto.dto';
@@ -7,11 +8,11 @@ import { Repository, UpdateResult } from 'typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
 import { DeleteProductoDto } from '../dto/delete-producto.dto';
 import { Transactional } from 'typeorm-transactional';
-import { DetalleProveedorProductoService } from 'src/modules/detalleproveedorproducto/detalleproveedorproducto.service';
-import { CreateDetalleProveedorProductoServiceDto } from 'src/modules/detalleproveedorproducto/dto/create-detalle-proveedor-service.dto';
-import { Marca } from 'src/modules/marcas/entities/marca.entity';
-import { Linea } from 'src/modules/lineas/entities/linea.entity';
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
+import { DetalleProveedorProductoService } from '../../../modules/detalleproveedorproducto/detalleproveedorproducto.service';
+import { CreateDetalleProveedorProductoServiceDto } from '../../../modules/detalleproveedorproducto/dto/create-detalle-proveedor-service.dto';
+import { Marca } from '../../../modules/marcas/entities/marca.entity';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 
 export class ProductosRepository implements IProductosRepository {
   constructor(

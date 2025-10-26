@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { Producto } from '../entities/producto.entity';
 import { ProductosService } from '../productos.service';
-import { Marca } from 'src/modules/marcas/entities/marca.entity';
-import { MarcaValidator } from 'src/modules/marcas/helpers/marcas-validator';
-import { LineasValidator } from 'src/modules/lineas/helpers/lineas-validator';
-import { Linea } from 'src/modules/lineas/entities/linea.entity';
+import { Marca } from '../../../modules/marcas/entities/marca.entity';
+import { MarcaValidator } from '../../../modules/marcas/helpers/marcas-validator';
+import { LineasValidator } from '../../../modules/lineas/helpers/lineas-validator';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
 
 @Injectable()
 export class ProductosValidator {

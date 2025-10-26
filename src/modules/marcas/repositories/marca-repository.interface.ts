@@ -2,7 +2,7 @@ import { UpdateResult } from 'typeorm';
 import { CreateMarcaDto } from '../dto/create-marca.dto';
 import { Marca } from '../entities/marca.entity';
 import { PaginationDto } from '../dto/pagination.dto';
-import { Linea } from 'src/modules/lineas/entities/linea.entity';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
 
 export interface IMarcaRepository {
   create(data: CreateMarcaDto, lineas: Linea[]): Promise<Marca>;

@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 // --- MOCKS DE MÓDULOS ---
-// 1. Mockear Swagger para evitar el crash de importación
-// (Necesario porque CreateProductoDto usa @ApiProperty)
 const realSwagger = jest.requireActual('@nestjs/swagger');
 jest.mock('@nestjs/swagger', () => ({
-  ...realSwagger, // Mantiene ApiProperty, ApiTags, etc.
+  ...realSwagger,
   SwaggerModule: { createDocument: jest.fn(), setup: jest.fn() },
   DocumentBuilder: jest.fn(() => ({
     build: jest.fn(),
@@ -14,42 +12,64 @@ jest.mock('@nestjs/swagger', () => ({
 
 // --- IMPORTS REALES ---
 import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { ProductosController } from './productos.controller';
 import { ProductosService } from './productos.service';
 import { ProductosValidator } from './helpers/productos-validator';
-import { ProductoMapper } from './mapper/producto.mapper';
+import { ProductoMapper } from './mapper/producto.mapper'; // Importar el mapper real
+import { IProductosRepository } from './repository/producto-repository.interface';
+import { Producto } from './entities/producto.entity';
+import { DetalleProveedorProductoService } from '../detalleproveedorproducto/detalleproveedorproducto.service';
 import { JwtService } from '../jwt/jwt.service';
 import { UsuarioService } from '../usuario/usuario.service';
 import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
+import { MarcaValidator } from '../marcas/helpers/marcas-validator';
+import { LineasValidator } from '../lineas/helpers/lineas-validator';
+// ¡AÑADIDOS! Dependencias del ProductoMapper
+import { DetalleProveedorProductoMapper } from '../detalleproveedorproducto/mapper/detalle-proveedor-producto.mapper';
+import { MarcaMapper } from '../marcas/mapper/marca.mapper';
+import { LineaMapper } from '../lineas/mapper/linea.mapper';
 
 // --- MOCK PROVIDERS ---
-// Creamos mocks vacíos para todas las dependencias externas
-const mockProductosRepository = {};
+const mockProductosRepositoryInterface = {};
+const mockProductoTypeOrmRepository = {};
+const mockDetalleProveedorService = {};
 const mockJwtService = {};
 const mockUsuarioService = {};
 const mockHistorialService = {};
+const mockMarcaValidator = {};
+const mockLineasValidator = {};
+const mockDetalleProveedorMapper = {};
+const mockMarcaMapper = {};
+const mockLineaMapper = {};
 
 // --- TEST SUITE ---
 describe('ProductosModule', () => {
   let module: TestingModule;
   let controller: ProductosController;
   let service: ProductosService;
+  let validator: ProductosValidator;
+  let mapper: ProductoMapper;
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      // 1. Declaramos los controllers y providers reales del ProductosModule
       controllers: [ProductosController],
       providers: [
         ProductosService,
         ProductosValidator,
-        ProductoMapper,
+        ProductoMapper, // Incluimos el mapper real
         {
           provide: 'IProductosRepository',
-          useValue: mockProductosRepository, // Usamos el mock para la interfaz
+          useValue: mockProductosRepositoryInterface,
         },
-
-        // 2. Proveemos mocks para las dependencias externas
-        // (del HistorialActividadesModule y las necesarias para los Guards)
+        {
+          provide: getRepositoryToken(Producto),
+          useValue: mockProductoTypeOrmRepository,
+        },
+        {
+          provide: DetalleProveedorProductoService,
+          useValue: mockDetalleProveedorService,
+        },
         {
           provide: HistorialActividadesService,
           useValue: mockHistorialService,
@@ -62,44 +82,84 @@ describe('ProductosModule', () => {
           provide: UsuarioService,
           useValue: mockUsuarioService,
         },
+        {
+          provide: MarcaValidator,
+          useValue: mockMarcaValidator,
+        },
+        {
+          provide: LineasValidator,
+          useValue: mockLineasValidator,
+        },
+        // --- ¡CORRECCIÓN AQUÍ! ---
+        // Proveemos los mocks para las dependencias del ProductoMapper
+        {
+          provide: DetalleProveedorProductoMapper,
+          useValue: mockDetalleProveedorMapper,
+        },
+        {
+          provide: MarcaMapper,
+          useValue: mockMarcaMapper,
+        },
+        {
+          provide: LineaMapper,
+          useValue: mockLineaMapper,
+        },
       ],
     }).compile();
 
     controller = module.get<ProductosController>(ProductosController);
     service = module.get<ProductosService>(ProductosService);
+    validator = module.get<ProductosValidator>(ProductosValidator);
+    mapper = module.get<ProductoMapper>(ProductoMapper); // <-- Obtenemos la instancia
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('debería compilar el módulo exitosamente', () => {
-    // Si beforeEach() se completa, el módulo se compiló
-    // y el archivo .module.ts tiene 100% de cobertura.
     expect(module).toBeDefined();
   });
 
   it('debería resolver (inyectar) ProductosController', () => {
-    // Verifica que el controlador se pudo instanciar
     expect(controller).toBeDefined();
   });
 
   it('debería resolver (inyectar) ProductosService', () => {
-    // Verifica que el servicio principal se pudo instanciar
     expect(service).toBeDefined();
   });
 
   it('debería resolver (inyectar) ProductosValidator', () => {
-    const validator = module.get<ProductosValidator>(ProductosValidator);
     expect(validator).toBeDefined();
   });
 
   it('debería resolver (inyectar) ProductoMapper', () => {
-    const mapper = module.get<ProductoMapper>(ProductoMapper);
-    expect(mapper).toBeDefined();
+    expect(mapper).toBeDefined(); // Usamos la variable obtenida en beforeEach
+  });
+
+  it('debería resolver (inyectar) IProductosRepository (como mock)', () => {
+    const repository = module.get<IProductosRepository>('IProductosRepository');
+    expect(repository).toBeDefined();
+    expect(repository).toBe(mockProductosRepositoryInterface);
   });
 
   it('debería inyectar mocks correctamente en el ProductosService', () => {
-    // Verificamos que las dependencias anidadas se resolvieron
-    expect(service['productosRepository']).toBe(mockProductosRepository);
+    expect(service['productosRepository']).toBe(
+      mockProductosRepositoryInterface,
+    );
     expect(service['historialActividades']).toBe(mockHistorialService);
     expect(service['validator']).toBeInstanceOf(ProductosValidator);
     expect(service['productoMapper']).toBeInstanceOf(ProductoMapper);
+  });
+
+  it('debería inyectar mocks correctamente en el ProductosValidator', () => {
+    expect(validator['productosService']).toBe(service);
+    expect(validator['marcaValidator']).toBe(mockMarcaValidator);
+  });
+
+  // Test adicional para verificar las inyecciones del Mapper
+  it('debería inyectar mocks correctamente en el ProductoMapper', () => {
+    expect(mapper['marcaMapper']).toBe(mockMarcaMapper);
+    expect(mapper['lineaMapper']).toBe(mockLineaMapper);
   });
 });

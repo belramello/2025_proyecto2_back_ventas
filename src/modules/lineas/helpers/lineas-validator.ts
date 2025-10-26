@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { LineasService } from '../lineas.service';
 import { Linea } from '../entities/linea.entity';
-import { Marca } from 'src/modules/marcas/entities/marca.entity';
+import { Marca } from '../../../modules/marcas/entities/marca.entity';
 @Injectable()
 export class LineasValidator {
   constructor(private readonly lineaService: LineasService) {}

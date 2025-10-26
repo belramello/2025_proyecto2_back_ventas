@@ -3,11 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
+  UseGuards,
   Param,
   Delete,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { ProveedoresService } from './proveedores.service';
 import { CreateProveedoreDto } from './dto/create-proveedore.dto';
@@ -89,6 +88,10 @@ export class ProveedoresController {
     description: 'Proveedor eliminado correctamente',
   })
   @PermisoRequerido(PermisosEnum.ELIMINAR_PROVEEDOR)
+  @ApiResponse({
+    status: 204,
+    description: 'Proveedor eliminado correctamente',
+  })
   @ApiResponse({ status: 404, description: 'Proveedor no encontrado' })
   async remove(@Param('id') id: string) {
     const deleteProveedorDto: DeleteProveedoreDto = { id: Number(id) };

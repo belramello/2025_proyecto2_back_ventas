@@ -1,12 +1,9 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  BadRequestException,
-} from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Linea } from '../entities/linea.entity';
-import { Marca } from 'src/modules/marcas/entities/marca.entity';
+import { Marca } from '../../../modules/marcas/entities/marca.entity';
 import { ILineaRepository } from './lineas-repository.interface';
 import { CreateLineaDto } from '../dto/create-linea.dto';
 
@@ -17,12 +14,11 @@ export class LineaRepository implements ILineaRepository {
     private readonly lineaRepository: Repository<Linea>,
   ) {}
 
-
   async create(createLineaDto: CreateLineaDto): Promise<Linea> {
     try {
       const linea = this.lineaRepository.create({
         nombre: createLineaDto.nombre,
-        descripcion: createLineaDto.descripcion, 
+        descripcion: createLineaDto.descripcion,
       });
       await this.lineaRepository.save(linea);
 
@@ -38,7 +34,7 @@ export class LineaRepository implements ILineaRepository {
     try {
       return await this.lineaRepository.findOne({
         where: { id },
-        relations: ['marcas','productos'],
+        relations: ['marcas', 'productos'],
       });
     } catch (error) {
       throw new InternalServerErrorException(
@@ -111,5 +107,4 @@ export class LineaRepository implements ILineaRepository {
       );
     }
   }
-  
 }

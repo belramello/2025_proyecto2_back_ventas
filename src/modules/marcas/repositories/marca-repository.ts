@@ -1,12 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, IsNull, UpdateResult } from 'typeorm';
 import { Marca } from '../entities/marca.entity';
 import { IMarcaRepository } from './marca-repository.interface';
 import { CreateMarcaDto } from '../dto/create-marca.dto';
-import { UpdateMarcaDto } from '../dto/update-marca.dto';
 import { PaginationDto } from '../dto/pagination.dto';
-import { Linea } from 'src/modules/lineas/entities/linea.entity';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
 
 @Injectable()
 export class MarcaRepository implements IMarcaRepository {

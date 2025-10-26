@@ -1,8 +1,8 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import { MetabaseService } from './metabase.service';
-import { AuthGuard } from 'src/middlewares/auth.middleware';
-import type { RequestWithUsuario } from 'src/middlewares/auth.middleware';
-import { PermisosGuard } from 'src/common/guards/permisos.guard';
+import { AuthGuard } from '../middlewares/auth.middleware';
+import type { RequestWithUsuario } from '../middlewares/auth.middleware';
+import { PermisosGuard } from '../common/guards/permisos.guard';
 @Controller('metabase')
 export class MetabaseController {
   constructor(private readonly metabaseService: MetabaseService) {}

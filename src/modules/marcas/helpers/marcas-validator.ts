@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common';
 import { Marca } from '../entities/marca.entity';
 import { MarcasService } from '../marcas.service';
-import { LineasValidator } from 'src/modules/lineas/helpers/lineas-validator';
-import { Linea } from 'src/modules/lineas/entities/linea.entity';
+import { LineasValidator } from '../../../modules/lineas/helpers/lineas-validator';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
 
 @Injectable()
 export class MarcaValidator {

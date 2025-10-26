@@ -3,9 +3,9 @@ import { Producto } from '../entities/producto.entity';
 import { RespuestaCreateProductoDto } from '../dto/respuesta-create-producto.dto';
 import { RespuestaFindOneProductoDto } from '../dto/respuesta-find-one-producto.dto';
 import { RespuestaFindAllPaginatedProductoDTO } from '../dto/respuesta-find-all-paginated.dto';
-import { DetalleProveedorProductoMapper } from 'src/modules/detalleproveedorproducto/mapper/detalle-proveedor-producto.mapper';
-import { MarcaMapper } from 'src/modules/marcas/mapper/marca.mapper';
-import { LineaMapper } from 'src/modules/lineas/mapper/linea.mapper';
+import { DetalleProveedorProductoMapper } from '../../../modules/detalleproveedorproducto/mapper/detalle-proveedor-producto.mapper';
+import { MarcaMapper } from '../../../modules/marcas/mapper/marca.mapper';
+import { LineaMapper } from '../../../modules/lineas/mapper/linea.mapper';
 
 @Injectable()
 export class ProductoMapper {

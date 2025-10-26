@@ -2,7 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { UpdateMarcaDto } from '../dto/update-marca.dto';
 import { Marca } from '../entities/marca.entity';
 import { MarcaValidator } from './marcas-validator';
-import { Linea } from 'src/modules/lineas/entities/linea.entity';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
 import * as path from 'path';
 
 @Injectable()
