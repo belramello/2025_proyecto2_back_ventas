@@ -50,14 +50,12 @@ export class ProductosController {
     @Body() createProductoDto: CreateProductoDto,
     @Req() req: RequestWithUsuario,
   ) {
-    const usuarioAutenticadoId = req.usuario.id;
-
-    return this.productosService.create(
-      createProductoDto,
-      usuarioAutenticadoId,
-    );
+    return this.productosService.create(createProductoDto, req.usuario);
   }
 
+  // ────────────────────────────────
+  // 🔍 OBTENER TODOS LOS PRODUCTOS
+  // ────────────────────────────────
   @Get()
   @ApiOperation({
     summary: 'Obtener todos los productos (de todos los usuarios)',

@@ -11,8 +11,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-//Tabla Productos
+import { Linea } from 'src/modules/lineas/entities/linea.entity';
+import { Marca } from 'src/modules/marcas/entities/marca.entity';
 @Entity('productos')
 export class Producto {
   @PrimaryGeneratedColumn()
@@ -30,8 +30,10 @@ export class Producto {
   @Column()
   stock: number;
 
-  @Column()
-  linea: string; //Reemplazar por entidad Linea
+  @ManyToOne(() => Linea, (linea) => linea.productos)
+  linea: Linea;
+  @ManyToOne(() => Marca, (marca) => marca.productos)
+  marca: Marca;
 
   @Column()
   fotoUrl: string;

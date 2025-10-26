@@ -1,15 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsNumber,
   IsUrl,
-  IsOptional,
-  IsDate,
   IsInt,
   Min,
   MaxLength,
+  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { CreateDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/create-detalleproveedorproducto.dto';
 
 export class CreateProductoDto {
   @ApiProperty({
@@ -34,14 +34,27 @@ export class CreateProductoDto {
   @IsInt()
   @Min(0)
   stock: number;
+  @ApiProperty({
+    example: 'Faber Castell',
+    description: 'Marca del producto',
+  })
+  @IsInt()
+  marcaId: number;
 
   @ApiProperty({
     example: 'Premium',
     description: 'Línea o categoría del producto',
   })
-  @IsString()
-  @MaxLength(50)
-  linea: string;
+  @IsInt()
+  lineaId: number;
+
+  @ApiProperty({
+    type: [CreateDetalleProveedorProductoDto],
+    description: 'Listado de proveedores del producto',
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CreateDetalleProveedorProductoDto)
+  detalleProveedores: CreateDetalleProveedorProductoDto[];
 
   @ApiProperty({
     example: 'https://example.com/foto.jpg',
@@ -49,16 +62,6 @@ export class CreateProductoDto {
   })
   @IsUrl()
   fotoUrl: string;
-
-  @ApiProperty({
-    example: '2025-10-11',
-    description: 'Fecha de creación del producto',
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => Date)
-  @IsDate()
-  fechaCreacion?: Date;
 
   @ApiProperty({
     example: 'Collar resistente y ajustable para perros grandes',

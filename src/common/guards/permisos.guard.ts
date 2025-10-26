@@ -25,6 +25,7 @@ export class PermisosGuard implements CanActivate {
     // Obteniene el usuario autenticado (inyectado por el AuthGuard)
     const request = context.switchToHttp().getRequest<RequestWithUsuario>();
     const usuario = request.usuario;
+    console.log(usuario, 'usuario en permisos guard');
 
     if (!usuario || !usuario.rol) {
       throw new ForbiddenException('Usuario o rol no encontrado.');

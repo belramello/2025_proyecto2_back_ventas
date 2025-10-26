@@ -9,36 +9,30 @@ export class MarcaMapper {
   private apiUrl: string;
 
   constructor(private configService: ConfigService) {
-    this.apiUrl = this.configService.get<string>('API_URL') || 'http://localhost:3000';
+    this.apiUrl =
+      this.configService.get<string>('API_URL') || 'http://localhost:3000';
     console.log(`[MarcaMapper] API URL configurada como: ${this.apiUrl}`); // Log para verificar
   }
 
-  // --- FUNCIÓN CORREGIDA (DE NUEVO) ---
   private buildLogoUrl(logoPathDb?: string | null): string | null {
     if (!logoPathDb) {
-      return null; // Si no hay logo en la BD, devolvemos null
+      return null;
     }
 
-    // Verificamos si la ruta de la BD ya incluye 'uploads/' (para evitar duplicar)
-    // Usamos includes() por si acaso hay alguna variación leve
     if (logoPathDb.includes('uploads/')) {
-      // Si ya contiene 'uploads/', asumimos que es la ruta relativa correcta desde la raíz del servidor
-      // Solo le agregamos la base de la API URL
       return `${this.apiUrl}/${logoPathDb}`;
     } else {
-      // Si solo tiene el nombre del archivo (caso ideal futuro), construimos la ruta completa
       return `${this.apiUrl}/uploads/logos/${logoPathDb}`;
     }
   }
-  // --- FIN FUNCIÓN CORREGIDA ---
 
   toResponseDto(marca: Marca): MarcaResponseDto {
-    const responseDto = new MarcaResponseDto();
-    responseDto.id = marca.id;
-    responseDto.nombre = marca.nombre;
-    responseDto.descripcion = marca.descripcion;
-    responseDto.logoUrl = this.buildLogoUrl(marca.logo); // La lógica está encapsulada
-    return responseDto;
+    return {
+      id: marca.id,
+      nombre: marca.nombre,
+      descripcion: marca.descripcion,
+      logoUrl: this.buildLogoUrl(marca.logo),
+    };
   }
 
   toResponseDtoList(marcas: Marca[]): MarcaResponseDto[] {

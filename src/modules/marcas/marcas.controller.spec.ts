@@ -1,10 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MarcasController } from './marcas.controller';
-<<<<<<< HEAD
-<<<<<<<<< Temporary merge branch 1
-=======
-<<<<<<< HEAD
->>>>>>> 155b136ece8b684acc2b5484a9d72c73b41e6314
 import { MarcasService } from './marcas.service';
 import { CreateMarcaDto } from './dto/create-marca.dto';
 import { UpdateMarcaDto } from './dto/update-marca.dto';
@@ -46,28 +41,11 @@ const mockMarcasService = {
 describe('MarcasController', () => {
   let controller: MarcasController;
   let service: typeof mockMarcasService;
-<<<<<<< HEAD
-=========
-
-describe('MarcasController', () => {
-  let controller: MarcasController;
->>>>>>>>> Temporary merge branch 2
-=======
-=======
-
-describe('MarcasController', () => {
-  let controller: MarcasController;
->>>>>>> 6ff62d53cd6513f49d98258a7d127e3026125ebe
->>>>>>> 155b136ece8b684acc2b5484a9d72c73b41e6314
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MarcasController],
-<<<<<<< HEAD
 <<<<<<<<< Temporary merge branch 1
-=======
-<<<<<<< HEAD
->>>>>>> 155b136ece8b684acc2b5484a9d72c73b41e6314
       providers: [
         {
           provide: MarcasService,
@@ -77,15 +55,9 @@ describe('MarcasController', () => {
     }).compile();
 
     controller = module.get<MarcasController>(MarcasController);
-    service = module.get(MarcasService);
   });
 
-  // Limpiar mocks después de cada prueba
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('debería estar definido', () => {
+  it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
@@ -196,22 +168,4 @@ describe('MarcasController', () => {
       expect(service.restore).toHaveBeenCalledWith(1);
     });
   });
-<<<<<<< HEAD
-=========
-=======
-=======
->>>>>>> 155b136ece8b684acc2b5484a9d72c73b41e6314
-    }).compile();
-
-    controller = module.get<MarcasController>(MarcasController);
-  });
-
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-<<<<<<< HEAD
->>>>>>>>> Temporary merge branch 2
-=======
->>>>>>> 6ff62d53cd6513f49d98258a7d127e3026125ebe
->>>>>>> 155b136ece8b684acc2b5484a9d72c73b41e6314
 });

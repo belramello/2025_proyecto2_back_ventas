@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuariosMappers } from './mappers/usuarios.mappers';
@@ -9,6 +9,10 @@ import { UsuariosValidator } from './helpers/usuarios-validator';
 import { PaginationDto } from '../ventas/dto/pagination.dto';
 import { RespuestaFindAllPaginatedUsuariosDTO } from './dto/respuesta-find-all-usuarios-paginated.dto';
 import { UsuarioUpdater } from './helpers/usuario-updater';
+import { MailService } from '../mails/mail.service';
+import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class UsuarioService {
@@ -18,6 +22,8 @@ export class UsuarioService {
     private readonly usuarioMappers: UsuariosMappers,
     private readonly usuariosValidator: UsuariosValidator,
     private readonly usuarioUpdater: UsuarioUpdater,
+    private readonly mailService: MailService,
+    private readonly configService: ConfigService,
   ) {}
   async createUsuario(
     CreateUsuarioDto: CreateUsuarioDto,
@@ -83,5 +89,35 @@ export class UsuarioService {
 
   async findByEmail(email: string): Promise<Usuario | null> {
     return await this.usuariosRepository.findByEmail(email);
+  }
+  async forgotPassword(email: string): Promise<void> {
+    const user = await this.usuariosRepository.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiration = new Date(Date.now() + 3600000); //1 hora.
+    await this.usuariosRepository.guardarTokenReset(email, token, expiration);
+    const resetUrl = `${this.configService.get(
+      'FRONTEND_URL',
+    )}/reset-password?token=${token}`;
+
+    await this.mailService.sendPasswordReset(email, user.nombre, resetUrl);
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const user = await this.usuariosRepository.findOneByResetToken(token);
+    if (!user) {
+      throw new BadRequestException('Usuario no encontrado');
+    }
+    if (
+      !user.passwordResetExpiration ||
+      user.passwordResetExpiration < new Date()
+    ) {
+      throw new BadRequestException('Token inválido o expirado');
+    }
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    await this.usuariosRepository.updatePassword(user.id, hashedPassword);
   }
 }

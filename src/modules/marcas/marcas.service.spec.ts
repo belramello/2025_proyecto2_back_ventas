@@ -40,29 +40,16 @@ const createMockRepository = (): MockRepository => ({
 
 describe('MarcasService', () => {
   let service: MarcasService;
-  let repository: MockRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        MarcasService,
-        {
-          provide: MarcaRepository, // Puedes usar getRepositoryToken(Marca) si así lo inyectas
-          useValue: createMockRepository(),
-        },
-      ],
+      providers: [MarcasService],
     }).compile();
 
     service = module.get<MarcasService>(MarcasService);
-    repository = module.get<MockRepository>(MarcaRepository);
   });
 
-  // Limpiar mocks después de cada prueba
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('debería estar definido', () => {
+  it('should be defined', () => {
     expect(service).toBeDefined();
   });
 

@@ -17,6 +17,10 @@ import { MulterModule } from '@nestjs/platform-express';
 import { HistorialActividadesModule } from './modules/historial-actividades/historial-actividades.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ProveedoresModule } from './modules/proveedores/proveedores.module';
+import { LineasModule } from './modules/lineas/lineas.module';
+import { MailModule } from './modules/mails/mail.module';
+import { MetabaseModule } from './metabase/metabase.module';
 
 @Module({
   imports: [
@@ -50,7 +54,6 @@ import { join } from 'path';
     MulterModule.register({
       dest: './uploads/logos',
     }),
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     ServeStaticModule.forRoot({
       // Define la carpeta física raíz donde están tus archivos estáticos
       // process.cwd() apunta a la raíz del proyecto (donde está package.json)
@@ -81,6 +84,10 @@ import { join } from 'path';
     RolesModule,
     PermisosModule,
     MarcasModule,
+    ProveedoresModule,
+    LineasModule,
+    MailModule,
+    MetabaseModule,
     HistorialActividadesModule,
   ],
   controllers: [AppController],

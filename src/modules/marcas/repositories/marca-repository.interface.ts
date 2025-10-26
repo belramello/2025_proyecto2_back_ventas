@@ -3,9 +3,10 @@ import { CreateMarcaDto } from '../dto/create-marca.dto';
 import { UpdateMarcaDto } from '../dto/update-marca.dto';
 import { Marca } from '../entities/marca.entity';
 import { PaginationDto } from '../dto/pagination.dto';
+import { Linea } from 'src/modules/lineas/entities/linea.entity';
 
 export interface IMarcaRepository {
-  create(data: CreateMarcaDto): Promise<Marca>;
+  create(data: CreateMarcaDto, lineas: Linea[]): Promise<Marca>;
   findAllPaginated(paginationDto: PaginationDto): Promise<{
     marcas: Marca[];
     total: number;
