@@ -10,13 +10,28 @@ import {
 } from 'typeorm-transactional';
 import { DataSource } from 'typeorm';
 import { join } from 'path';
+
 export async function bootstrap() {
   //Para poder utilizar @Transactional()
   initializeTransactionalContext();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
-  app.useStaticAssets(join(__dirname, '..', 'uploads'));
-  app.enableCors(); // Habilita CORS para el frontend
+
+  // --- CORRECCIÓN DE STATIC ASSETS ---
+  // Añadimos el 'prefix' para que coincida con la ruta guardada en la BD
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
+
+  // --- CORRECCIÓN DE CORS ---
+  // Hacemos explícito el origen del frontend
+  app.enableCors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // elimina propiedades que no están en el DTO

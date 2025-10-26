@@ -49,7 +49,6 @@ export class MarcasService {
         lineas,
       );
 
-      // ✅ Registro de historial exitoso (Creación de marca)
       await this.historialActividades.create({
         usuario: usuario.id,
         accionId: 10,
@@ -58,7 +57,6 @@ export class MarcasService {
 
       return this.marcaMapper.toResponseDto(nuevaMarca);
     } catch (error) {
-      // ❌ Registro de historial fallido
       await this.historialActividades.create({
         usuario: usuario.id,
         accionId: 10,
@@ -91,7 +89,6 @@ export class MarcasService {
   async update(
     id: number,
     updateMarcaDto: UpdateMarcaDto,
-    usuario: Usuario,
   ): Promise<MarcaResponseDto> {
     const marca = await this.marcaValidator.validateExistencia(id);
     const marcaAActualizar = await this.marcaUpdater.updateMarca(
@@ -119,18 +116,17 @@ export class MarcasService {
         } catch (error) {
           this.logger.error(
             `No se pudo eliminar el logo durante el soft delete: ${marca.logo}`,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             error.stack,
           );
         }
       }
-      // ✅ Registro de historial exitoso (Eliminación de marca)
       await this.historialActividades.create({
         usuario: usuario.id,
         accionId: 12,
         estadoId: 1, // Exitoso
       });
     } catch (error) {
-      // ❌ Registro de historial fallido
       await this.historialActividades.create({
         usuario: usuario.id,
         accionId: 12,

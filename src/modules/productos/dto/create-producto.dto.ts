@@ -3,7 +3,6 @@ import { Type } from 'class-transformer';
 import {
   IsString,
   IsNumber,
-  IsUrl,
   IsInt,
   Min,
   MaxLength,
@@ -26,6 +25,7 @@ export class CreateProductoDto {
   codigo: string;
 
   @ApiProperty({ example: 2499.99, description: 'Precio del producto' })
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   precio: number;
@@ -39,6 +39,7 @@ export class CreateProductoDto {
     description: 'Marca del producto',
   })
   @IsInt()
+  @Type(() => Number)
   marcaId: number;
 
   @ApiProperty({
@@ -46,6 +47,7 @@ export class CreateProductoDto {
     description: 'Línea o categoría del producto',
   })
   @IsInt()
+  @Type(() => Number)
   lineaId: number;
 
   @ApiProperty({
@@ -55,13 +57,6 @@ export class CreateProductoDto {
   @ValidateNested({ each: true })
   @Type(() => CreateDetalleProveedorProductoDto)
   detalleProveedores: CreateDetalleProveedorProductoDto[];
-
-  @ApiProperty({
-    example: 'https://example.com/foto.jpg',
-    description: 'URL de la imagen del producto',
-  })
-  @IsUrl()
-  fotoUrl: string;
 
   @ApiProperty({
     example: 'Collar resistente y ajustable para perros grandes',

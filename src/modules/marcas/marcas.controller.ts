@@ -188,7 +188,7 @@ export class MarcasController {
     if (file) {
       updateMarcaDto.logo = file.filename;
     }
-    return this.marcasService.update(id, updateMarcaDto, req.usuario);
+    return this.marcasService.update(id, updateMarcaDto);
   }
 
   // ────────────────────────────────

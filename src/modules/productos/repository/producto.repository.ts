@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductoDto } from '../dto/create-producto.dto';
 import { UpdateProductoDto } from '../dto/update-producto.dto';
@@ -73,6 +75,7 @@ export class ProductosRepository implements IProductosRepository {
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al buscar el producto con ID ${id}: ${error.message}`,
       );
     }
