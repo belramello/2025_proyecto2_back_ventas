@@ -58,6 +58,10 @@ export class MarcasService {
     return this.marcaMapper.toResponseDto(marca);
   }
 
+  async findOneForServices(id: number): Promise<Marca | null> {
+    return this.marcaRepository.findOne(id);
+  }
+
   async update(
     id: number,
     updateMarcaDto: UpdateMarcaDto,
