@@ -197,7 +197,6 @@ describe('ProductosController', () => {
       const deleteResult = { affected: 1 } as UpdateResult;
       service.remove.mockResolvedValue(deleteResult);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = await controller.remove('1', mockRequest); // El Param ID viene como string
 
       // El DTO esperado que el controlador debe construir
