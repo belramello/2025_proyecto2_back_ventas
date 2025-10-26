@@ -15,6 +15,8 @@ import { MarcaValidator } from '../marcas/helpers/marcas-validator';
 import { RespuestaFindAllLineasAsociadasAMarcaDTO } from './dto/respuesta-linea-marca.dto';
 import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
 import { Usuario } from '../usuario/entities/usuario.entity';
+import { PaginationLineaDto } from './dto/pagination.dto';
+import { RespuestaFindAllPaginatedLineasDTO } from './dto/respuesta-find-all-lineas-paginated.dto';
 
 @Injectable()
 export class LineasService {
@@ -126,5 +128,13 @@ export class LineasService {
         this.lineaMapper.toRespuestaLineaDto(linea),
       ),
     };
+  }
+  async findAllPaginated(
+    paginationDto: PaginationLineaDto,
+  ): Promise<RespuestaFindAllPaginatedLineasDTO> {
+    const { limit = 10, page = 1 } = paginationDto;
+    return this.lineaMapper.toRespuestaFindAllPaginatedLineasDTO(
+      await this.lineaRepository.findAllPaginated(page, limit),
+    );
   }
 }
