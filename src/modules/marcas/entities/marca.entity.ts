@@ -1,5 +1,5 @@
-import { Linea } from 'src/modules/lineas/entities/linea.entity';
-import { Producto } from 'src/modules/productos/entities/producto.entity';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
+import { Producto } from '../../../modules/productos/entities/producto.entity';
 import {
   Column,
   Entity,

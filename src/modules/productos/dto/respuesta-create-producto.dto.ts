@@ -3,16 +3,13 @@ import {
   IsString,
   IsNumber,
   IsUrl,
-  IsOptional,
-  IsDate,
   IsInt,
   Min,
   MaxLength,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { RespuestaFindOneDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/respuesta-find-one-detalleproveedorproducto.dto';
-import { RespuestaLineaDto } from 'src/modules/lineas/dto/respuesta-linea.dto';
-import { MarcaResponseDto } from 'src/modules/marcas/dto/marca-response.dto';
+import { RespuestaFindOneDetalleProveedorProductoDto } from '../../../modules/detalleproveedorproducto/dto/respuesta-find-one-detalleproveedorproducto.dto';
+import { RespuestaLineaDto } from '../../../modules/lineas/dto/respuesta-linea.dto';
+import { MarcaResponseDto } from '../../../modules/marcas/dto/marca-response.dto';
 
 export class RespuestaCreateProductoDto {
   @ApiProperty({

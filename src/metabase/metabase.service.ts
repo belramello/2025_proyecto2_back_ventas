@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RolesEnum } from 'src/modules/roles/enums/roles-enum';
+import { RolesEnum } from '../modules/roles/enums/roles-enum';
 import { AdministradorStrategy } from './strategies/administrador-strategy';
 import { MetabaseStrategy } from './strategies/metabase-strategy';
 import { DueñoStrategy } from './strategies/dueño-strategy';
