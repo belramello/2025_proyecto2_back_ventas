@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuariosMappers } from './mappers/usuarios.mappers';
@@ -13,6 +19,7 @@ import { MailService } from '../mails/mail.service';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
 
 @Injectable()
 export class UsuarioService {
@@ -24,6 +31,7 @@ export class UsuarioService {
     private readonly usuarioUpdater: UsuarioUpdater,
     private readonly mailService: MailService,
     private readonly configService: ConfigService,
+    private readonly historialActividades: HistorialActividadesService,
   ) {}
   async createUsuario(
     CreateUsuarioDto: CreateUsuarioDto,
@@ -91,18 +99,41 @@ export class UsuarioService {
     return await this.usuariosRepository.findByEmail(email);
   }
   async forgotPassword(email: string): Promise<void> {
+    const accionId = 5;
+
     const user = await this.usuariosRepository.findByEmail(email);
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
     }
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiration = new Date(Date.now() + 3600000); //1 hora.
-    await this.usuariosRepository.guardarTokenReset(email, token, expiration);
-    const resetUrl = `${this.configService.get(
-      'FRONTEND_URL',
-    )}/reset-password?token=${token}`;
 
-    await this.mailService.sendPasswordReset(email, user.nombre, resetUrl);
+    try {
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiration = new Date(Date.now() + 3600000); // 1 hora.
+      await this.usuariosRepository.guardarTokenReset(email, token, expiration);
+
+      const resetUrl = `${this.configService.get(
+        'FRONTEND_URL',
+      )}/reset-password?token=${token}`;
+
+      await this.mailService.sendPasswordReset(email, user.nombre, resetUrl);
+
+      await this.historialActividades.create({
+        usuario: user.id,
+        accionId: accionId,
+        estadoId: 1,
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      await this.historialActividades.create({
+        usuario: user.id,
+        accionId: accionId,
+        estadoId: 2,
+      });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+      throw new InternalServerErrorException(
+        'Fallo en el proceso de solicitud de restablecimiento de contraseña.',
+      );
+    }
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
