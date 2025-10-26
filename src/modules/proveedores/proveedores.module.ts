@@ -13,11 +13,11 @@ import { ProveedoresValidator } from './helpers/proveedor-validator';
   providers: [
     ProveedoresService,
     ProveedorMapper,
-    ProveedoresRepository, // ← necesario para que el validator lo reciba
+    ProveedoresRepository, 
     ProveedoresValidator,
     {
       provide: 'IProveedoresRepository',
-      useExisting: ProveedoresRepository, // ← correcto si usás la interfaz
+      useExisting: ProveedoresRepository, 
     },
   ],
   exports: [
