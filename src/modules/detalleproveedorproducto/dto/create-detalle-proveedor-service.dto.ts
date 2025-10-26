@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsString, Min } from 'class-validator';
-import { Producto } from 'src/modules/productos/entities/producto.entity';
-import { Proveedor } from 'src/modules/proveedores/entities/proveedore.entity';
+import { Producto } from '../../../modules/productos/entities/producto.entity';
 
 export class CreateDetalleProveedorProductoServiceDto {
   @ApiProperty({

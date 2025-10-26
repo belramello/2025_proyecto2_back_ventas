@@ -5,7 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
+import { DetalleProveedorProducto } from '../../../modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 @Entity('proveedores')
 export class Proveedor {
   @PrimaryGeneratedColumn()

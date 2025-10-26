@@ -11,7 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Producto } from 'src/modules/productos/entities/producto.entity';
+import { Producto } from '../../../modules/productos/entities/producto.entity';
 
 @Entity('usuarios')
 export class Usuario {

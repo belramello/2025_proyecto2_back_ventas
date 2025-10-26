@@ -9,7 +9,7 @@ import {
   MaxLength,
   ValidateNested,
 } from 'class-validator';
-import { CreateDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/create-detalleproveedorproducto.dto';
+import { CreateDetalleProveedorProductoDto } from '../../../modules/detalleproveedorproducto/dto/create-detalleproveedorproducto.dto';
 
 export class CreateProductoDto {
   @ApiProperty({

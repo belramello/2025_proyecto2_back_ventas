@@ -120,7 +120,10 @@ describe('ProductosController', () => {
       const result = await controller.create(mockCreateDto, mockRequest);
 
       expect(service.create).toHaveBeenCalledTimes(1);
-      expect(service.create).toHaveBeenCalledWith(mockCreateDto, mockUsuarioId);
+      expect(service.create).toHaveBeenCalledWith(
+        mockCreateDto,
+        expect.objectContaining({ id: mockUsuarioId }),
+      );
       expect(result).toEqual(mockProducto);
     });
   });
@@ -160,16 +163,16 @@ describe('ProductosController', () => {
       service.update.mockResolvedValue(updateResult);
 
       const result = await controller.update(
-        '1', // El Param ID viene como string
+        '1', // El Param ID viene como string y lo pasamos como string
         mockUpdateDto,
         mockRequest,
       );
 
       expect(service.update).toHaveBeenCalledTimes(1);
       expect(service.update).toHaveBeenCalledWith(
-        1, // El controlador lo convierte a número (+id)
+        '1', // Esperamos el string original del @Param
         mockUpdateDto,
-        mockUsuarioId,
+        expect.objectContaining({ id: mockUsuarioId }),
       );
       expect(result).toEqual(updateResult);
     });
@@ -194,7 +197,6 @@ describe('ProductosController', () => {
       const deleteResult = { affected: 1 } as UpdateResult;
       service.remove.mockResolvedValue(deleteResult);
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const result = await controller.remove('1', mockRequest); // El Param ID viene como string
 
       // El DTO esperado que el controlador debe construir

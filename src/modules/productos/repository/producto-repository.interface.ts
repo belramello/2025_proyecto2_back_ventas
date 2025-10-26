@@ -3,9 +3,9 @@ import { CreateProductoDto } from '../dto/create-producto.dto';
 import { UpdateProductoDto } from '../dto/update-producto.dto';
 import { Producto } from '../entities/producto.entity';
 import { DeleteProductoDto } from '../dto/delete-producto.dto';
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
-import { Linea } from 'src/modules/lineas/entities/linea.entity';
-import { Marca } from 'src/modules/marcas/entities/marca.entity';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
+import { Marca } from '../../../modules/marcas/entities/marca.entity';
 
 export interface IProductosRepository {
   create(

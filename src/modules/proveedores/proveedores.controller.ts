@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ProveedoresService } from './proveedores.service';
 import { CreateProveedoreDto } from './dto/create-proveedore.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
@@ -17,11 +25,10 @@ export class ProveedoresController {
     description: 'Proveedor creado correctamente',
   })
   @ApiBody({ type: CreateProveedoreDto })
-
   async create(@Body() createProveedoreDto: CreateProveedoreDto) {
     return this.proveedoresService.create(createProveedoreDto);
   }
-  
+
   @Get()
   @ApiOperation({ summary: 'Obtener todos los proveedores' })
   @ApiResponse({
@@ -46,7 +53,6 @@ export class ProveedoresController {
     return this.proveedoresService.findOne(+id);
   }
 
-  
   @Get('nombre/:nombre')
   @ApiOperation({ summary: 'Obtener un proveedor por el nombre de la empresa' })
   @ApiParam({
@@ -64,14 +70,14 @@ export class ProveedoresController {
     return this.proveedoresService.findByNombre(nombre);
   }
 
-
-
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar (soft delete) un proveedor' })
   @ApiParam({ name: 'id', description: 'ID del proveedor', example: 1 })
-  @ApiResponse({ status: 204, description: 'Proveedor eliminado correctamente' })
+  @ApiResponse({
+    status: 204,
+    description: 'Proveedor eliminado correctamente',
+  })
   @ApiResponse({ status: 404, description: 'Proveedor no encontrado' })
-
   async remove(@Param('id') id: string) {
     const deleteProveedorDto: DeleteProveedoreDto = { id: Number(id) };
     return this.proveedoresService.remove(deleteProveedorDto);

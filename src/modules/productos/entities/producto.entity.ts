@@ -11,9 +11,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Linea } from 'src/modules/lineas/entities/linea.entity';
-import { Marca } from 'src/modules/marcas/entities/marca.entity';
-import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
+import { Marca } from '../../../modules/marcas/entities/marca.entity';
+import { DetalleProveedorProducto } from '../../../modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 @Entity('productos')
 export class Producto {
   @PrimaryGeneratedColumn()
@@ -62,6 +62,7 @@ export class Producto {
   @JoinColumn({ name: 'usuario_modificacion_id' })
   usuarioModificacion: Usuario;
 
+  detallesProveedor: any;
   @ManyToOne(() => Usuario)
   @JoinColumn({ name: 'usuario_eliminacion_id' })
   usuarioEliminacion: Usuario;
