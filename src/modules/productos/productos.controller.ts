@@ -96,18 +96,16 @@ export class ProductosController {
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
   @PermisoRequerido(PermisosEnum.MODIFICAR_PRODUCTOS)
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateProductoDto: UpdateProductoDto,
     @Req() req: RequestWithUsuario,
   ) {
-    const usuarioAutenticadoId = req.usuario.id;
-
     return this.productosService.update(
-      +id,
+      id,
       {
         ...updateProductoDto,
       },
-      usuarioAutenticadoId, // Pass the usuarioId directly as a number
+      req.usuario, // Pass the usuarioId directly as a number
     );
   }
 

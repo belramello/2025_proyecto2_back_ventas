@@ -31,7 +31,7 @@ export class ProductosRepository implements IProductosRepository {
       // Crear el producto y asignar relaciones por ID
       const producto = this.productoRepository.create({
         ...createProductoDto,
-        usuario,
+        usuarioCreacion: usuario,
         marca,
         linea,
       });
@@ -119,17 +119,16 @@ export class ProductosRepository implements IProductosRepository {
   async update(
     id: number,
     data: UpdateProductoDto,
-    usuarioId: number,
+    usuario: Usuario,
   ): Promise<UpdateResult> {
     try {
       return await this.productoRepository.update(id, {
         ...data,
         fechaActualizacion: new Date(),
-        usuarioModificacion: { id: usuarioId },
+        usuarioModificacion: usuario,
       });
     } catch (error) {
       throw new InternalServerErrorException(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al actualizar el producto con ID ${id}: ${error.message}`,
       );
     }

@@ -17,7 +17,11 @@ export interface IProductosRepository {
   findOne(id: number): Promise<Producto | null>;
   findByCodigo(codigo: string): Promise<Producto | null>;
   decrementStock(id: number, cantidad: number): Promise<UpdateResult>;
-  update(id: number, data: UpdateProductoDto): Promise<UpdateResult>;
+  update(
+    id: number,
+    data: UpdateProductoDto,
+    usuario: Usuario,
+  ): Promise<UpdateResult>;
   remove(id: DeleteProductoDto): Promise<UpdateResult>;
   findAllPaginated(
     page: number,

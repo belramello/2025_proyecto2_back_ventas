@@ -45,7 +45,6 @@ describe('MarcasController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MarcasController],
-<<<<<<<<< Temporary merge branch 1
       providers: [
         {
           provide: MarcasService,
@@ -78,7 +77,6 @@ describe('MarcasController', () => {
     it('debería crear una marca sin logo (file es undefined)', async () => {
       service.create.mockResolvedValue(mockMarca);
 
-      // CORREGIDO:
       const result = await controller.create(createMarcaDto, undefined); // Simulamos que no se subió archivo
 
       expect(service.create).toHaveBeenCalledWith(createMarcaDto, undefined);

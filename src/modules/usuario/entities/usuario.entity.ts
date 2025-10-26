@@ -85,7 +85,7 @@ export class Usuario {
   tokenReinicioContraseña: TokenReinicioContraseña[]
   */
 
-  @OneToMany(() => Producto, (producto) => producto.usuario)
+  @OneToMany(() => Producto, (producto) => producto.usuarioCreacion)
   productos: Producto[];
 
   @OneToMany(() => Venta, (venta) => venta.vendedor)

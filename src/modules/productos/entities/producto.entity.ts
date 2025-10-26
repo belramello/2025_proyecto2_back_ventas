@@ -13,6 +13,7 @@ import {
 } from 'typeorm';
 import { Linea } from 'src/modules/lineas/entities/linea.entity';
 import { Marca } from 'src/modules/marcas/entities/marca.entity';
+import { DetalleProveedorProducto } from 'src/modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 @Entity('productos')
 export class Producto {
   @PrimaryGeneratedColumn()
@@ -64,4 +65,10 @@ export class Producto {
   @ManyToOne(() => Usuario)
   @JoinColumn({ name: 'usuario_eliminacion_id' })
   usuarioEliminacion: Usuario;
+
+  @OneToMany(
+    () => DetalleProveedorProducto,
+    (detalleProveedorProducto) => detalleProveedorProducto.producto,
+  )
+  detallesProveedor: DetalleProveedorProducto[];
 }
