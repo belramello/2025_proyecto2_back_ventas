@@ -129,9 +129,6 @@ export class LineasService {
       ),
     };
   }
-<<<<<<< HEAD
-}
-=======
   async findAllPaginated(
     paginationDto: PaginationLineaDto,
   ): Promise<RespuestaFindAllPaginatedLineasDTO> {
@@ -141,4 +138,3 @@ export class LineasService {
     );
   }
 }
->>>>>>> origin/develop
