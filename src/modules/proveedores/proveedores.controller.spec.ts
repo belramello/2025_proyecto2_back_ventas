@@ -37,14 +37,14 @@ const mockProveedor: Proveedor = {
 } as Proveedor;
 
 const mockProveedorResponseDto: RespuestaFindOneProveedorDto = {
-   id: 1,
-   nombre: 'Librería Máximo',
-   direccion: 'Av. Siempre Viva 742',
-   email: 'max@test.com',
-   contacto: '123456',
-   provincia: 'Santa Fe',
-   localidad: 'Rosario',
-}
+  id: 1,
+  nombre: 'Librería Máximo',
+  direccion: 'Av. Siempre Viva 742',
+  email: 'max@test.com',
+  contacto: '123456',
+  provincia: 'Santa Fe',
+  localidad: 'Rosario',
+};
 
 const mockCreateDto: CreateProveedoreDto = {
   nombre: 'Librería Nueva',
