@@ -20,7 +20,6 @@ export class VentasMapper {
   }
 
   toRespuestaFinalFindOneDto(venta: Venta): RespuestaFindOneVentaDto {
-    console.log('Mapeando venta:', venta);
     const detalles: RespuestaFindOneDetalleVentaDto[] = venta.detalleVentas.map(
       (detalle) => this.detalleVentaMapper.toResponseDto(detalle),
     );

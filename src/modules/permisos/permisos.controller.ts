@@ -13,7 +13,7 @@ export class PermisosController {
   create(@Body() createPermisoDto: CreatePermisoDto) {
     return this.permisosService.create(createPermisoDto);
   }
-    */
+*/
   @Get()
   findAll(): Promise<Permiso[]> {
     return this.permisosService.findAll();

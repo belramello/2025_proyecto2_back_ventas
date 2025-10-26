@@ -46,10 +46,10 @@ export class LineasController {
     description: 'Línea creada exitosamente',
     type: RespuestaLineaDto,
   })
-  @PermisoRequerido(PermisosEnum.CREAR_LINEAS) // 👈 Permiso requerido
+  @PermisoRequerido(PermisosEnum.CREAR_LINEAS)
   async create(
     @Body() dto: CreateLineaDto,
-    @Req() req: RequestWithUsuario, // 👈 Se inyecta Request para obtener el usuario
+    @Req() req: RequestWithUsuario,
   ): Promise<RespuestaLineaDto> {
     // Se pasa el usuario al servicio para el registro de historial
     return await this.lineaService.createLinea(dto, req.usuario);
@@ -66,7 +66,7 @@ export class LineasController {
     description: 'Detalle de la línea',
     type: RespuestaLineaDto,
   })
-  @PermisoRequerido(PermisosEnum.VER_LINEAS) // 👈 Permiso requerido
+  @PermisoRequerido(PermisosEnum.VER_LINEAS)
   async find(@Param('id') id: number): Promise<RespuestaLineaDto> {
     return await this.lineaService.findLinea(id);
   }
@@ -79,7 +79,7 @@ export class LineasController {
     description: 'Marca asociada exitosamente',
     type: RespuestaLineaDto,
   })
-  @PermisoRequerido(PermisosEnum.MODIFICAR_LINEAS) // 👈 Permiso requerido (Modificar/Vincular)
+  @PermisoRequerido(PermisosEnum.MODIFICAR_LINEAS)
   async añadirMarca(
     @Body() dto: AddMarcaToLineaDto,
     @Req() req: RequestWithUsuario, // 👈 Se inyecta Request para obtener el usuario
@@ -89,17 +89,17 @@ export class LineasController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT) // 👈 Respuesta 204 sin contenido
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Eliminar una línea (Soft Delete)' })
   @ApiParam({ name: 'id', description: 'ID de la línea', example: 1 })
   @ApiResponse({
     status: 204,
     description: 'Línea eliminada exitosamente',
   })
-  @PermisoRequerido(PermisosEnum.ELIMINAR_LINEAS) // 👈 Permiso requerido
+  @PermisoRequerido(PermisosEnum.ELIMINAR_LINEAS)
   async delete(
     @Param('id') id: number,
-    @Req() req: RequestWithUsuario, // 👈 Se inyecta Request para obtener el usuario
+    @Req() req: RequestWithUsuario,
   ): Promise<void> {
     // Se pasa el usuario al servicio para el registro de historial
     return await this.lineaService.delete(id, req.usuario);
@@ -112,6 +112,7 @@ export class LineasController {
     description: 'Lista de lineas',
     type: [RespuestaLineaDto],
   })
+  @PermisoRequerido(PermisosEnum.VER_LINEAS)
   async findAll(@Query() paginationDto: PaginationLineaDto) {
     return this.lineaService.findAllPaginated(paginationDto);
   }
@@ -122,6 +123,7 @@ export class LineasController {
     description: 'Líneas asociadas a la marca seleccionada',
     type: RespuestaFindAllLineasAsociadasAMarcaDTO,
   })
+  @PermisoRequerido(PermisosEnum.VER_LINEAS)
   async obtenerLineasAsociadasAMarca(
     @Param('marcaId', ParseIntPipe) marcaId: number,
   ): Promise<RespuestaFindAllLineasAsociadasAMarcaDTO> {
