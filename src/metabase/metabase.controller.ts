@@ -10,6 +10,9 @@ export class MetabaseController {
   @UseGuards(AuthGuard, PermisosGuard)
   @Get()
   getSignedUrl(@Req() req: RequestWithUsuario): { signedUrl: string } {
-    return this.metabaseService.generateSignedUrl(req.usuario.id);
+    return this.metabaseService.generateSignedUrl(
+      req.usuario.id,
+      req.usuario.rol.id,
+    );
   }
 }
