@@ -99,12 +99,12 @@ export class MarcaRepository implements IMarcaRepository {
     }
   }
 
-  async update(id: number, data: UpdateMarcaDto): Promise<UpdateResult> {
+  async update(marca: Marca): Promise<Marca> {
     try {
-      return await this.marcaRepository.update(id, data);
+      return await this.marcaRepository.save(marca);
     } catch (error) {
       throw new InternalServerErrorException(
-        `Error al actualizar la marca con ID ${id}: ${error.message}`,
+        `Error al actualizar la marca con ID ${marca.id}: ${error.message}`,
       );
     }
   }
@@ -115,16 +115,6 @@ export class MarcaRepository implements IMarcaRepository {
     } catch (error) {
       throw new InternalServerErrorException(
         `Error al eliminar (soft delete) la marca con ID ${id}: ${error.message}`,
-      );
-    }
-  }
-
-  async restore(id: number): Promise<UpdateResult> {
-    try {
-      return await this.marcaRepository.restore(id);
-    } catch (error) {
-      throw new InternalServerErrorException(
-        `Error al restaurar la marca con ID ${id}: ${error.message}`,
       );
     }
   }

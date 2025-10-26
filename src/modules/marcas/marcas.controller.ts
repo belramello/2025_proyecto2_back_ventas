@@ -33,6 +33,7 @@ import {
   ApiBody,
   ApiParam,
   ApiQuery,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { RespuestaFindAllPaginatedMarcasDTO } from './dto/respuesta-find-all-paginated-marcas.dto';
 import { MarcaResponseDto } from './dto/marca-response.dto';
@@ -152,12 +153,31 @@ export class MarcasController {
   )
   @PermisoRequerido(PermisosEnum.MODIFICAR_MARCAS)
   @ApiOperation({ summary: 'Actualizar una marca existente' })
-  @ApiParam({ name: 'id', description: 'ID de la marca a actualizar' })
-  @ApiBody({ type: UpdateMarcaDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        nombre: { type: 'string' },
+        logo: { type: 'string', format: 'binary' },
+        lineasId: { type: 'array', items: { type: 'number' } },
+      },
+    },
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID de la marca a actualizar',
+    type: Number,
+  })
   @ApiResponse({
     status: 200,
     description: 'Marca actualizada exitosamente.',
     type: MarcaResponseDto,
+  }) // Usar tipo mapeado
+  @ApiResponse({ status: 404, description: 'Marca no encontrada.' })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflicto: El nuevo nombre de marca ya existe.',
   })
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -168,7 +188,14 @@ export class MarcasController {
     if (file) {
       updateMarcaDto.logo = file.filename;
     }
-    return this.marcasService.update(id, updateMarcaDto, req.usuario);
+    console.log(
+      '[MarcasController UPDATE] DTO recibido y modificado:',
+      updateMarcaDto,
+    );
+    console.log('[MarcasController UPDATE] Archivo recibido:', file);
+    // Si no se sube un nuevo logo, updateMarcaDto.logo será undefined
+    // y el servicio/repositorio no actualizarán ese campo
+    return this.marcasService.update(id, updateMarcaDto);
   }
 
   // ────────────────────────────────
@@ -188,21 +215,5 @@ export class MarcasController {
     @Req() req: RequestWithUsuario,
   ): Promise<void> {
     await this.marcasService.remove(id, req.usuario);
-  }
-
-  // ────────────────────────────────
-  // 🔁 RESTAURAR MARCA
-  // ────────────────────────────────
-  @Patch(':id/restore')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Restaurar una marca eliminada lógicamente' })
-  @ApiParam({
-    name: 'id',
-    description: 'ID de la marca a restaurar',
-    type: Number,
-  })
-  @ApiResponse({ status: 200, description: 'Marca restaurada exitosamente.' })
-  async restore(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.marcasService.restore(id);
   }
 }

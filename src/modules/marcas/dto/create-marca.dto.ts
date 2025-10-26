@@ -22,6 +22,12 @@ export class CreateMarcaDto {
   @IsString({ message: 'El logo debe ser texto (URL)' })
   logo?: string;
 
+  @ApiPropertyOptional({
+    description: 'Descripción de la marca',
+    example: 'Artículos de librería',
+  })
+  descripcion?: string;
+
   @ApiProperty({
     description: 'Lista de IDs de líneas asociadas a la marca',
     example: [8],
