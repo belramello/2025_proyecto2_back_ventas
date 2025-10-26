@@ -7,6 +7,7 @@ import { PaginationProveedoresDto } from './dto/pagination.dto';
 import { RespuestaFindAllPaginatedProveedorDTO } from './dto/respuesta-find-all-paginated.dto';
 import { DeleteProveedoreDto } from './dto/delete-proveedore.dto';
 import { Proveedor } from './entities/proveedore.entity';
+import { ProveedoresValidator } from './helpers/proveedor-validator';
 
 @Injectable()
 export class ProveedoresService {
@@ -14,10 +15,11 @@ export class ProveedoresService {
     @Inject('IProveedoresRepository')
     private readonly proveedoresRepository: IProveedoresRepository,
     private readonly proveedorMapper: ProveedorMapper,
-    //private readonly validator: ProductosValidator,
+    private readonly proveedoresValidator: ProveedoresValidator,
   ) {}
 
-  create(createProveedoreDto: CreateProveedoreDto) {
+  async create(createProveedoreDto: CreateProveedoreDto) {
+    await this.proveedoresValidator.validateProveedorNoDuplicado(createProveedoreDto.nombre);
     return this.proveedoresRepository.create(createProveedoreDto);
   }
 
@@ -45,6 +47,7 @@ export class ProveedoresService {
   }
 
   async remove(deleteProveedorDto: DeleteProveedoreDto) {
+    await this.proveedoresValidator.validateProveedorEliminable(deleteProveedorDto.id);
     return this.proveedoresRepository.remove(deleteProveedorDto);
   }
 }

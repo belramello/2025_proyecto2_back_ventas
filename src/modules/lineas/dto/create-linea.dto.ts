@@ -1,6 +1,6 @@
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, } from 'class-validator';
+import { IsOptional, IsString, } from 'class-validator';
 
 export class CreateLineaDto {
 
@@ -8,4 +8,14 @@ export class CreateLineaDto {
   @IsString()
   nombre: string;
 
+  @ApiProperty({
+    example: 'Línea de lapiceras y bolígrafos de uso diario',
+    description: 'Descripción opcional de la línea',
+    required: false, 
+  })
+  @IsOptional()
+  @IsString()
+  descripcion?: string;
 }
+
+

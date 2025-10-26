@@ -9,6 +9,8 @@ import {
   Req,
   HttpCode,
   HttpStatus,
+  Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { LineasService } from './lineas.service';
 import { CreateLineaDto } from './dto/create-linea.dto';
@@ -27,9 +29,11 @@ import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
 import { PermisosGuard } from '../../common/guards/permisos.guard';
 import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
+import { PaginationLineaDto } from './dto/pagination.dto';
+import { RespuestaFindAllLineasAsociadasAMarcaDTO } from './dto/respuesta-linea-marca.dto';
 
 @ApiTags('Líneas')
-@UseGuards(AuthGuard, PermisosGuard) // 👈 Aplicar Guards a nivel de controlador
+@UseGuards(AuthGuard, PermisosGuard)
 @Controller('lineas')
 export class LineasController {
   constructor(private readonly lineaService: LineasService) {}
@@ -99,5 +103,28 @@ export class LineasController {
   ): Promise<void> {
     // Se pasa el usuario al servicio para el registro de historial
     return await this.lineaService.delete(id, req.usuario);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Obtener todas las lineas' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de lineas',
+    type: [RespuestaLineaDto],
+  })
+  async findAll(@Query() paginationDto: PaginationLineaDto) {
+    return this.lineaService.findAllPaginated(paginationDto);
+  }
+  @Get('por-marca/:marcaId')
+  @ApiOperation({ summary: 'Obtener líneas asociadas a una marca' })
+  @ApiResponse({
+    status: 200,
+    description: 'Líneas asociadas a la marca seleccionada',
+    type: RespuestaFindAllLineasAsociadasAMarcaDTO,
+  })
+  async obtenerLineasAsociadasAMarca(
+    @Param('marcaId', ParseIntPipe) marcaId: number,
+  ): Promise<RespuestaFindAllLineasAsociadasAMarcaDTO> {
+    return this.lineaService.obtenerLineasAsociadasAMarca(marcaId);
   }
 }

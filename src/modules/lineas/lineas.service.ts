@@ -12,6 +12,7 @@ import type { ILineaRepository } from './repositories/lineas-repository.interfac
 import { Linea } from './entities/linea.entity';
 import { LineasValidator } from './helpers/lineas-validator';
 import { MarcaValidator } from '../marcas/helpers/marcas-validator';
+import { RespuestaFindAllLineasAsociadasAMarcaDTO } from './dto/respuesta-linea-marca.dto';
 import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
 import { Usuario } from '../usuario/entities/usuario.entity';
 
@@ -33,7 +34,7 @@ export class LineasService {
     usuario: Usuario,
   ): Promise<RespuestaLineaDto> {
     try {
-      const linea = await this.lineaRepository.create(dto.nombre);
+      const lineaCreada = await this.lineaRepository.create(dto);
 
       await this.historialActividades.create({
         usuario: usuario.id,
@@ -41,7 +42,7 @@ export class LineasService {
         estadoId: 1,
       });
 
-      return this.lineaMapper.toRespuestaLineaDto(linea);
+      return this.lineaMapper.toRespuestaLineaDto(lineaCreada);
     } catch (error) {
       await this.historialActividades.create({
         usuario: usuario.id,
@@ -111,5 +112,19 @@ export class LineasService {
       });
       throw error;
     }
+  }
+
+  async obtenerLineasAsociadasAMarca(
+    marcaId: number,
+  ): Promise<RespuestaFindAllLineasAsociadasAMarcaDTO> {
+    const marca = await this.marcaValidator.validateExistencia(marcaId);
+    const lineas = await this.lineaRepository.findLineasPorMarca(marca.id);
+
+    return {
+      marcaId: marca.id,
+      lineas: lineas.map((linea) =>
+        this.lineaMapper.toRespuestaLineaDto(linea),
+      ),
+    };
   }
 }
