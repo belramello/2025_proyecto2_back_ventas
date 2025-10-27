@@ -13,6 +13,9 @@ import {
   Req,
   UseInterceptors,
   UploadedFile,
+  NotFoundException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductosService } from './productos.service';
@@ -67,6 +70,14 @@ export class ProductosController {
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo producto' })
   @UseInterceptors(FileInterceptor('imagen', multerOptions))
+  @UsePipes(
+    new ValidationPipe({
+      whitelist: false,
+      forbidNonWhitelisted: false,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  )
   @ApiResponse({
     status: 201,
     description: 'Producto creado correctamente',
