@@ -14,6 +14,7 @@ import { HistorialActividadesService } from '../historial-actividades/historial-
 import { Usuario } from '../usuario/entities/usuario.entity';
 import type { Express } from 'express';
 import * as fs from 'fs';
+import { RespuestaFindOneDetalleProductoDto } from './dto/respuesta-find-one-detalleproducto.dto';
 
 @Injectable()
 export class ProductosService {
@@ -102,6 +103,9 @@ export class ProductosService {
 
   async findOneByCodigo(codigo: string): Promise<Producto | null> {
     return await this.productosRepository.findByCodigo(codigo);
+  }
+  async findOneByDetalle(id: number): Promise<RespuestaFindOneDetalleProductoDto | null> {
+    return this.productosRepository.findOneByDetalle(id);
   }
 
   async update(

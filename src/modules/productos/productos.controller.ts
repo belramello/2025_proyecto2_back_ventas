@@ -13,6 +13,7 @@ import {
   Req,
   UseInterceptors,
   UploadedFile,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductosService } from './productos.service';
@@ -37,6 +38,7 @@ import { PaginationDto } from '../ventas/dto/pagination.dto';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import * as fs from 'fs';
+import { RespuestaFindOneDetalleProductoDto } from './dto/respuesta-find-one-detalleproducto.dto';
 
 const storagePath = './uploads/productos';
 
@@ -162,5 +164,22 @@ export class ProductosController {
     };
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.productosService.remove(deleteProductoDto);
+  }
+
+  @Get('detalle/:id')
+  @ApiOperation({ summary: 'Obtener detalles del producto por ID' })
+  @ApiParam({ name: 'id', description: 'ID del producto', example: 1 })
+  @ApiResponse({
+    status: 200,
+    description: 'Detalles del producto encontrados',
+    type: RespuestaFindOneDetalleProductoDto,
+  })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado' })
+  async findOneByDetalle(@Param('id') id: number) {
+    const resultado = await this.productosService.findOneByDetalle(id);
+    if (!resultado) {
+      throw new NotFoundException(`Producto con ID ${id} no encontrado`);
+    }
+    return resultado;
   }
 }
