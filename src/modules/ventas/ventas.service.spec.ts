@@ -1,226 +1,275 @@
+/* eslint-disable @typescript-eslint/unbound-method */
+// --- MOCKS DE MÓDULOS ---
+// 1. Mockear typeorm-transactional (¡LA CLAVE!)
+// Hacemos que el decorador @Transactional no haga nada.
+jest.mock('typeorm-transactional', () => ({
+  Transactional:
+    () => (target: any, key: string, descriptor: PropertyDescriptor) =>
+      descriptor,
+  initializeTransactionalContext: jest.fn(), // Mockear por si acaso
+  addTransactionalDataSource: jest.fn(), // Mockear por si acaso
+}));
+
+// 2. Mockear Swagger (¡ESENCIAL!)
+// (Necesario porque los DTOs usan @ApiProperty)
+const realSwagger = jest.requireActual('@nestjs/swagger');
+jest.mock('@nestjs/swagger', () => ({
+  ...realSwagger, // Mantiene ApiProperty, ApiTags, etc.
+  // No necesitamos mockear los decoradores aquí si solo importamos DTOs
+}));
+
+// --- IMPORTS REALES ---
 import { Test, TestingModule } from '@nestjs/testing';
 import { VentasService } from './ventas.service';
 import { IVentasRepository } from './repositories/ventas-repository.interface';
 import { VentasMapper } from './mappers/ventas.mapper';
+import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
+import {
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { CreateVentaDto } from './dto/create-venta.dto';
+import { PaginationDto } from './dto/pagination.dto';
 import { Usuario } from '../usuario/entities/usuario.entity';
 import { Venta } from './entities/venta.entity';
-import { CreateVentaDto } from './dto/create-venta.dto';
 import { RespuestaCreateVentaDto } from './dto/respuesta-create-venta.dto';
-import { PaginationDto } from './dto/pagination.dto';
-import { RespuestaFindAllPaginatedVentaDTO } from './dto/respuesta-find-all-paginated-venta.dto';
 import { RespuestaFindOneVentaDto } from './dto/respuesta-find-one-venta.dto';
-import { NotFoundException } from '@nestjs/common';
-import { initializeTransactionalContext } from 'typeorm-transactional';
+import { RespuestaFindAllPaginatedVentaDTO } from './dto/respuesta-find-all-paginated-venta.dto';
+import { DetalleVentaDto } from '../detalle-ventas/dto/detalle-venta.dto'; // Needed for CreateVentaDto
 
-// --- Mocks y Datos de Prueba ---
-
-// 1. Datos falsos (stubs)
+// --- MOCK DATA ---
 const mockUsuario: Usuario = {
   id: 1,
-  nombre: 'Alejo',
-  apellido: 'De Miguel',
+  nombre: 'Test',
+  apellido: 'User',
 } as Usuario;
+
+const mockDetalleDto: DetalleVentaDto = {
+  productoId: 1,
+  cantidad: 2,
+  precioUnitario: 50,
+};
+const mockCreateVentaDto: CreateVentaDto = {
+  detalles: [mockDetalleDto],
+  medioDePago: 'efectivo',
+};
 
 const mockVenta: Venta = {
   id: 1,
-  total: 150.75,
+  total: 100,
   medioDePago: 'efectivo',
   vendedor: mockUsuario,
   fechaCreacion: new Date(),
-  detalleVentas: [],
-  fechaActualizacion: new Date(),
-  fechaEliminacion: new Date(),
+  detalleVentas: [], // El repo create usualmente devuelve esto ya populado
 } as Venta;
 
-// 2. Tipos para los Mocks
-type MockRepository = Partial<Record<keyof IVentasRepository, jest.Mock>>;
-type MockMapper = Partial<Record<keyof VentasMapper, jest.Mock>>;
+const mockRespuestaCreateDto: RespuestaCreateVentaDto = {
+  id: 1,
+  total: 100,
+  medioDePago: 'efectivo',
+  vendedor: 'Test User',
+  fecha: mockVenta.fechaCreacion,
+};
 
-// 3. Fábricas de Mocks
-const createMockRepository = (): MockRepository => ({
+const mockRespuestaFindOneDto: RespuestaFindOneVentaDto = {
+  id: 1,
+  total: 100,
+  medioDePago: 'efectivo',
+  vendedor: 'Test User',
+  fecha: mockVenta.fechaCreacion,
+  detalles: [], // El mapper lo llenaría
+};
+
+// --- MOCK PROVIDERS ---
+const mockVentasRepository = {
   create: jest.fn(),
   findAllPaginated: jest.fn(),
   findOne: jest.fn(),
-});
+};
 
-// Mockeamos el mapper con 'useValue' para no tener que mockear 'DetalleVentaMapper'
-const createMockMapper = (): MockMapper => ({
+const mockVentasMapper = {
   toRespuestaCreateVentaDto: jest.fn(),
   toRespuestaFindAllPaginatedVentaDTO: jest.fn(),
   toRespuestaFinalFindOneDto: jest.fn(),
-  toRespuestaFindAllVentaDTO: jest.fn(),
-});
+};
 
-// Mockeamos el @Transactional
-jest.mock('typeorm-transactional', () => ({
-  initializeTransactionalContext: jest.fn(),
-  addTransactionalDataSource: jest.fn(),
-  Transactional: () => () => {}, // Ignora el decorador
-}));
+const mockHistorialService = {
+  create: jest.fn(),
+};
 
-// --- Suite de Pruebas ---
-
+// --- TEST SUITE ---
 describe('VentasService', () => {
   let service: VentasService;
-  let repository: MockRepository;
-  let mapper: MockMapper;
-
-  // AÑADE UN beforeAll PARA INICIALIZAR EL CONTEXTO
-  beforeAll(() => {
-    initializeTransactionalContext();
-  });
+  let repository: IVentasRepository;
+  let mapper: VentasMapper;
+  let historial: HistorialActividadesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        // 1. El servicio real
         VentasService,
-        // 2. Mocks de sus dependencias
         {
-          provide: 'IVentasRepository', // ¡Usar el token de inyección!
-          useValue: createMockRepository(),
+          provide: 'IVentasRepository',
+          useValue: mockVentasRepository,
         },
         {
-          provide: VentasMapper, // Usamos la clase como token
-          useValue: createMockMapper(), // Pero proveemos un mock simple
+          provide: VentasMapper,
+          useValue: mockVentasMapper,
+        },
+        {
+          provide: HistorialActividadesService,
+          useValue: mockHistorialService,
         },
       ],
     }).compile();
 
     service = module.get<VentasService>(VentasService);
-    repository = module.get<MockRepository>('IVentasRepository');
-    mapper = module.get<MockMapper>(VentasMapper);
+    repository = module.get<IVentasRepository>('IVentasRepository');
+    mapper = module.get<VentasMapper>(VentasMapper);
+    historial = module.get<HistorialActividadesService>(
+      HistorialActividadesService,
+    );
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('debería estar definido', () => {
     expect(service).toBeDefined();
   });
 
-  // --- Pruebas para create() ---
+  // Pruebas para create()
   describe('create', () => {
-    it('debería crear una venta y retornar el DTO mapeado', async () => {
-      const createDto: CreateVentaDto = {
-        detalles: [{ productoId: 1, cantidad: 2 }],
-        medioDePago: 'efectivo',
-      };
-      const mockRespuestaDto: RespuestaCreateVentaDto = {
-        id: 1,
-        total: 150.75,
-        medioDePago: 'efectivo',
-        vendedor: 'Alejo De Miguel',
-        fecha: mockVenta.fechaCreacion,
-      };
+    it('debería crear una venta, registrar historial exitoso y mapear la respuesta', async () => {
+      mockVentasRepository.create.mockResolvedValue(mockVenta);
+      mockHistorialService.create.mockResolvedValue({}); // El resultado no importa
+      mockVentasMapper.toRespuestaCreateVentaDto.mockReturnValue(
+        mockRespuestaCreateDto,
+      );
 
-      // Configuramos los mocks
-      repository.create?.mockResolvedValue(mockVenta);
-      mapper.toRespuestaCreateVentaDto?.mockReturnValue(mockRespuestaDto);
+      const result = await service.create(mockCreateVentaDto, mockUsuario);
 
-      // Ejecutamos
-      const result = await service.create(createDto, mockUsuario);
-
-      // Verificamos
-      expect(repository.create).toHaveBeenCalledWith(createDto, mockUsuario);
+      expect(repository.create).toHaveBeenCalledWith(
+        mockCreateVentaDto,
+        mockUsuario,
+      );
+      expect(historial.create).toHaveBeenCalledWith({
+        usuario: mockUsuario.id,
+        accionId: 16,
+        estadoId: 1, // Exitoso
+      });
       expect(mapper.toRespuestaCreateVentaDto).toHaveBeenCalledWith(mockVenta);
-      expect(result).toEqual(mockRespuestaDto);
+      expect(result).toEqual(mockRespuestaCreateDto);
+    });
+
+    it('debería fallar al crear, registrar historial fallido y lanzar el error', async () => {
+      const dbError = new InternalServerErrorException(
+        'Error al guardar venta',
+      );
+      mockVentasRepository.create.mockRejectedValue(dbError);
+      mockHistorialService.create.mockResolvedValue({}); // El resultado no importa
+
+      await expect(
+        service.create(mockCreateVentaDto, mockUsuario),
+      ).rejects.toThrow(dbError);
+
+      expect(repository.create).toHaveBeenCalledWith(
+        mockCreateVentaDto,
+        mockUsuario,
+      );
+      // Verifica que se llamó al historial con estado fallido
+      expect(historial.create).toHaveBeenCalledWith({
+        usuario: mockUsuario.id,
+        accionId: 16,
+        estadoId: 2, // Fallido
+      });
+      // Verifica que el mapper no fue llamado
+      expect(mapper.toRespuestaCreateVentaDto).not.toHaveBeenCalled();
     });
   });
 
-  // --- Pruebas para findAllPaginated() ---
+  // Pruebas para findAllPaginated()
   describe('findAllPaginated', () => {
-    it('debería retornar ventas paginadas y mapeadas', async () => {
-      const paginationDto: PaginationDto = { page: 1, limit: 5 };
-      const repoResult = {
-        ventas: [mockVenta],
-        total: 1,
-        page: 1,
-        lastPage: 1,
-      };
-      const mapperResult: RespuestaFindAllPaginatedVentaDTO = {
-        ventas: [], // El mapper los transformaría
-        total: 1,
-        page: 1,
-        lastPage: 1,
-      };
+    const repoResult = { ventas: [mockVenta], total: 1, page: 1, lastPage: 1 };
+    const mappedResult = {
+      ventas: [mockRespuestaFindOneDto],
+      total: 1,
+      page: 1,
+      lastPage: 1,
+    } as RespuestaFindAllPaginatedVentaDTO;
 
-      // Configuramos los mocks
-      repository.findAllPaginated?.mockResolvedValue(repoResult);
-      mapper.toRespuestaFindAllPaginatedVentaDTO?.mockReturnValue(mapperResult);
-
-      // Ejecutamos
-      const result = await service.findAllPaginated(paginationDto);
-
-      // Verificamos
-      expect(repository.findAllPaginated).toHaveBeenCalledWith(
-        paginationDto.page,
-        paginationDto.limit,
+    it('debería obtener ventas paginadas con valores por defecto (page 1, limit 10)', async () => {
+      mockVentasRepository.findAllPaginated.mockResolvedValue(repoResult);
+      mockVentasMapper.toRespuestaFindAllPaginatedVentaDTO.mockReturnValue(
+        mappedResult,
       );
+
+      const result = await service.findAllPaginated({}); // DTO vacío
+
+      expect(repository.findAllPaginated).toHaveBeenCalledWith(1, 10); // Verifica defaults
       expect(mapper.toRespuestaFindAllPaginatedVentaDTO).toHaveBeenCalledWith(
         repoResult,
       );
-      expect(result).toEqual(mapperResult);
+      expect(result).toEqual(mappedResult);
     });
 
-    it('debería usar valores por defecto (page 1, limit 10) si no se proveen', async () => {
-      const paginationDto: PaginationDto = {}; // DTO vacío
-      const repoResult = { ventas: [], total: 0, page: 1, lastPage: 1 };
-      const mapperResult: RespuestaFindAllPaginatedVentaDTO = {
-        ventas: [],
-        total: 0,
-        page: 1,
-        lastPage: 1,
-      };
+    it('debería obtener ventas paginadas con valores provistos', async () => {
+      const paginationDto: PaginationDto = { page: 2, limit: 5 };
+      mockVentasRepository.findAllPaginated.mockResolvedValue(repoResult); // El resultado del repo no cambia
+      mockVentasMapper.toRespuestaFindAllPaginatedVentaDTO.mockReturnValue(
+        mappedResult,
+      ); // El resultado mapeado no cambia
 
-      // Configuramos los mocks
-      repository.findAllPaginated?.mockResolvedValue(repoResult);
-      mapper.toRespuestaFindAllPaginatedVentaDTO?.mockReturnValue(mapperResult);
+      const result = await service.findAllPaginated(paginationDto);
 
-      // Ejecutamos
-      await service.findAllPaginated(paginationDto);
+      expect(repository.findAllPaginated).toHaveBeenCalledWith(2, 5); // Verifica valores provistos
+      expect(mapper.toRespuestaFindAllPaginatedVentaDTO).toHaveBeenCalledWith(
+        repoResult,
+      );
+      expect(result).toEqual(mappedResult);
+    });
 
-      // Verificamos que se usaron los defaults
-      expect(repository.findAllPaginated).toHaveBeenCalledWith(1, 10);
+    it('debería propagar error si repository.findAllPaginated falla', async () => {
+      const dbError = new Error('DB Error');
+      mockVentasRepository.findAllPaginated.mockRejectedValue(dbError);
+
+      await expect(service.findAllPaginated({})).rejects.toThrow(dbError);
+      expect(mapper.toRespuestaFindAllPaginatedVentaDTO).not.toHaveBeenCalled();
     });
   });
 
-  // --- Pruebas para findOne() ---
+  // Pruebas para findOne()
   describe('findOne', () => {
-    it('debería retornar una venta mapeada si se encuentra', async () => {
-      const ventaId = 1;
-      const mockRespuestaDto: RespuestaFindOneVentaDto = {
-        id: 1,
-        total: 150.75,
-        medioDePago: 'efectivo',
-        vendedor: 'Alejo De Miguel',
-        fecha: mockVenta.fechaCreacion,
-        detalles: [],
-      };
+    it('debería encontrar una venta por ID y mapearla a DTO', async () => {
+      mockVentasRepository.findOne.mockResolvedValue(mockVenta);
+      mockVentasMapper.toRespuestaFinalFindOneDto.mockReturnValue(
+        mockRespuestaFindOneDto,
+      );
 
-      // Configuramos los mocks
-      repository.findOne?.mockResolvedValue(mockVenta);
-      mapper.toRespuestaFinalFindOneDto?.mockReturnValue(mockRespuestaDto);
+      const result = await service.findOne(1);
 
-      // Ejecutamos
-      const result = await service.findOne(ventaId);
-
-      // Verificamos
-      expect(repository.findOne).toHaveBeenCalledWith(ventaId);
+      expect(repository.findOne).toHaveBeenCalledWith(1);
       expect(mapper.toRespuestaFinalFindOneDto).toHaveBeenCalledWith(mockVenta);
-      expect(result).toEqual(mockRespuestaDto);
+      expect(result).toEqual(mockRespuestaFindOneDto);
     });
 
     it('debería lanzar NotFoundException si la venta no se encuentra', async () => {
-      const ventaId = 99;
+      mockVentasRepository.findOne.mockResolvedValue(null); // Venta no encontrada
 
-      // Configuramos el mock del repositorio para que retorne null
-      repository.findOne?.mockResolvedValue(null);
-
-      // Ejecutamos y Verificamos
-      await expect(service.findOne(ventaId)).rejects.toThrow(NotFoundException);
-      await expect(service.findOne(ventaId)).rejects.toThrow(
-        `No se encontró la venta con ID ${ventaId}`,
+      await expect(service.findOne(99)).rejects.toThrow(NotFoundException);
+      await expect(service.findOne(99)).rejects.toThrow(
+        `No se encontró la venta con ID 99`,
       );
+      // Verifica que el mapper no fue llamado
+      expect(mapper.toRespuestaFinalFindOneDto).not.toHaveBeenCalled();
+    });
 
-      // Verificamos que el mapper NUNCA fue llamado
+    it('debería propagar error si repository.findOne falla', async () => {
+      const dbError = new Error('DB Error');
+      mockVentasRepository.findOne.mockRejectedValue(dbError);
+
+      await expect(service.findOne(1)).rejects.toThrow(dbError);
       expect(mapper.toRespuestaFinalFindOneDto).not.toHaveBeenCalled();
     });
   });
