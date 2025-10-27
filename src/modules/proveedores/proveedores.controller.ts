@@ -14,9 +14,9 @@ import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { RespuestaFindOneProveedorDto } from './dto/respuesta-find-one-proveedor.dto';
 import { PaginationProveedoresDto } from './dto/pagination.dto';
 import { DeleteProveedoreDto } from './dto/delete-proveedore.dto';
-import { AuthGuard } from 'src/middlewares/auth.middleware';
-import { PermisosGuard } from 'src/common/guards/permisos.guard';
-import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { AuthGuard } from '../../middlewares/auth.middleware';
+import { PermisosGuard } from '../../common/guards/permisos.guard';
+import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
 
 @UseGuards(AuthGuard, PermisosGuard)

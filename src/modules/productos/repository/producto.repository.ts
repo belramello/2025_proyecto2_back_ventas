@@ -14,7 +14,6 @@ import { Marca } from '../../../modules/marcas/entities/marca.entity';
 import { Linea } from '../../../modules/lineas/entities/linea.entity';
 import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 import { RespuestaFindOneDetalleProductoDto } from '../dto/respuesta-find-one-detalleproducto.dto';
-import { RespuestaFindOneDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/respuesta-find-one-detalleproveedorproducto.dto';
 
 export class ProductosRepository implements IProductosRepository {
   constructor(
