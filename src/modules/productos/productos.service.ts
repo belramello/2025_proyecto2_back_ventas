@@ -104,8 +104,11 @@ export class ProductosService {
   async findOneByCodigo(codigo: string): Promise<Producto | null> {
     return await this.productosRepository.findByCodigo(codigo);
   }
-  async findOneByDetalle(id: number): Promise<RespuestaFindOneDetalleProductoDto | null> {
-    return this.productosRepository.findOneByDetalle(id);
+  async findDetalleParaProducto(
+    id: number,
+  ): Promise<RespuestaFindOneDetalleProductoDto | null> {
+    const producto = await this.validator.validateProductoExistente(id);
+    return this.productosRepository.findDetalleParaProducto(producto);
   }
 
   async update(

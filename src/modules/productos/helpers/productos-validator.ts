@@ -36,6 +36,14 @@ export class ProductosValidator {
     }
   }
 
+  async validateProductoExistente(id: number): Promise<Producto> {
+    const producto = await this.productosService.findOne(id);
+    if (!producto) {
+      throw new BadRequestException(`Producto con ID ${id} no encontrado`);
+    }
+    return producto;
+  }
+
   async validateMarcaExistente(marcaId: number): Promise<Marca> {
     const marca = await this.marcaValidator.validateExistencia(marcaId);
     return marca;

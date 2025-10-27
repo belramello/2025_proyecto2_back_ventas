@@ -21,7 +21,7 @@ export class ProductosRepository implements IProductosRepository {
     private readonly productoRepository: Repository<Producto>,
     private readonly detalleProveedorService: DetalleProveedorProductoService,
   ) {}
-  
+
   @Transactional()
   async create(
     createProductoDto: CreateProductoDto,
@@ -181,32 +181,27 @@ export class ProductosRepository implements IProductosRepository {
     }
   }
 
-  
+  async findDetalleParaProducto(
+    producto: Producto,
+  ): Promise<RespuestaFindOneDetalleProductoDto | null> {
+    const productoEncontrado = await this.productoRepository
+      .createQueryBuilder('producto')
+      .leftJoinAndSelect('producto.detallesProveedor', 'detalleProveedor')
+      .leftJoinAndSelect('detalleProveedor.proveedor', 'proveedor')
+      .where('producto.id = :id', { id: producto.id })
+      .getOne();
 
-
-  async findOneByDetalle(id: number): Promise<RespuestaFindOneDetalleProductoDto | null> {
-    const producto = await this.productoRepository.findOne({
-      where: { id },
-      relations: {
-        detallesProveedor: {
-          proveedor: true,
-        },
-      },
-      withDeleted: true,
-    });
-
-    if (!producto) return null;
-
+    if (!productoEncontrado) return null;
+    //DEUDA TÉCNICA.
     return {
       id: producto.id,
-      detalles: producto.detallesProveedor?.map((detalle) => ({
-        id: detalle.id,
-        codigo: producto.codigo,
-        proveedorId: detalle.proveedor?.id,
-        proveedorNombre: detalle.proveedor?.nombre,
-      })) ?? [],
+      detalles:
+        producto.detallesProveedor?.map((detalle) => ({
+          id: detalle.id,
+          codigo: detalle.codigo,
+          proveedorId: detalle.proveedor?.id,
+          proveedorNombre: detalle.proveedor?.nombre,
+        })) ?? [],
     };
   }
-
-
 }

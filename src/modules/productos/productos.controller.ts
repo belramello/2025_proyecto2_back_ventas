@@ -13,6 +13,7 @@ import {
   Req,
   UseInterceptors,
   UploadedFile,
+  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductosService } from './productos.service';
@@ -176,11 +177,9 @@ export class ProductosController {
     type: RespuestaFindOneDetalleProductoDto,
   })
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
-  async findOneByDetalle(@Param('id') id: number) {
-    const resultado = await this.productosService.findOneByDetalle(id);
-    if (!resultado) {
-      throw new NotFoundException(`Producto con ID ${id} no encontrado`);
-    }
-    return resultado;
+  async findDetalleParaProducto(
+    @Param('id') id: number,
+  ): Promise<RespuestaFindOneDetalleProductoDto | null> {
+    return await this.productosService.findDetalleParaProducto(id);
   }
 }

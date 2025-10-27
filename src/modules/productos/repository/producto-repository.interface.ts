@@ -35,5 +35,7 @@ export interface IProductosRepository {
     lastPage: number;
   }>;
 
-  findOneByDetalle(id: number):  Promise<RespuestaFindOneDetalleProductoDto | null>;
+  findDetalleParaProducto(
+    producto: Producto,
+  ): Promise<RespuestaFindOneDetalleProductoDto | null>;
 }
