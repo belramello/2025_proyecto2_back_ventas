@@ -7,6 +7,7 @@ import {
   ArrayNotEmpty,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateMarcaDto {
   @ApiProperty({ description: 'Nombre único de la marca', example: 'Bic' })
@@ -26,6 +27,8 @@ export class CreateMarcaDto {
     description: 'Descripción de la marca',
     example: 'Artículos de librería',
   })
+  @IsOptional()
+  @IsString({ message: 'La descripción debe ser texto' })
   descripcion?: string;
 
   @ApiProperty({
@@ -34,6 +37,7 @@ export class CreateMarcaDto {
   })
   @IsArray({ message: 'lineasId debe ser un arreglo de números' })
   @ArrayNotEmpty({ message: 'Debe incluir al menos una línea' })
+  @Type(() => Number)
   @IsInt({ each: true, message: 'Cada línea debe ser un número entero' })
   lineasId: number[];
 }
