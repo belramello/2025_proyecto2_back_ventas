@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsString,
   IsNumber,
-  IsUrl,
   IsInt,
   Min,
   MaxLength,
@@ -55,13 +55,6 @@ export class CreateProductoDto {
   @ValidateNested({ each: true })
   @Type(() => CreateDetalleProveedorProductoDto)
   detalleProveedores: CreateDetalleProveedorProductoDto[];
-
-  @ApiProperty({
-    example: 'https://example.com/foto.jpg',
-    description: 'URL de la imagen del producto',
-  })
-  @IsUrl()
-  fotoUrl: string;
 
   @ApiProperty({
     example: 'Collar resistente y ajustable para perros grandes',

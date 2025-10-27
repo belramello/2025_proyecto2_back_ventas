@@ -1,4 +1,6 @@
-import { Injectable, Inject } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
@@ -10,6 +12,8 @@ import { Producto } from './entities/producto.entity';
 import { ProductosValidator } from './helpers/productos-validator';
 import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
 import { Usuario } from '../usuario/entities/usuario.entity';
+import type { Express } from 'express';
+import * as fs from 'fs';
 
 @Injectable()
 export class ProductosService {
@@ -21,27 +25,66 @@ export class ProductosService {
     private readonly historialActividades: HistorialActividadesService,
   ) {}
 
-  async create(createProductoDto: CreateProductoDto, usuario: Usuario) {
-    await this.validator.validateProductoConCodigo(createProductoDto.codigo);
-    const marca = await this.validator.validateMarcaExistente(
-      createProductoDto.marcaId,
-    );
-    const linea = await this.validator.validateLineaExistente(
-      createProductoDto.lineaId,
-    );
-    await this.validator.validateLineaParaMarca(linea, marca);
-    // Registro historial exitoso
-    await this.historialActividades.create({
-      usuario: usuario.id,
-      accionId: 7, // Acción de creación de producto
-      estadoId: 1, // Exitoso
-    });
-    return this.productosRepository.create(
-      createProductoDto,
-      usuario,
-      marca,
-      linea,
-    );
+  async create(
+    createProductoDto: CreateProductoDto,
+    usuario: Usuario,
+    file?: Express.Multer.File,
+  ) {
+    const imagePath = file ? file.path.replace(/\\/g, '/') : null;
+
+    try {
+      // 1. Validaciones
+      await this.validator.validateProductoConCodigo(createProductoDto.codigo);
+      const marca = await this.validator.validateMarcaExistente(
+        createProductoDto.marcaId,
+      );
+      const linea = await this.validator.validateLineaExistente(
+        createProductoDto.lineaId,
+      );
+      await this.validator.validateLineaParaMarca(linea, marca);
+
+      // 2. Crear DTO para la BD
+      const productoParaCrear = {
+        ...createProductoDto,
+        fotoUrl: imagePath,
+      };
+
+      // 3. Guardar
+      const productoCreado = await this.productosRepository.create(
+        productoParaCrear,
+        usuario,
+        marca,
+        linea,
+      );
+
+      // 4. Registrar historial
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 7,
+        estadoId: 1,
+      });
+
+      return productoCreado;
+    } catch (error) {
+      // 5. Revertir imagen si falla
+      if (file) {
+        try {
+          fs.unlinkSync(file.path);
+        } catch (unlinkError) {
+          // No hacer nada si falla el borrado
+        }
+      }
+
+      // 6. Registrar historial de error
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 7,
+        estadoId: 2, // Estado Fallido
+      });
+
+      // 7. Relanzar el error
+      throw error;
+    }
   }
 
   async findAllPaginated(
@@ -65,28 +108,44 @@ export class ProductosService {
     id: number,
     updateProductoDto: UpdateProductoDto,
     usuario: Usuario,
+    file?: Express.Multer.File,
   ) {
     try {
+      const datosActualizados: any = { ...updateProductoDto };
+
+      if (file) {
+        datosActualizados.fotoUrl = file.path.replace(/\\/g, '/');
+        // (Opcional: aquí deberías borrar la imagen antigua del disco)
+      }
+
+      // (Asegúrate de que tu UpdateProductoDto también use @Type() para los números)
       const producto = this.productosRepository.update(
         id,
-        updateProductoDto,
+        datosActualizados as UpdateProductoDto,
         usuario,
       );
-      // Registro actualización exitosa
-      await this.historialActividades.create({
-        usuario: usuario.id,
-        accionId: 8, // Acción de borrado de producto
-        estadoId: 1, // Exitoso
-      });
-      return producto;
-    } catch (error) {
-      // Registro historial fallido
+
       await this.historialActividades.create({
         usuario: usuario.id,
         accionId: 8,
-        estadoId: 2, // Fallido
+        estadoId: 1,
       });
-      throw error; // Opcional: volver a lanzar el error
+      return producto;
+    } catch (error) {
+      if (file) {
+        try {
+          fs.unlinkSync(file.path);
+        } catch (e) {
+          /* empty */
+        }
+      }
+
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 8,
+        estadoId: 2,
+      });
+      throw error;
     }
   }
 
@@ -98,24 +157,20 @@ export class ProductosService {
   async remove(deleteProductoDto: DeleteProductoDto): Promise<any> {
     try {
       const producto = await this.productosRepository.remove(deleteProductoDto);
-
-      // Registro borrado exitoso
-      await this.historialActividades.create({
-        usuario: deleteProductoDto.usuarioId as unknown as number,
-        accionId: 9, // Acción de borrado de producto
-        estadoId: 1, // Exitoso
-      });
-
-      return producto;
-    } catch (error) {
-      // Registro historial fallido
+      // (Opcional: borrar el archivo de imagen del disco)
       await this.historialActividades.create({
         usuario: deleteProductoDto.usuarioId as unknown as number,
         accionId: 9,
-        estadoId: 2, // Fallido
+        estadoId: 1,
       });
-
-      throw error; // Opcional: volver a lanzar el error
+      return producto;
+    } catch (error) {
+      await this.historialActividades.create({
+        usuario: deleteProductoDto.usuarioId as unknown as number,
+        accionId: 9,
+        estadoId: 2,
+      });
+      throw error;
     }
   }
 }

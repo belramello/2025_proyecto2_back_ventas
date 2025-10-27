@@ -11,7 +11,10 @@ import {
   UseGuards,
   Query,
   Req,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductosService } from './productos.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
@@ -31,13 +34,38 @@ import { PermisoRequerido } from '../../common/decorators/permiso-requerido.deco
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
 import { PaginationDto } from '../ventas/dto/pagination.dto';
 
+import { diskStorage } from 'multer';
+import * as path from 'path';
+import * as fs from 'fs';
+
+const storagePath = './uploads/productos';
+
+export const multerOptions = {
+  storage: diskStorage({
+    destination: (req, file, cb) => {
+      if (!fs.existsSync(storagePath)) {
+        fs.mkdirSync(storagePath, { recursive: true });
+      }
+      cb(null, storagePath);
+    },
+    filename: (req, file, cb) => {
+      const name = file.originalname.split('.')[0].replace(/\s/g, '_');
+      const extension = path.extname(file.originalname);
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      cb(null, `${name}-${uniqueSuffix}${extension}`);
+    },
+  }),
+};
+
 @UseGuards(AuthGuard, PermisosGuard)
 @ApiTags('Productos')
 @Controller('productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
+
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo producto' })
+  @UseInterceptors(FileInterceptor('imagen', multerOptions))
   @ApiResponse({
     status: 201,
     description: 'Producto creado correctamente',
@@ -49,13 +77,11 @@ export class ProductosController {
   async create(
     @Body() createProductoDto: CreateProductoDto,
     @Req() req: RequestWithUsuario,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.productosService.create(createProductoDto, req.usuario);
+    return this.productosService.create(createProductoDto, req.usuario, file);
   }
 
-  // ────────────────────────────────
-  // 🔍 OBTENER TODOS LOS PRODUCTOS
-  // ────────────────────────────────
   @Get()
   @ApiOperation({
     summary: 'Obtener todos los productos (de todos los usuarios)',
@@ -69,9 +95,6 @@ export class ProductosController {
     return this.productosService.findAllPaginated(paginationDto);
   }
 
-  // ────────────────────────────────
-  // 🔎 OBTENER PRODUCTO POR ID
-  // ────────────────────────────────
   @Get(':id')
   @ApiOperation({ summary: 'Obtener un producto por ID' })
   @ApiParam({ name: 'id', description: 'ID del producto', example: 1 })
@@ -87,6 +110,7 @@ export class ProductosController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar un producto existente' })
+  @UseInterceptors(FileInterceptor('imagen', multerOptions))
   @ApiParam({ name: 'id', description: 'ID del producto', example: 1 })
   @ApiBody({ type: UpdateProductoDto })
   @ApiResponse({
@@ -99,13 +123,13 @@ export class ProductosController {
     @Param('id') id: number,
     @Body() updateProductoDto: UpdateProductoDto,
     @Req() req: RequestWithUsuario,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
     return this.productosService.update(
       id,
-      {
-        ...updateProductoDto,
-      },
-      req.usuario, // Pass the usuarioId directly as a number
+      updateProductoDto,
+      req.usuario,
+      file,
     );
   }
 
@@ -132,12 +156,10 @@ export class ProductosController {
   @PermisoRequerido(PermisosEnum.ELIMINAR_PRODUCTOS)
   async remove(@Param('id') id: string, @Req() req: RequestWithUsuario) {
     const usuarioAutenticadoId = req.usuario.id;
-
     const deleteProductoDto: DeleteProductoDto = {
       id: Number(id),
       usuarioId: usuarioAutenticadoId,
     };
-
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.productosService.remove(deleteProductoDto);
   }
