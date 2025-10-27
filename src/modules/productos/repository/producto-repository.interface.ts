@@ -6,6 +6,8 @@ import { DeleteProductoDto } from '../dto/delete-producto.dto';
 import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 import { Linea } from '../../../modules/lineas/entities/linea.entity';
 import { Marca } from '../../../modules/marcas/entities/marca.entity';
+import { RespuestaFindOneDetalleProductoDto } from '../dto/respuesta-find-one-detalleproducto.dto';
+import { RespuestaFindOneDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/respuesta-find-one-detalleproveedorproducto.dto';
 
 export interface IProductosRepository {
   create(
@@ -32,4 +34,6 @@ export interface IProductosRepository {
     page: number;
     lastPage: number;
   }>;
+
+  findOneByDetalle(id: number):  Promise<RespuestaFindOneDetalleProductoDto | null>;
 }

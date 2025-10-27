@@ -13,6 +13,8 @@ import { CreateDetalleProveedorProductoServiceDto } from '../../../modules/detal
 import { Marca } from '../../../modules/marcas/entities/marca.entity';
 import { Linea } from '../../../modules/lineas/entities/linea.entity';
 import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
+import { RespuestaFindOneDetalleProductoDto } from '../dto/respuesta-find-one-detalleproducto.dto';
+import { RespuestaFindOneDetalleProveedorProductoDto } from 'src/modules/detalleproveedorproducto/dto/respuesta-find-one-detalleproveedorproducto.dto';
 
 export class ProductosRepository implements IProductosRepository {
   constructor(
@@ -20,7 +22,7 @@ export class ProductosRepository implements IProductosRepository {
     private readonly productoRepository: Repository<Producto>,
     private readonly detalleProveedorService: DetalleProveedorProductoService,
   ) {}
-
+  
   @Transactional()
   async create(
     createProductoDto: CreateProductoDto,
@@ -179,4 +181,33 @@ export class ProductosRepository implements IProductosRepository {
       );
     }
   }
+
+  
+
+
+  async findOneByDetalle(id: number): Promise<RespuestaFindOneDetalleProductoDto | null> {
+    const producto = await this.productoRepository.findOne({
+      where: { id },
+      relations: {
+        detallesProveedor: {
+          proveedor: true,
+        },
+      },
+      withDeleted: true,
+    });
+
+    if (!producto) return null;
+
+    return {
+      id: producto.id,
+      detalles: producto.detallesProveedor?.map((detalle) => ({
+        id: detalle.id,
+        codigo: producto.codigo,
+        proveedorId: detalle.proveedor?.id,
+        proveedorNombre: detalle.proveedor?.nombre,
+      })) ?? [],
+    };
+  }
+
+
 }
