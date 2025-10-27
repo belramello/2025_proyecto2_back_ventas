@@ -118,17 +118,28 @@ export class ProductosService {
     file?: Express.Multer.File,
   ) {
     try {
-      const datosActualizados: any = { ...updateProductoDto };
+      // 1. Desestructura el DTO para separar los IDs de las relaciones
+      const { marcaId, lineaId, ...restoDelDto } = updateProductoDto; // 2. Crea el objeto que SÍ entiende el repositorio
+
+      const datosActualizados: any = { ...restoDelDto };
 
       if (file) {
-        datosActualizados.fotoUrl = file.path.replace(/\\/g, '/');
-        // (Opcional: aquí deberías borrar la imagen antigua del disco)
-      }
+        datosActualizados.fotoUrl = file.path.replace(/\\/g, '/'); // (Opcional: aquí deberías borrar la imagen antigua del disco)
+      } // --- 💡 ESTA ES LA CORRECCIÓN ---
+      // 3. Transforma los IDs en objetos de relación
 
-      // (Asegúrate de que tu UpdateProductoDto también use @Type() para los números)
+      if (marcaId !== undefined) {
+        // Le dice a TypeORM: "actualizá la relación 'marca' con la entidad que tenga este ID"
+        datosActualizados.marca = { id: marcaId };
+      }
+      if (lineaId !== undefined) {
+        // Le dice a TypeORM: "actualizá la relación 'linea' con la entidad que tenga este ID"
+        datosActualizados.linea = { id: lineaId };
+      } // --- FIN DE LA CORRECCIÓN ---
+      // 4. Llama al repositorio con el objeto transformado
       const producto = this.productosRepository.update(
         id,
-        datosActualizados as UpdateProductoDto,
+        datosActualizados, // Objeto corregido
         usuario,
       );
 
@@ -155,7 +166,6 @@ export class ProductosService {
       throw error;
     }
   }
-
   async decrementarStock(producto: Producto, cantidad: number): Promise<void> {
     this.validator.validateStock(producto, cantidad);
     await this.productosRepository.decrementStock(producto.id, cantidad);
