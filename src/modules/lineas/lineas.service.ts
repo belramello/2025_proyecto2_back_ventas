@@ -17,6 +17,7 @@ import { HistorialActividadesService } from '../historial-actividades/historial-
 import { Usuario } from '../usuario/entities/usuario.entity';
 import { PaginationLineaDto } from './dto/pagination.dto';
 import { RespuestaFindAllPaginatedLineasDTO } from './dto/respuesta-find-all-lineas-paginated.dto';
+import { CreateLineaDtoParaMarca } from './dto/create-linea-para-marca.dto';
 
 @Injectable()
 export class LineasService {
@@ -44,6 +45,32 @@ export class LineasService {
         estadoId: 1,
       });
 
+      return this.lineaMapper.toRespuestaLineaDto(lineaCreada);
+    } catch (error) {
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 10,
+        estadoId: 2,
+      });
+      throw error;
+    }
+  }
+
+  async createLineaParaMarca(
+    dto: CreateLineaDtoParaMarca,
+    usuario: Usuario,
+  ): Promise<RespuestaLineaDto> {
+    try {
+      const marca = await this.marcaValidator.validateExistencia(dto.marcaId);
+      const lineaCreada = await this.lineaRepository.createLineaParaMarca(
+        dto,
+        marca,
+      );
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 10,
+        estadoId: 1,
+      });
       return this.lineaMapper.toRespuestaLineaDto(lineaCreada);
     } catch (error) {
       await this.historialActividades.create({

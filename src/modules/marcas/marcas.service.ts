@@ -78,6 +78,11 @@ export class MarcasService {
     );
   }
 
+  async findAll(): Promise<MarcaResponseDto[]> {
+    const marcas = await this.marcaRepository.findAll();
+    return this.marcaMapper.toResponseDtoList(marcas);
+  }
+
   async findOne(id: number): Promise<MarcaResponseDto> {
     const marca = await this.marcaRepository.findOne(id);
     if (!marca) throw new BadRequestException('Marca no encontrada');

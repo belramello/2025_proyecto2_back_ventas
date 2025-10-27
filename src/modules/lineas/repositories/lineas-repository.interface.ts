@@ -4,6 +4,10 @@ import { Marca } from '../../../modules/marcas/entities/marca.entity';
 
 export interface ILineaRepository {
   create(createLineaDto: CreateLineaDto): Promise<Linea>;
+  createLineaParaMarca(
+    createLineaDto: CreateLineaDto,
+    marca: Marca,
+  ): Promise<Linea>;
   findOne(id: number): Promise<Linea | null>;
   añadirMarca(linea: Linea, marca: Marca): Promise<Linea>;
   delete(id: number): Promise<void>;

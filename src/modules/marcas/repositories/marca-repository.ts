@@ -61,6 +61,20 @@ export class MarcaRepository implements IMarcaRepository {
     }
   }
 
+  async findAll(): Promise<Marca[]> {
+    try {
+      const query = this.marcaRepository
+        .createQueryBuilder('marca')
+        .where('marca.deletedAt IS NULL')
+        .orderBy('marca.nombre', 'ASC');
+      return await query.getMany();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al buscar las marcas: ${error.message}`,
+      );
+    }
+  }
+
   async findOne(id: number): Promise<Marca | null> {
     try {
       return await this.marcaRepository.findOne({
