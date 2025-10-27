@@ -20,8 +20,8 @@ export async function bootstrap() {
   app.enableCors(); // Habilita CORS para el frontend
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // elimina propiedades que no están en el DTO
-      forbidNonWhitelisted: true, // lanza error si vienen propiedades extra
+      //whitelist: true, // elimina propiedades que no están en el DTO
+      //forbidNonWhitelisted: true, // lanza error si vienen propiedades extra
       transform: true, // transforma tipos automáticamente (string → number, string → Date, etc.)
       transformOptions: { enableImplicitConversion: true },
     }),

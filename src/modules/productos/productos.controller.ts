@@ -13,6 +13,7 @@ import {
   Req,
   UseInterceptors,
   UploadedFile,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductosService } from './productos.service';
@@ -37,6 +38,7 @@ import { PaginationDto } from '../ventas/dto/pagination.dto';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import * as fs from 'fs';
+import { CreateProveedoreDto } from '../proveedores/dto/create-proveedore.dto';
 
 const storagePath = './uploads/productos';
 
@@ -75,8 +77,10 @@ export class ProductosController {
   @ApiBody({ type: CreateProductoDto })
   @PermisoRequerido(PermisosEnum.CREAR_PRODUCTO)
   async create(
-    @Body() createProductoDto: CreateProductoDto,
-    @Req() req: RequestWithUsuario,
+    @Body()
+    createProductoDto: CreateProductoDto,
+    @Req()
+    req: RequestWithUsuario,
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.productosService.create(createProductoDto, req.usuario, file);

@@ -59,11 +59,12 @@ export class CreateProductoDto {
       try {
         const parsed = JSON.parse(value);
         return Array.isArray(parsed) ? parsed : [];
-      } catch {
+      } catch (error) {
+        console.error('Error parsing detalleProveedores:', error);
         return [];
       }
     }
-    return value;
+    return Array.isArray(value) ? value : [];
   })
   @IsArray({ message: 'detalleProveedores debe ser un array válido' })
   @ArrayMinSize(1, { message: 'Debe haber al menos un detalle de proveedor' })
