@@ -37,6 +37,7 @@ import {
 } from '@nestjs/swagger';
 import { RespuestaFindAllPaginatedMarcasDTO } from './dto/respuesta-find-all-paginated-marcas.dto';
 import { MarcaResponseDto } from './dto/marca-response.dto';
+import { Marca } from './entities/marca.entity';
 
 @ApiTags('Marcas')
 @UseGuards(AuthGuard)
@@ -107,10 +108,23 @@ export class MarcasController {
     description: 'Lista paginada de marcas.',
     type: RespuestaFindAllPaginatedMarcasDTO,
   })
-  findAll(
+  findAllPaginated(
     @Query() paginationDto: PaginationDto,
   ): Promise<RespuestaFindAllPaginatedMarcasDTO> {
     return this.marcasService.findAllPaginated(paginationDto);
+  }
+
+  @Get()
+  @PermisoRequerido(PermisosEnum.VER_MARCAS)
+  @ApiOperation({ summary: 'Obtener lista paginada de marcas' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Número de página (por defecto: 1)',
+  })
+  findAll(): Promise<MarcaResponseDto[]> {
+    return this.marcasService.findAll();
   }
 
   // ────────────────────────────────

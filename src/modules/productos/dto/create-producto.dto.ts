@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsString,
   IsNumber,
@@ -8,6 +8,8 @@ import {
   Min,
   MaxLength,
   ValidateNested,
+  IsArray,
+  ArrayMinSize,
 } from 'class-validator';
 import { CreateDetalleProveedorProductoDto } from '../../../modules/detalleproveedorproducto/dto/create-detalleproveedorproducto.dto';
 
@@ -52,6 +54,19 @@ export class CreateProductoDto {
     type: [CreateDetalleProveedorProductoDto],
     description: 'Listado de proveedores del producto',
   })
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+    return value;
+  })
+  @IsArray({ message: 'detalleProveedores debe ser un array válido' })
+  @ArrayMinSize(1, { message: 'Debe haber al menos un detalle de proveedor' })
   @ValidateNested({ each: true })
   @Type(() => CreateDetalleProveedorProductoDto)
   detalleProveedores: CreateDetalleProveedorProductoDto[];

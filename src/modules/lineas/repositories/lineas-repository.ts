@@ -30,6 +30,25 @@ export class LineaRepository implements ILineaRepository {
     }
   }
 
+  async createLineaParaMarca(
+    createLineaDto: CreateLineaDto,
+    marca: Marca,
+  ): Promise<Linea> {
+    try {
+      const linea = this.lineaRepository.create({
+        nombre: createLineaDto.nombre,
+        descripcion: createLineaDto.descripcion,
+        marcas: [marca],
+      });
+      await this.lineaRepository.save(linea);
+      return linea;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error al crear la línea: ${error.message}`,
+      );
+    }
+  }
+
   async findOne(id: number): Promise<Linea | null> {
     try {
       return await this.lineaRepository.findOne({

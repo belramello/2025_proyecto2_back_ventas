@@ -7,6 +7,7 @@ export class CreateDetalleProveedorProductoDto {
     description: 'Código del producto asignado por el proveedor',
     example: 'PROV-1234',
   })
+  @Type(() => Number)
   @IsString()
   codigo: string;
 

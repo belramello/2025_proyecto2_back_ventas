@@ -31,6 +31,7 @@ import { PermisoRequerido } from '../../common/decorators/permiso-requerido.deco
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
 import { PaginationLineaDto } from './dto/pagination.dto';
 import { RespuestaFindAllLineasAsociadasAMarcaDTO } from './dto/respuesta-linea-marca.dto';
+import { CreateLineaDtoParaMarca } from './dto/create-linea-para-marca.dto';
 
 @ApiTags('Líneas')
 @UseGuards(AuthGuard, PermisosGuard)
@@ -53,6 +54,22 @@ export class LineasController {
   ): Promise<RespuestaLineaDto> {
     // Se pasa el usuario al servicio para el registro de historial
     return await this.lineaService.createLinea(dto, req.usuario);
+  }
+
+  @Post('registrar-para-marca')
+  @ApiOperation({ summary: 'Crear una nueva línea para una marca específica.' })
+  @ApiBody({ type: CreateLineaDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Línea creada exitosamente',
+    type: RespuestaLineaDto,
+  })
+  @PermisoRequerido(PermisosEnum.CREAR_LINEAS)
+  async createParaMarca(
+    @Body() dto: CreateLineaDtoParaMarca,
+    @Req() req: RequestWithUsuario,
+  ): Promise<RespuestaLineaDto> {
+    return await this.lineaService.createLineaParaMarca(dto, req.usuario);
   }
 
   // ────────────────────────────────
@@ -82,9 +99,8 @@ export class LineasController {
   @PermisoRequerido(PermisosEnum.MODIFICAR_LINEAS)
   async añadirMarca(
     @Body() dto: AddMarcaToLineaDto,
-    @Req() req: RequestWithUsuario, // 👈 Se inyecta Request para obtener el usuario
+    @Req() req: RequestWithUsuario,
   ): Promise<RespuestaLineaDto> {
-    // Se pasa el usuario al servicio para el registro de historial
     return await this.lineaService.agregarMarcaALinea(dto, req.usuario);
   }
 

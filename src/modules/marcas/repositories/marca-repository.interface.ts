@@ -12,6 +12,7 @@ export interface IMarcaRepository {
     page: number;
     lastPage: number;
   }>;
+  findAll(): Promise<Marca[]>;
   findOne(id: number): Promise<Marca | null>;
   findOneWithDeleted(id: number): Promise<Marca | null>;
   findByNombre(nombre: string): Promise<Marca | null>;

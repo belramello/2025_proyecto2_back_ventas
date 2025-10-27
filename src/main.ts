@@ -12,6 +12,7 @@ import { DataSource } from 'typeorm';
 import { join } from 'path';
 export async function bootstrap() {
   //Para poder utilizar @Transactional()
+
   initializeTransactionalContext();
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
