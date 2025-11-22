@@ -10,6 +10,8 @@ import { UsuariosValidator } from './helpers/usuarios-validator';
 import { RolesModule } from '../roles/roles.module';
 import { JwtModule } from '../jwt/jwt.module';
 import { UsuarioUpdater } from './helpers/usuario-updater';
+import { MailModule } from '../mails/mail.module';
+import { HistorialActividadesModule } from '../historial-actividades/historial-actividades.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { UsuarioUpdater } from './helpers/usuario-updater';
     AuthModule,
     forwardRef(() => RolesModule),
     JwtModule,
+    MailModule,
+    HistorialActividadesModule,
   ],
   controllers: [UsuarioController],
   providers: [

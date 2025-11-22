@@ -11,7 +11,13 @@ import {
   UseGuards,
   Query,
   Req,
+  UseInterceptors,
+  UploadedFile,
+  NotFoundException,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductosService } from './productos.service';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
@@ -31,13 +37,47 @@ import { PermisoRequerido } from '../../common/decorators/permiso-requerido.deco
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
 import { PaginationDto } from '../ventas/dto/pagination.dto';
 
+import { diskStorage } from 'multer';
+import * as path from 'path';
+import * as fs from 'fs';
+import { RespuestaFindOneDetalleProductoDto } from './dto/respuesta-find-one-detalleproducto.dto';
+
+const storagePath = './uploads/productos';
+
+export const multerOptions = {
+  storage: diskStorage({
+    destination: (req, file, cb) => {
+      if (!fs.existsSync(storagePath)) {
+        fs.mkdirSync(storagePath, { recursive: true });
+      }
+      cb(null, storagePath);
+    },
+    filename: (req, file, cb) => {
+      const name = file.originalname.split('.')[0].replace(/\s/g, '_');
+      const extension = path.extname(file.originalname);
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+      cb(null, `${name}-${uniqueSuffix}${extension}`);
+    },
+  }),
+};
+
 @UseGuards(AuthGuard, PermisosGuard)
 @ApiTags('Productos')
 @Controller('productos')
 export class ProductosController {
   constructor(private readonly productosService: ProductosService) {}
+
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo producto' })
+  @UseInterceptors(FileInterceptor('imagen', multerOptions))
+  @UsePipes(
+    new ValidationPipe({
+      whitelist: false,
+      forbidNonWhitelisted: false,
+      transform: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  )
   @ApiResponse({
     status: 201,
     description: 'Producto creado correctamente',
@@ -47,15 +87,13 @@ export class ProductosController {
   @ApiBody({ type: CreateProductoDto })
   @PermisoRequerido(PermisosEnum.CREAR_PRODUCTO)
   async create(
-    @Body() createProductoDto: CreateProductoDto,
-    @Req() req: RequestWithUsuario,
+    @Body()
+    createProductoDto: CreateProductoDto,
+    @Req()
+    req: RequestWithUsuario,
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    const usuarioAutenticadoId = req.usuario.id;
-
-    return this.productosService.create(
-      createProductoDto,
-      usuarioAutenticadoId,
-    );
+    return this.productosService.create(createProductoDto, req.usuario, file);
   }
 
   @Get()
@@ -71,9 +109,6 @@ export class ProductosController {
     return this.productosService.findAllPaginated(paginationDto);
   }
 
-  // ────────────────────────────────
-  // 🔎 OBTENER PRODUCTO POR ID
-  // ────────────────────────────────
   @Get(':id')
   @ApiOperation({ summary: 'Obtener un producto por ID' })
   @ApiParam({ name: 'id', description: 'ID del producto', example: 1 })
@@ -89,6 +124,7 @@ export class ProductosController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Actualizar un producto existente' })
+  @UseInterceptors(FileInterceptor('imagen', multerOptions))
   @ApiParam({ name: 'id', description: 'ID del producto', example: 1 })
   @ApiBody({ type: UpdateProductoDto })
   @ApiResponse({
@@ -98,18 +134,16 @@ export class ProductosController {
   @ApiResponse({ status: 404, description: 'Producto no encontrado' })
   @PermisoRequerido(PermisosEnum.MODIFICAR_PRODUCTOS)
   async update(
-    @Param('id') id: string,
+    @Param('id') id: number,
     @Body() updateProductoDto: UpdateProductoDto,
     @Req() req: RequestWithUsuario,
+    @UploadedFile() file?: Express.Multer.File,
   ) {
-    const usuarioAutenticadoId = req.usuario.id;
-
     return this.productosService.update(
-      +id,
-      {
-        ...updateProductoDto,
-      },
-      usuarioAutenticadoId, // Pass the usuarioId directly as a number
+      id,
+      updateProductoDto,
+      req.usuario,
+      file,
     );
   }
 
@@ -136,13 +170,26 @@ export class ProductosController {
   @PermisoRequerido(PermisosEnum.ELIMINAR_PRODUCTOS)
   async remove(@Param('id') id: string, @Req() req: RequestWithUsuario) {
     const usuarioAutenticadoId = req.usuario.id;
-
     const deleteProductoDto: DeleteProductoDto = {
       id: Number(id),
       usuarioId: usuarioAutenticadoId,
     };
-
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.productosService.remove(deleteProductoDto);
+  }
+
+  @Get('detalle/:id')
+  @ApiOperation({ summary: 'Obtener detalles del producto por ID' })
+  @ApiParam({ name: 'id', description: 'ID del producto', example: 1 })
+  @ApiResponse({
+    status: 200,
+    description: 'Detalles del producto encontrados',
+    type: RespuestaFindOneDetalleProductoDto,
+  })
+  @ApiResponse({ status: 404, description: 'Producto no encontrado' })
+  async findDetalleParaProducto(
+    @Param('id') id: number,
+  ): Promise<RespuestaFindOneDetalleProductoDto | null> {
+    return await this.productosService.findDetalleParaProducto(id);
   }
 }

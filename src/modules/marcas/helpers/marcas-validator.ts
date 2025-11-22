@@ -1,23 +1,37 @@
 import {
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-} from 'class-validator';
-import { Injectable, Inject } from '@nestjs/common';
-import type { IMarcaRepository } from '../repositories/marca-repository.interface';
+  Injectable,
+  Inject,
+  NotFoundException,
+  forwardRef,
+  BadRequestException,
+} from '@nestjs/common';
+import { Marca } from '../entities/marca.entity';
+import { MarcasService } from '../marcas.service';
+import { LineasValidator } from '../../../modules/lineas/helpers/lineas-validator';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
 
-@ValidatorConstraint({ async: true })
 @Injectable()
-export class MarcaNombreUniqueValidator
-  implements ValidatorConstraintInterface
-{
+export class MarcaValidator {
   constructor(
-    @Inject('IMarcaRepository')
-    private readonly marcaRepository: IMarcaRepository,
+    @Inject(forwardRef(() => LineasValidator))
+    private readonly lineaValidator: LineasValidator,
+    @Inject(forwardRef(() => MarcasService))
+    private readonly marcaService: MarcasService,
   ) {}
 
-  async validate(nombre: string): Promise<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const marca = await this.marcaRepository.findByNombre(nombre);
-    return !marca; // Retorna true si no existe, false si ya existe
+  async validateNombreUnico(nombre: string): Promise<void> {
+    const marca = await this.marcaService.findOneByNombre(nombre);
+    if (marca) throw new BadRequestException('El nombre de la marca ya existe');
+  }
+
+  async validateLineasExistentes(lineasId: number[]): Promise<Linea[]> {
+    const lineas = await this.lineaValidator.validateLineasExistentes(lineasId);
+    return lineas;
+  }
+
+  async validateExistencia(id: number): Promise<Marca> {
+    const marca = await this.marcaService.findOneForServices(id);
+    if (!marca) throw new NotFoundException(`La marca con ID ${id} no existe`);
+    return marca;
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { RespuestaUsuarioDto } from 'src/modules/usuario/dto/respuesta-usuario.dto';
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
+import { RespuestaUsuarioDto } from '../../../modules/usuario/dto/respuesta-usuario.dto';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 
 @Injectable()
 export class AuthMapper {

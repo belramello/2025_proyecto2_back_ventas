@@ -23,7 +23,6 @@ export class VentasMapper {
     const detalles: RespuestaFindOneDetalleVentaDto[] = venta.detalleVentas.map(
       (detalle) => this.detalleVentaMapper.toResponseDto(detalle),
     );
-
     const respuesta: RespuestaFindOneVentaDto = {
       id: venta.id,
       total: venta.total,

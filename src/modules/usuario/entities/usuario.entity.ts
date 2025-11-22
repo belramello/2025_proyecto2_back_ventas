@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Producto } from '../../../modules/productos/entities/producto.entity';
 
 @Entity('usuarios')
 export class Usuario {
@@ -66,27 +67,33 @@ export class Usuario {
   @UpdateDateColumn()
   fechaActualizacion: Date;
 
-  /*
-  @ApiProperty({
-    type: () => [HistorialSesion],
-    description: 'Historial de sesiones del usuario',
-  })
-  @OneToMany(() => HistorialSesion, (historial) => historial.usuario)
-  historialSesion: HistorialSesion[];
-  */
-
-  /*
-  @ApiProperty({
-    type: () => [TokenReinicioContraseña],
-    description: 'Tokens de reinicio de contraseña asociados al usuario',
-  })
-  @OneToMany(() => TokenReinicioContraseña, (token) => token.usuario)
-  tokenReinicioContraseña: TokenReinicioContraseña[]
-  */
+  @OneToMany(() => Producto, (producto) => producto.usuarioCreacion)
+  productos: Producto[];
 
   @OneToMany(() => Venta, (venta) => venta.vendedor)
   ventas: Venta[];
 
   @DeleteDateColumn()
   fechaEliminacion: Date;
+
+  @ApiProperty({
+    example: null,
+    description: 'Token para reset de contraseña (nullable)',
+    required: false,
+  })
+  @Column({
+    name: 'passwordresettoken',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  passwordResetToken: string | null;
+
+  @ApiProperty({
+    example: null,
+    description: 'Fecha de expiración del token de reset (nullable)',
+    required: false,
+  })
+  @Column({ type: 'timestamp', nullable: true })
+  passwordResetExpiration: Date | null;
 }

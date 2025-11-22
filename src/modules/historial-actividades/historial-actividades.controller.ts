@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { HistorialActividadesService } from './historial-actividades.service';
 import { CreateHistorialActividadesDto } from './dto/create-historial-actividades.dto';
-import { PaginationDto } from '../ventas/dto/pagination.dto';
 import { RespuestaFindAllPaginatedHistorialDTO } from './dto/RespuestaFindAllPaginatedHistorial.dto';
+import { PaginacionDto } from './dto/Paginacion.dto';
 
 @Controller('historial-actividades')
 export class HistorialActividadesController {
@@ -19,7 +19,7 @@ export class HistorialActividadesController {
 
   @Get()
   findAllPaginated(
-    @Query() paginationDto: PaginationDto,
+    @Query() paginationDto: PaginacionDto,
   ): Promise<RespuestaFindAllPaginatedHistorialDTO> {
     return this.historialActividadesService.findAllPaginated(paginationDto);
   }

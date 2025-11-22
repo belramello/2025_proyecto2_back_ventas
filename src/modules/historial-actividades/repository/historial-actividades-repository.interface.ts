@@ -6,6 +6,8 @@ export interface IHistorialActividadesRepository {
   findAllPaginated(
     page: number,
     limit: number,
+    search?: string,
+    action?: string,
   ): Promise<{
     historial: HistorialActividades[];
     total: number;

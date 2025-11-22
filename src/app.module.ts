@@ -15,6 +15,12 @@ import { PermisosModule } from './modules/permisos/permisos.module';
 import { MarcasModule } from './modules/marcas/marcas.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { HistorialActividadesModule } from './modules/historial-actividades/historial-actividades.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { ProveedoresModule } from './modules/proveedores/proveedores.module';
+import { LineasModule } from './modules/lineas/lineas.module';
+import { MailModule } from './modules/mails/mail.module';
+import { MetabaseModule } from './metabase/metabase.module';
 
 @Module({
   imports: [
@@ -27,7 +33,7 @@ import { HistorialActividadesModule } from './modules/historial-actividades/hist
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: false,
       ssl: {
         ca: process.env.CA_CERT
           ? Buffer.from(process.env.CA_CERT, 'utf-8')
@@ -48,8 +54,27 @@ import { HistorialActividadesModule } from './modules/historial-actividades/hist
     MulterModule.register({
       dest: './uploads/logos',
     }),
-    MulterModule.register({
-      dest: './uploads/logos',
+    ServeStaticModule.forRoot({
+      // Define la carpeta física raíz donde están tus archivos estáticos
+      // process.cwd() apunta a la raíz del proyecto (donde está package.json)
+      rootPath: join(process.cwd(), 'uploads'),
+
+      // Define el prefijo URL bajo el cual se servirán estos archivos
+      // Si pides /uploads/logos/img.png, buscará en rootPath/logos/img.png
+      serveRoot: '/uploads',
+
+      // Opciones adicionales importantes:
+      serveStaticOptions: {
+        // Asegura que las cabeceras CORS correctas se envíen para los archivos estáticos
+        // (¡Muy importante si frontend y backend están en puertos diferentes!)
+        setHeaders: (res, path, stat) => {
+          res.set('Access-Control-Allow-Origin', '*'); // O sé más específico con tu URL de frontend
+        },
+        // Evita que siga buscando rutas si no encuentra el archivo estático
+        fallthrough: false,
+      },
+      // Excluye la ruta base de la API para evitar conflictos (si tuvieras un prefijo global)
+      // exclude: ['/api/(.*)'], // Descomentar si usas un prefijo global como '/api'
     }),
     ProductosModule,
     VentasModule,
@@ -59,6 +84,10 @@ import { HistorialActividadesModule } from './modules/historial-actividades/hist
     RolesModule,
     PermisosModule,
     MarcasModule,
+    ProveedoresModule,
+    LineasModule,
+    MailModule,
+    MetabaseModule,
     HistorialActividadesModule,
   ],
   controllers: [AppController],

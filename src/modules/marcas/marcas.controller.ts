@@ -9,6 +9,11 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
+  Query,
+  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { MarcasService } from './marcas.service';
 import { CreateMarcaDto } from './dto/create-marca.dto';
@@ -16,79 +21,206 @@ import { UpdateMarcaDto } from './dto/update-marca.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-import { PermisoRequerido } from 'src/common/decorators/permiso-requerido.decorator';
+import { PermisoRequerido } from '../../common/decorators/permiso-requerido.decorator';
 import { PermisosEnum } from '../permisos/enum/permisos-enum';
 import { AuthGuard } from '../../middlewares/auth.middleware';
+import type { RequestWithUsuario } from '../../middlewares/auth.middleware';
+import { PaginationDto } from './dto/pagination.dto';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiParam,
+  ApiQuery,
+  ApiConsumes,
+} from '@nestjs/swagger';
+import { RespuestaFindAllPaginatedMarcasDTO } from './dto/respuesta-find-all-paginated-marcas.dto';
+import { MarcaResponseDto } from './dto/marca-response.dto';
+import { Marca } from './entities/marca.entity';
 
+@ApiTags('Marcas')
 @UseGuards(AuthGuard)
 @Controller('marcas')
 export class MarcasController {
   constructor(private readonly marcasService: MarcasService) {}
 
+  // ────────────────────────────────
+  // 🟢 CREAR MARCA
+  // ────────────────────────────────
   @Post()
   @UseInterceptors(
     FileInterceptor('logo', {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       storage: diskStorage({
         destination: './uploads/logos',
         filename: (req, file, cb) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-          cb(null, Date.now() + extname(file.originalname));
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const extension = extname(file.originalname);
+          cb(null, `logo-${uniqueSuffix}${extension}`);
         },
       }),
     }),
   )
   @PermisoRequerido(PermisosEnum.CREAR_MARCAS)
-  create(
+  @ApiOperation({ summary: 'Crear una nueva marca' })
+  @ApiBody({ type: CreateMarcaDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Marca creada exitosamente.',
+    type: MarcaResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos inválidos o conflicto en nombre.',
+  })
+  async create(
     @Body() createMarcaDto: CreateMarcaDto,
     @UploadedFile() file: Express.Multer.File,
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const logoPath = file ? `uploads/logos/${file.filename}` : undefined;
-    return this.marcasService.create(createMarcaDto, logoPath);
-  }
-  @PermisoRequerido(PermisosEnum.VER_MARCAS)
-  @Get()
-  findAll() {
-    return this.marcasService.findAll();
-  }
-  @PermisoRequerido(PermisosEnum.VER_MARCAS)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.marcasService.findOne(+id);
+    @Req() req: RequestWithUsuario,
+  ): Promise<MarcaResponseDto> {
+    if (file) {
+      createMarcaDto.logo = file.filename;
+    }
+    return this.marcasService.create(createMarcaDto, req.usuario);
   }
 
+  // ────────────────────────────────
+  // 📜 LISTAR MARCAS
+  // ────────────────────────────────
+  @Get()
+  @PermisoRequerido(PermisosEnum.VER_MARCAS)
+  @ApiOperation({ summary: 'Obtener lista paginada de marcas' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Número de página (por defecto: 1)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Elementos por página (por defecto: 10)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista paginada de marcas.',
+    type: RespuestaFindAllPaginatedMarcasDTO,
+  })
+  findAllPaginated(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<RespuestaFindAllPaginatedMarcasDTO> {
+    return this.marcasService.findAllPaginated(paginationDto);
+  }
+
+  @Get()
+  @PermisoRequerido(PermisosEnum.VER_MARCAS)
+  @ApiOperation({ summary: 'Obtener lista paginada de marcas' })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Número de página (por defecto: 1)',
+  })
+  findAll(): Promise<MarcaResponseDto[]> {
+    return this.marcasService.findAll();
+  }
+
+  // ────────────────────────────────
+  // 🔍 OBTENER MARCA POR ID
+  // ────────────────────────────────
+  @Get(':id')
+  @PermisoRequerido(PermisosEnum.VER_MARCAS)
+  @ApiOperation({ summary: 'Obtener una marca por ID' })
+  @ApiParam({
+    name: 'id',
+    description: 'ID numérico de la marca',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Marca encontrada.',
+    type: MarcaResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Marca no encontrada.' })
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<MarcaResponseDto> {
+    return this.marcasService.findOne(id);
+  }
+
+  // ────────────────────────────────
+  // ✏️ ACTUALIZAR MARCA
+  // ────────────────────────────────
   @Patch(':id')
   @UseInterceptors(
     FileInterceptor('logo', {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
       storage: diskStorage({
         destination: './uploads/logos',
         filename: (req, file, cb) => {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
-          cb(null, Date.now() + extname(file.originalname));
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const extension = extname(file.originalname);
+          cb(null, `logo-${uniqueSuffix}${extension}`);
         },
       }),
     }),
   )
   @PermisoRequerido(PermisosEnum.MODIFICAR_MARCAS)
-  update(
-    @Param('id') id: string,
+  @ApiOperation({ summary: 'Actualizar una marca existente' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        nombre: { type: 'string' },
+        logo: { type: 'string', format: 'binary' },
+        lineasId: { type: 'array', items: { type: 'number' } },
+      },
+    },
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID de la marca a actualizar',
+    type: Number,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Marca actualizada exitosamente.',
+    type: MarcaResponseDto,
+  }) // Usar tipo mapeado
+  @ApiResponse({ status: 404, description: 'Marca no encontrada.' })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflicto: El nuevo nombre de marca ya existe.',
+  })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateMarcaDto: UpdateMarcaDto,
     @UploadedFile() file: Express.Multer.File,
-  ) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    const logoPath = file ? `uploads/logos/${file.filename}` : undefined;
-    return this.marcasService.update(+id, updateMarcaDto, logoPath);
+    @Req() req: RequestWithUsuario,
+  ): Promise<MarcaResponseDto> {
+    if (file) {
+      updateMarcaDto.logo = file.filename;
+    }
+    return this.marcasService.update(id, updateMarcaDto, req.usuario);
   }
 
-  @PermisoRequerido(PermisosEnum.ELIMINAR_MARCAS)
+  // ────────────────────────────────
+  // ❌ ELIMINAR MARCA
+  // ────────────────────────────────
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.marcasService.remove(id);
-  }
-  @Patch(':id/restore')
-  restore(@Param('id') id: string) {
-    return this.marcasService.restore(+id);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @PermisoRequerido(PermisosEnum.ELIMINAR_MARCAS)
+  @ApiOperation({ summary: 'Eliminar (soft delete) una marca por ID' })
+  @ApiParam({ name: 'id', description: 'ID de la marca a eliminar' })
+  @ApiResponse({
+    status: 204,
+    description: 'Marca eliminada exitosamente.',
+  })
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: RequestWithUsuario,
+  ): Promise<void> {
+    await this.marcasService.remove(id, req.usuario);
   }
 }

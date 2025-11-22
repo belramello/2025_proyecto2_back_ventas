@@ -1,4 +1,4 @@
-import { Usuario } from 'src/modules/usuario/entities/usuario.entity';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
 import { DetalleVenta } from '../../../modules/ventas/detalle-ventas/entities/detalle-venta.entity';
 import {
   Column,
@@ -11,8 +11,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-//Tabla Productos
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
+import { Marca } from '../../../modules/marcas/entities/marca.entity';
+import { DetalleProveedorProducto } from '../../../modules/detalleproveedorproducto/entities/detalleproveedorproducto.entity';
 @Entity('productos')
 export class Producto {
   @PrimaryGeneratedColumn()
@@ -30,8 +31,10 @@ export class Producto {
   @Column()
   stock: number;
 
-  @Column()
-  linea: string; //Reemplazar por entidad Linea
+  @ManyToOne(() => Linea, (linea) => linea.productos)
+  linea: Linea;
+  @ManyToOne(() => Marca, (marca) => marca.productos)
+  marca: Marca;
 
   @Column()
   fotoUrl: string;
@@ -62,4 +65,10 @@ export class Producto {
   @ManyToOne(() => Usuario)
   @JoinColumn({ name: 'usuario_eliminacion_id' })
   usuarioEliminacion: Usuario;
+
+  @OneToMany(
+    () => DetalleProveedorProducto,
+    (detalleProveedorProducto) => detalleProveedorProducto.producto,
+  )
+  detallesProveedor: DetalleProveedorProducto[];
 }

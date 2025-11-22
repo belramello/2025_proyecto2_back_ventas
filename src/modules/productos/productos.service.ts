@@ -1,4 +1,6 @@
-import { Injectable, Inject } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
@@ -9,6 +11,10 @@ import { ProductoMapper } from './mapper/producto.mapper';
 import { Producto } from './entities/producto.entity';
 import { ProductosValidator } from './helpers/productos-validator';
 import { HistorialActividadesService } from '../historial-actividades/historial-actividades.service';
+import { Usuario } from '../usuario/entities/usuario.entity';
+import type { Express } from 'express';
+import * as fs from 'fs';
+import { RespuestaFindOneDetalleProductoDto } from './dto/respuesta-find-one-detalleproducto.dto';
 
 @Injectable()
 export class ProductosService {
@@ -20,35 +26,66 @@ export class ProductosService {
     private readonly historialActividades: HistorialActividadesService,
   ) {}
 
-  async create(createProductoDto: CreateProductoDto, usuarioId: number) {
+  async create(
+    createProductoDto: CreateProductoDto,
+    usuario: Usuario,
+    file?: Express.Multer.File,
+  ) {
+    const imagePath = file ? file.path.replace(/\\/g, '/') : null;
+
     try {
-      const producto = await this.productosRepository.create(
-        createProductoDto,
-        usuarioId,
+      // 1. Validaciones
+      await this.validator.validateProductoConCodigo(createProductoDto.codigo);
+      const marca = await this.validator.validateMarcaExistente(
+        createProductoDto.marcaId,
+      );
+      const linea = await this.validator.validateLineaExistente(
+        createProductoDto.lineaId,
+      );
+      await this.validator.validateLineaParaMarca(linea, marca);
+
+      // 2. Crear DTO para la BD
+      const productoParaCrear = {
+        ...createProductoDto,
+        fotoUrl: imagePath,
+      };
+
+      // 3. Guardar
+      const productoCreado = await this.productosRepository.create(
+        productoParaCrear,
+        usuario,
+        marca,
+        linea,
       );
 
-      // Registro historial exitoso
+      // 4. Registrar historial
       await this.historialActividades.create({
-        usuario: usuarioId,
-        accionId: 7, // Acción de creación de producto
-        estadoId: 1, // Exitoso
-      });
-
-      return producto;
-    } catch (error) {
-      // Registro historial fallido
-      await this.historialActividades.create({
-        usuario: usuarioId,
+        usuario: usuario.id,
         accionId: 7,
-        estadoId: 2, // Fallido
+        estadoId: 1,
       });
 
-      throw error; // Opcional: volver a lanzar el error
-    }
-  }
+      return productoCreado;
+    } catch (error) {
+      // 5. Revertir imagen si falla
+      if (file) {
+        try {
+          fs.unlinkSync(file.path);
+        } catch (unlinkError) {
+          // No hacer nada si falla el borrado
+        }
+      }
 
-  async findAll() {
-    return this.productosRepository.findAllByUsuarioId(1); // Temporal
+      // 6. Registrar historial de error
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 7,
+        estadoId: 2, // Estado Fallido
+      });
+
+      // 7. Relanzar el error
+      throw error;
+    }
   }
 
   async findAllPaginated(
@@ -60,47 +97,76 @@ export class ProductosService {
     );
   }
 
-  async findOne(id: number) {
-    return this.productosRepository.findOne({ id });
+  async findOne(id: number): Promise<Producto | null> {
+    return this.productosRepository.findOne(id);
   }
 
-  async findOneByCodigo(codigo: string) {
+  async findOneByCodigo(codigo: string): Promise<Producto | null> {
     return await this.productosRepository.findByCodigo(codigo);
+  }
+  async findDetalleParaProducto(
+    id: number,
+  ): Promise<RespuestaFindOneDetalleProductoDto | null> {
+    const producto = await this.validator.validateProductoExistente(id);
+    return this.productosRepository.findDetalleParaProducto(producto);
   }
 
   async update(
     id: number,
     updateProductoDto: UpdateProductoDto,
-    usuarioId: number,
+    usuario: Usuario,
+    file?: Express.Multer.File,
   ) {
     try {
+      // 1. Desestructura el DTO para separar los IDs de las relaciones
+      const { marcaId, lineaId, ...restoDelDto } = updateProductoDto; // 2. Crea el objeto que SÍ entiende el repositorio
+
+      const datosActualizados: any = { ...restoDelDto };
+
+      if (file) {
+        datosActualizados.fotoUrl = file.path.replace(/\\/g, '/'); // (Opcional: aquí deberías borrar la imagen antigua del disco)
+      } // --- 💡 ESTA ES LA CORRECCIÓN ---
+      // 3. Transforma los IDs en objetos de relación
+
+      if (marcaId !== undefined) {
+        // Le dice a TypeORM: "actualizá la relación 'marca' con la entidad que tenga este ID"
+        datosActualizados.marca = { id: marcaId };
+      }
+      if (lineaId !== undefined) {
+        // Le dice a TypeORM: "actualizá la relación 'linea' con la entidad que tenga este ID"
+        datosActualizados.linea = { id: lineaId };
+      } // --- FIN DE LA CORRECCIÓN ---
+      // 4. Llama al repositorio con el objeto transformado
       const producto = this.productosRepository.update(
         id,
-        updateProductoDto,
-        usuarioId,
+        datosActualizados, // Objeto corregido
+        usuario,
       );
 
-      // Registro actualización exitosa
       await this.historialActividades.create({
-        usuario: usuarioId,
-        accionId: 8, // Acción de borrado de producto
-        estadoId: 1, // Exitoso
+        usuario: usuario.id,
+        accionId: 8,
+        estadoId: 1,
       });
-
       return producto;
     } catch (error) {
-      // Registro historial fallido
-      await this.historialActividades.create({
-        usuario: usuarioId,
-        accionId: 8,
-        estadoId: 2, // Fallido
-      });
+      if (file) {
+        try {
+          fs.unlinkSync(file.path);
+        } catch (e) {
+          /* empty */
+        }
+      }
 
-      throw error; // Opcional: volver a lanzar el error
+      await this.historialActividades.create({
+        usuario: usuario.id,
+        accionId: 8,
+        estadoId: 2,
+      });
+      throw error;
     }
   }
-
-  async decrementarStock(producto: Producto, cantidad: number) {
+  async decrementarStock(producto: Producto, cantidad: number): Promise<void> {
     this.validator.validateStock(producto, cantidad);
     await this.productosRepository.decrementStock(producto.id, cantidad);
   }
@@ -108,24 +174,20 @@ export class ProductosService {
   async remove(deleteProductoDto: DeleteProductoDto): Promise<any> {
     try {
       const producto = await this.productosRepository.remove(deleteProductoDto);
-
-      // Registro borrado exitoso
-      await this.historialActividades.create({
-        usuario: deleteProductoDto.usuarioId as unknown as number,
-        accionId: 9, // Acción de borrado de producto
-        estadoId: 1, // Exitoso
-      });
-
-      return producto;
-    } catch (error) {
-      // Registro historial fallido
+      // (Opcional: borrar el archivo de imagen del disco)
       await this.historialActividades.create({
         usuario: deleteProductoDto.usuarioId as unknown as number,
         accionId: 9,
-        estadoId: 2, // Fallido
+        estadoId: 1,
       });
-
-      throw error; // Opcional: volver a lanzar el error
+      return producto;
+    } catch (error) {
+      await this.historialActividades.create({
+        usuario: deleteProductoDto.usuarioId as unknown as number,
+        accionId: 9,
+        estadoId: 2,
+      });
+      throw error;
     }
   }
 }

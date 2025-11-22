@@ -1,37 +1,87 @@
-// src/modules/productos/productos.controller.spec.ts
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+// --- MOCKS DE MÓDULOS ---
+// 1. Mockear Swagger para evitar el crash de importación
+// (Necesario porque los DTOs usan @ApiProperty)
+const realSwagger = jest.requireActual('@nestjs/swagger');
+jest.mock('@nestjs/swagger', () => ({
+  ...realSwagger, // Mantiene ApiProperty, ApiTags, etc.
+  SwaggerModule: { createDocument: jest.fn(), setup: jest.fn() },
+  DocumentBuilder: jest.fn(() => ({
+    build: jest.fn(),
+  })),
+}));
 
+// --- IMPORTS REALES ---
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductosController } from './productos.controller';
 import { ProductosService } from './productos.service';
+import {
+  AuthGuard,
+  RequestWithUsuario,
+} from '../../middlewares/auth.middleware';
+import { PermisosGuard } from '../../common/guards/permisos.guard';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { UpdateProductoDto } from './dto/update-producto.dto';
-import { Producto } from './entities/producto.entity';
 import { DeleteProductoDto } from './dto/delete-producto.dto';
+import { PaginationDto } from '../ventas/dto/pagination.dto';
+import { Producto } from './entities/producto.entity';
+import { UpdateResult } from 'typeorm';
 
-// Mock del servicio para aislar el controlador
+// --- MOCK DATA ---
+const mockUsuarioId = 1;
+
+// Simulación del objeto Request que inyecta el AuthGuard
+const mockRequest = {
+  usuario: {
+    id: mockUsuarioId,
+    // ... otras propiedades de usuario si fueran necesarias
+  },
+} as unknown as RequestWithUsuario;
+
+const mockProducto: Producto = {
+  id: 1,
+  nombre: 'Producto Test',
+  codigo: 'A123',
+  precio: 100,
+  stock: 10,
+  linea: 'Test Linea',
+  fotoUrl: 'http://test.com/img.png',
+  descripcion: 'Test Desc',
+  fechaCreacion: new Date(),
+} as Producto;
+
+const mockCreateDto: CreateProductoDto = {
+  nombre: 'Producto Test',
+  codigo: 'A123',
+  precio: 100,
+  stock: 10,
+  linea: 'Test Linea',
+  fotoUrl: 'http://test.com/img.png',
+  descripcion: 'Test Desc',
+};
+
+const mockUpdateDto: UpdateProductoDto = {
+  nombre: 'Producto Actualizado',
+};
+
+// --- MOCK PROVIDERS ---
 const mockProductosService = {
   create: jest.fn(),
-  findAll: jest.fn(),
+  findAllPaginated: jest.fn(),
   findOne: jest.fn(),
   update: jest.fn(),
+  findOneByCodigo: jest.fn(),
   remove: jest.fn(),
 };
 
-// Datos base de un producto para usar en los mocks
-const productoBase: Omit<Producto, 'id' | 'fechaCreacion' | 'fechaActualizacion' | 'fechaEliminacion'> = {
-  nombre: 'Collar para perro',
-  codigo: 'ABC0123',
-  precio: 2499.99,
-  marca: 'Pedigree',
-  stock: 30,
-  linea: 'Premium',
-  fotoUrl: 'https://example.com/collar.jpg',
-  descripcion: 'Collar resistente y ajustable.',
-  usuarioId: 1,
-};
+// Mock simple para un guardia que siempre permite el acceso
+const mockGuard = { canActivate: jest.fn(() => true) };
 
+// --- TEST SUITE ---
 describe('ProductosController', () => {
   let controller: ProductosController;
+  let service: typeof mockProductosService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -39,128 +89,125 @@ describe('ProductosController', () => {
       providers: [
         {
           provide: ProductosService,
-          useValue: mockProductosService, // Usamos nuestro mock
+          useValue: mockProductosService,
         },
       ],
-    }).compile();
+    })
+      // Sobreescribimos los guardias globales del controlador
+      .overrideGuard(AuthGuard)
+      .useValue(mockGuard)
+      .overrideGuard(PermisosGuard)
+      .useValue(mockGuard)
+      .compile();
 
     controller = module.get<ProductosController>(ProductosController);
+    service = module.get(ProductosService);
   });
 
   afterEach(() => {
-    jest.clearAllMocks(); // Limpiamos los mocks después de cada prueba
+    jest.clearAllMocks();
   });
 
-  it('debe estar definido', () => {
+  it('debería estar definido', () => {
     expect(controller).toBeDefined();
   });
 
-  // ────────────────────────────────
-  // 📦 CREATE
-  // ────────────────────────────────
+  // Pruebas para el método create()
   describe('create', () => {
-    it('debe llamar a productosService.create con el DTO correcto', async () => {
-      const createDto: CreateProductoDto = {
-        ...productoBase,
-        fechaCreacion: new Date('2025-10-11T00:00:00.000Z'), // Opcional en el DTO, pero lo incluimos por claridad
-      };
+    it('debería crear un producto y pasar el ID de usuario del request', async () => {
+      service.create.mockResolvedValue(mockProducto);
 
-      const expectedResult: Producto = {
-        id: 1,
-        ...productoBase,
-        fechaCreacion: new Date(),
-        fechaActualizacion: null,
-        fechaEliminacion: null,
-      };
-      mockProductosService.create.mockResolvedValue(expectedResult);
+      const result = await controller.create(mockCreateDto, mockRequest);
 
-      await controller.create(createDto);
-
-      // Verificamos que se haya llamado con el DTO (sin importar si la fechaCreacion se omitió o no)
-      expect(mockProductosService.create).toHaveBeenCalledWith(createDto);
+      expect(service.create).toHaveBeenCalledTimes(1);
+      expect(service.create).toHaveBeenCalledWith(
+        mockCreateDto,
+        expect.objectContaining({ id: mockUsuarioId }),
+      );
+      expect(result).toEqual(mockProducto);
     });
   });
 
-  // ────────────────────────────────
-  // 🔍 FIND ALL
-  // ────────────────────────────────
+  // Pruebas para el método findAll()
   describe('findAll', () => {
-    it('debe llamar a productosService.findAll y retornar la lista de productos', async () => {
-      const expectedResult: Producto[] = [
-        {
-          id: 1,
-          ...productoBase,
-          fechaCreacion: new Date(),
-          fechaActualizacion: null,
-          fechaEliminacion: null,
-        },
-      ];
-      mockProductosService.findAll.mockResolvedValue(expectedResult);
+    it('debería llamar a findAllPaginated con el DTO de paginación', async () => {
+      const paginationDto: PaginationDto = { page: 1, limit: 10 };
+      const expectedResult = { productos: [], total: 0, page: 1, lastPage: 1 };
+      service.findAllPaginated.mockResolvedValue(expectedResult);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll(paginationDto);
 
-      expect(mockProductosService.findAll).toHaveBeenCalled();
+      expect(service.findAllPaginated).toHaveBeenCalledTimes(1);
+      expect(service.findAllPaginated).toHaveBeenCalledWith(paginationDto);
       expect(result).toEqual(expectedResult);
     });
   });
 
-  // ────────────────────────────────
-  // 🔎 FIND ONE
-  // ────────────────────────────────
+  // Pruebas para el método findOne()
   describe('findOne', () => {
-    it('debe llamar a productosService.findOne y convertir el parámetro ID a número', async () => {
-      const id = '10';
-      const expectedResult: Producto = {
-        id: 10,
-        ...productoBase,
-        fechaCreacion: new Date(),
-        fechaActualizacion: null,
-        fechaEliminacion: null,
-      };
-      mockProductosService.findOne.mockResolvedValue(expectedResult);
+    it('debería llamar a findOne con el ID', async () => {
+      service.findOne.mockResolvedValue(mockProducto);
 
-      await controller.findOne(id);
+      const result = await controller.findOne(1);
 
-      expect(mockProductosService.findOne).toHaveBeenCalledWith(10); // Verifica la conversión a +id
+      expect(service.findOne).toHaveBeenCalledTimes(1);
+      expect(service.findOne).toHaveBeenCalledWith(1);
+      expect(result).toEqual(mockProducto);
     });
   });
 
-  // ────────────────────────────────
-  // 🛠️ UPDATE
-  // ────────────────────────────────
+  // Pruebas para el método update()
   describe('update', () => {
-    it('debe llamar a productosService.update y convertir el ID y pasar el DTO', async () => {
-      const id = '25';
-      const updateDto: UpdateProductoDto = { precio: 550.50, stock: 10 };
-      const expectedResult = {
-        /* ... */
-        id: 25,
-        precio: 550.50,
-        stock: 10,
-        fechaActualizacion: new Date(),
-      };
-      mockProductosService.update.mockResolvedValue(expectedResult);
+    it('debería actualizar un producto y pasar el ID de usuario', async () => {
+      const updateResult = { affected: 1 } as UpdateResult;
+      service.update.mockResolvedValue(updateResult);
 
-      await controller.update(id, updateDto);
+      const result = await controller.update(
+        '1', // El Param ID viene como string y lo pasamos como string
+        mockUpdateDto,
+        mockRequest,
+      );
 
-      expect(mockProductosService.update).toHaveBeenCalledWith(25, updateDto);
+      expect(service.update).toHaveBeenCalledTimes(1);
+      expect(service.update).toHaveBeenCalledWith(
+        '1', // Esperamos el string original del @Param
+        mockUpdateDto,
+        expect.objectContaining({ id: mockUsuarioId }),
+      );
+      expect(result).toEqual(updateResult);
     });
   });
 
-  // ────────────────────────────────
-  // 🗑️ REMOVE (SOFT DELETE)
-  // ────────────────────────────────
+  // Pruebas para el método findOneByCodigo()
+  describe('findOneByCodigo', () => {
+    it('debería llamar a findOneByCodigo con el código', async () => {
+      service.findOneByCodigo.mockResolvedValue(mockProducto);
+
+      const result = await controller.findOneByCodigo('A123');
+
+      expect(service.findOneByCodigo).toHaveBeenCalledTimes(1);
+      expect(service.findOneByCodigo).toHaveBeenCalledWith('A123');
+      expect(result).toEqual(mockProducto);
+    });
+  });
+
+  // Pruebas para el método remove()
   describe('remove', () => {
-    it('debe llamar a productosService.remove con el DTO correcto para soft delete', async () => {
-      const id = '5';
-      // Utilizamos DeleteProductoDto
-      const deleteDto: DeleteProductoDto = { id: 5 };
-      mockProductosService.remove.mockResolvedValue(undefined);
+    it('debería construir el DeleteProductoDto y llamar a remove', async () => {
+      const deleteResult = { affected: 1 } as UpdateResult;
+      service.remove.mockResolvedValue(deleteResult);
 
-      await controller.remove(id);
+      const result = await controller.remove('1', mockRequest); // El Param ID viene como string
 
-      // Verifica que se haya llamado con el objeto { id: number }
-      expect(mockProductosService.remove).toHaveBeenCalledWith(deleteDto);
+      // El DTO esperado que el controlador debe construir
+      const expectedDto: DeleteProductoDto = {
+        id: 1, // Convertido a número
+        usuarioId: mockUsuarioId,
+      };
+
+      expect(service.remove).toHaveBeenCalledTimes(1);
+      expect(service.remove).toHaveBeenCalledWith(expectedDto);
+      expect(result).toEqual(deleteResult);
     });
   });
 });

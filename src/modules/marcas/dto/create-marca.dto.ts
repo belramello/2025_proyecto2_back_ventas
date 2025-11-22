@@ -1,15 +1,43 @@
-import { IsString, IsNotEmpty, IsOptional, Validate } from 'class-validator';
-import { MarcaNombreUniqueValidator } from '../helpers/marcas-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsArray,
+  IsInt,
+  ArrayNotEmpty,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateMarcaDto {
+  @ApiProperty({ description: 'Nombre único de la marca', example: 'Bic' })
   @IsNotEmpty({ message: 'El nombre es requerido' })
   @IsString({ message: 'El nombre debe ser texto' })
-  @Validate(MarcaNombreUniqueValidator, {
-    message: 'El nombre de la marca ya está registrado',
-  })
   nombre: string;
 
+  @ApiPropertyOptional({
+    description: 'Descripción de la marca',
+    example: 'Artículos de librería',
+  })
+  @IsOptional()
+  @IsString({ message: 'El logo debe ser texto (URL)' })
+  logo?: string;
+
+  @ApiPropertyOptional({
+    description: 'Descripción de la marca',
+    example: 'Artículos de librería',
+  })
   @IsOptional()
   @IsString({ message: 'La descripción debe ser texto' })
   descripcion?: string;
+
+  @ApiProperty({
+    description: 'Lista de IDs de líneas asociadas a la marca',
+    example: [8],
+  })
+  @IsArray({ message: 'lineasId debe ser un arreglo de números' })
+  @ArrayNotEmpty({ message: 'Debe incluir al menos una línea' })
+  @Type(() => Number)
+  @IsInt({ each: true, message: 'Cada línea debe ser un número entero' })
+  lineasId: number[];
 }

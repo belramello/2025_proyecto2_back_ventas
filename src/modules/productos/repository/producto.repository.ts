@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateProductoDto } from '../dto/create-producto.dto';
 import { UpdateProductoDto } from '../dto/update-producto.dto';
@@ -5,26 +6,52 @@ import { Producto } from '../entities/producto.entity';
 import { IProductosRepository } from './producto-repository.interface';
 import { Repository, UpdateResult } from 'typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
-import { FindOneProductoDto } from '../dto/findOne-producto.dto';
 import { DeleteProductoDto } from '../dto/delete-producto.dto';
+import { Transactional } from 'typeorm-transactional';
+import { DetalleProveedorProductoService } from '../../../modules/detalleproveedorproducto/detalleproveedorproducto.service';
+import { CreateDetalleProveedorProductoServiceDto } from '../../../modules/detalleproveedorproducto/dto/create-detalle-proveedor-service.dto';
+import { Marca } from '../../../modules/marcas/entities/marca.entity';
+import { Linea } from '../../../modules/lineas/entities/linea.entity';
+import { Usuario } from '../../../modules/usuario/entities/usuario.entity';
+import { RespuestaFindOneDetalleProductoDto } from '../dto/respuesta-find-one-detalleproducto.dto';
 
 export class ProductosRepository implements IProductosRepository {
   constructor(
     @InjectRepository(Producto)
     private readonly productoRepository: Repository<Producto>,
+    private readonly detalleProveedorService: DetalleProveedorProductoService,
   ) {}
 
+  @Transactional()
   async create(
     createProductoDto: CreateProductoDto,
-    usuarioId: number,
+    usuario: Usuario,
+    marca: Marca,
+    linea: Linea,
   ): Promise<Producto> {
     try {
+      // Crear el producto y asignar relaciones por ID
       const producto = this.productoRepository.create({
         ...createProductoDto,
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        usuarioCreacion: { id: usuarioId },
+        usuarioCreacion: usuario,
+        marca,
+        linea,
       });
-      return await this.productoRepository.save(producto);
+
+      await this.productoRepository.save(producto);
+      // Crear detalles de proveedor si existen
+      const detallesServiceDto: CreateDetalleProveedorProductoServiceDto[] = (
+        createProductoDto.detalleProveedores || []
+      ).map((d) => ({
+        codigo: d.codigo,
+        proveedorId: d.proveedorId,
+        producto,
+      }));
+      if (detallesServiceDto.length > 0) {
+        await this.detalleProveedorService.createDetalles(detallesServiceDto);
+      }
+      // Devolver producto con relaciones cargadas
+      return (await this.findOne(producto.id)) as Producto;
     } catch (error) {
       throw new InternalServerErrorException(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -33,30 +60,22 @@ export class ProductosRepository implements IProductosRepository {
     }
   }
 
-  async findAllByUsuarioId(usuarioId: number): Promise<Producto[]> {
+  async findOne(id: number): Promise<Producto | null> {
     try {
-      return await this.productoRepository.find({
-        where: { usuarioCreacion: { id: usuarioId } },
-        order: { fechaCreacion: 'DESC' },
-      });
-    } catch (error) {
-      throw new InternalServerErrorException(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        `Error al encontrar los productos del usuario con ID ${usuarioId}: ${error.message}`,
-      );
-    }
-  }
+      const producto = await this.productoRepository
+        .createQueryBuilder('producto')
+        .leftJoinAndSelect('producto.detallesProveedor', 'detallesProveedor')
+        .leftJoinAndSelect('detallesProveedor.proveedor', 'proveedor', '1=1')
+        .leftJoinAndSelect('producto.marca', 'marca')
+        .leftJoinAndSelect('producto.linea', 'linea')
+        .where('producto.id = :id', { id: id })
+        .withDeleted()
+        .getOne();
 
-  async findOne(data: FindOneProductoDto): Promise<Producto | null> {
-    try {
-      const producto = await this.productoRepository.findOne({
-        where: { id: data.id },
-      });
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        `Error al buscar el producto con ID ${data.id}: ${error.message}`,
+        `Error al buscar el producto con ID ${id}: ${error.message}`,
       );
     }
   }
@@ -67,7 +86,6 @@ export class ProductosRepository implements IProductosRepository {
         .createQueryBuilder('producto')
         .where('producto.codigo = :codigo', { codigo })
         .getOne();
-      console.log(producto);
       return producto;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -91,7 +109,6 @@ export class ProductosRepository implements IProductosRepository {
           `No se pudo descontar stock: producto no existe o stock insuficiente.`,
         );
       }
-
       return result;
     } catch (error) {
       throw new InternalServerErrorException(
@@ -104,17 +121,16 @@ export class ProductosRepository implements IProductosRepository {
   async update(
     id: number,
     data: UpdateProductoDto,
-    usuarioId: number,
+    usuario: Usuario,
   ): Promise<UpdateResult> {
     try {
       return await this.productoRepository.update(id, {
         ...data,
         fechaActualizacion: new Date(),
-        usuarioModificacion: { id: usuarioId },
+        usuarioModificacion: usuario,
       });
     } catch (error) {
       throw new InternalServerErrorException(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         `Error al actualizar el producto con ID ${id}: ${error.message}`,
       );
     }
@@ -122,11 +138,7 @@ export class ProductosRepository implements IProductosRepository {
 
   async remove(deleteProductodto: DeleteProductoDto): Promise<UpdateResult> {
     try {
-      // Soft delete:  marca fechaEliminacion
-      return await this.productoRepository.update(deleteProductodto.id, {
-        fechaEliminacion: new Date(),
-        usuarioEliminacion: { id: deleteProductodto.usuarioId },
-      });
+      return await this.productoRepository.softDelete(deleteProductodto.id);
     } catch (error) {
       throw new InternalServerErrorException(
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -145,16 +157,16 @@ export class ProductosRepository implements IProductosRepository {
     lastPage: number;
   }> {
     try {
-      const query = this.productoRepository
+      const [productos, total] = await this.productoRepository
         .createQueryBuilder('producto')
-        .where('producto.fechaEliminacion IS NULL'); // excluye soft-deleted
-
-      query
+        .leftJoinAndSelect('producto.marca', 'marca')
+        .leftJoinAndSelect('producto.linea', 'linea')
+        .leftJoinAndSelect('producto.detallesProveedor', 'detallesProveedor')
+        .leftJoinAndSelect('detallesProveedor.proveedor', 'proveedor')
         .orderBy('producto.nombre', 'ASC')
         .skip((page - 1) * limit)
-        .take(limit);
-
-      const [productos, total] = await query.getManyAndCount();
+        .take(limit)
+        .getManyAndCount();
 
       return {
         productos,
@@ -164,9 +176,32 @@ export class ProductosRepository implements IProductosRepository {
       };
     } catch (error) {
       throw new InternalServerErrorException(
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        `Error al encontrar las ventas paginadas: ${error.message}`,
+        `Error al encontrar los productos paginados: ${error.message}`,
       );
     }
+  }
+
+  async findDetalleParaProducto(
+    producto: Producto,
+  ): Promise<RespuestaFindOneDetalleProductoDto | null> {
+    const productoEncontrado = await this.productoRepository
+      .createQueryBuilder('producto')
+      .leftJoinAndSelect('producto.detallesProveedor', 'detalleProveedor')
+      .leftJoinAndSelect('detalleProveedor.proveedor', 'proveedor')
+      .where('producto.id = :id', { id: producto.id })
+      .getOne();
+
+    if (!productoEncontrado) return null;
+    //DEUDA TÉCNICA.
+    return {
+      id: producto.id,
+      detalles:
+        producto.detallesProveedor?.map((detalle) => ({
+          id: detalle.id,
+          codigo: detalle.codigo,
+          proveedorId: detalle.proveedor?.id,
+          proveedorNombre: detalle.proveedor?.nombre,
+        })) ?? [],
+    };
   }
 }

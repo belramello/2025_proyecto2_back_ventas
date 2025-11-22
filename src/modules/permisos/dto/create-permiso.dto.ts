@@ -11,9 +11,25 @@ export class CreatePermisoDto {
   @ApiProperty({
     example: 'PRODUCTOS',
     description: 'Categoría del permiso',
-    enum: ['PRODUCTOS', 'MARCAS', 'VENTAS', 'STOCK', 'USUARIOS', 'SEGURIDAD'],
+    enum: [
+      'PRODUCTOS',
+      'MARCAS',
+      'VENTAS',
+      'STOCK',
+      'USUARIOS',
+      'SEGURIDAD',
+      'PROVEEDOR',
+    ],
   })
-  @IsEnum(['PRODUCTOS', 'MARCAS', 'VENTAS', 'STOCK', 'USUARIOS', 'SEGURIDAD'])
+  @IsEnum([
+    'PRODUCTOS',
+    'MARCAS',
+    'VENTAS',
+    'STOCK',
+    'USUARIOS',
+    'SEGURIDAD',
+    'PROVEEDOR',
+  ])
   @IsNotEmpty()
   categoria:
     | 'PRODUCTOS'
@@ -21,5 +37,6 @@ export class CreatePermisoDto {
     | 'VENTAS'
     | 'STOCK'
     | 'USUARIOS'
-    | 'SEGURIDAD';
+    | 'SEGURIDAD'
+    | 'PROVEEDOR';
 }
